@@ -25,12 +25,13 @@ function bfs(sx,sy,gx,gy){ // camino por casillas (8 direcciones, sin cortar esq
 window.pstep=function(p,tx,ty,s){
   s*=terrMul(p.x,p.y);let sx=Math.floor(p.x),sy=Math.floor(p.y);const gx=Math.floor(tx),gy=Math.floor(ty);
   /* si se ha quedado dentro de un edificio (p. ej. construido encima), sale a la casilla libre más cercana */
-  if(blocked(sx,sy)&&!(sx===gx&&sy===gy)){const nb=[[1,0],[-1,0],[0,1],[0,-1]].some(([a,c])=>!blocked(sx+a,sy+c));if(!nb){const f=nearFree(sx,sy);if(f){p.x=f[0]+.5;p.y=f[1]+.5;sx=f[0];sy=f[1];p.path=null;p.pk=null}}}
+  /* (no si está cruzando un edificio a propósito porque no hay camino: si no, lo devolvía al hueco del que intentaba salir y se quedaba atrapado para siempre) */
+  if(blocked(sx,sy)&&!(sx===gx&&sy===gy)&&!(p.thru&&T-p.thru<1.5)){const nb=[[1,0],[-1,0],[0,1],[0,-1]].some(([a,c])=>!blocked(sx+a,sy+c));if(!nb){const f=nearFree(sx,sy);if(f){p.x=f[0]+.5;p.y=f[1]+.5;sx=f[0];sy=f[1];p.path=null;p.pk=null}}}
   let wx=tx,wy=ty;
   if(!clear(p.x,p.y,tx,ty)){
     const key=gx+','+gy+'|'+PV;
     if(p.pk!==key||!p.path){const near=p.path&&p.pg&&p.pv===PV&&Math.abs(p.pg[0]-gx)+Math.abs(p.pg[1]-gy)<=2&&T-(p.pT||0)<.6;if(!near){p.pk=key;p.path=bfs(sx,sy,gx,gy);p.pg=[gx,gy];p.pv=PV;p.pT=T}}
-    if(!p.path){/* sin camino: pasa entre los edificios en línea recta para no quedarse atascado */p.pk=null;const d0=Math.hypot(tx-p.x,ty-p.y);if(d0<.01)return true;const k0=Math.min(1,s/d0);p.x+=(tx-p.x)*k0;p.y+=(ty-p.y)*k0;p.dx=tx-p.x;return true}
+    if(!p.path){/* sin camino: pasa entre los edificios en línea recta para no quedarse atascado */p.pk=null;p.thru=T;const d0=Math.hypot(tx-p.x,ty-p.y);if(d0<.01)return true;const k0=Math.min(1,s/d0);p.x+=(tx-p.x)*k0;p.y+=(ty-p.y)*k0;p.dx=tx-p.x;return true}
     while(p.path.length&&Math.hypot(p.path[0][0]-p.x,p.path[0][1]-p.y)<.28)p.path.shift();
     if(!p.path.length){wx=tx;wy=ty}else{wx=p.path[0][0];wy=p.path[0][1]}
   }else p.path=null,p.pk=null;

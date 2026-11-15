@@ -32,7 +32,7 @@ function clothPicker(p,sl){const id=p.id,cur=(p.clothes||{})[sl],nm=(CSL.find(x=
    (L.length?'<div class="invg">'+L.map(card).join('')+'</div>':'<p><small>No tienes ningún '+nm+' en el almacén. Las prendas las sueltan algunos zombis.</small></p>')}
 window.clothOff=function(id,sl){const p=byId(id);if(!p||!p.clothes||!p.clothes[sl])return;S.inv.push(p.clothes[sl]);delete p.clothes[sl];toast(p.n+' se quita la prenda.');save();pSheet(id)};
 function tabEs(p){const id=p.id,hs=cnt('hosp')>0,rels=Object.entries(p.rel||{}).map(([r,v])=>{const q=byId(+r);return q?q.n.split(' ')[0]+' '+v:''}).filter(Boolean);
-  return `<div class="pgrid">${mini('Hambre',p.hunger,'#d89b45')}${mini('Sed',p.thirst,'#49a9e8')}${mini('Energía',100-p.fatigue,'#8bc')}${mini('Experiencia '+Math.floor(p.xp)+'/'+p.lvl*50,p.xp/(p.lvl*50)*100,'#48c')}</div>
+  return `<div class="pgrid">${mini('Hambre',p.hunger,'#d89b45')}${mini('Sed',p.thirst,'#49a9e8')}${mini('Experiencia '+Math.floor(p.xp)+'/'+p.lvl*50,p.xp/(p.lvl*50)*100,'#48c')}</div>
   <p class="invb">${p.illness?'Enfermo ('+p.illness+')':'Sin enfermedad'} · ${p.injury>0?'Herido ('+Math.round(p.injury)+'%)':'Sin heridas'} · Personalidad ${p.trait} · Habilidad ${p.sk}</p>
   <p class="invb">Relaciones: ${rels.join(' · ')||'todavía conociendo a la comunidad'}</p>
   <div class="prow">${btn('Curar heridas ('+healCost(p,S.bld.find(x=>x.type=='hosp'))+' medicinas)',`heal(${id})`,!hs||p.hp>=mhp(p)-1&&!p.injury)}${btn('💊 Antibiótico (1)',`cure(${id})`,!p.illness||!(S.res.abx>=1))}</div>`}
