@@ -47,7 +47,7 @@ window.slotRestore=key=>{const k=KEYS[rec],t=raw(key);if(!parse(t))return;try{bk
   view='list';mode='load';draw();toast('Copia restaurada en la ranura '+(rec+1)+'. Ya puedes cargarla.')};
 function download(name,txt){try{const b=new Blob([txt],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(a.href)},1500);return true}catch(e){return false}}
 window.exportSlotKey=key=>{
-  let t=raw(key);if(window.LIVE&&key===KEY&&window.S&&!S.over){try{save();t=raw(key)}catch(e){}}
+  let t=raw(key);if(window.LIVE&&key===KEY&&typeof S!=='undefined'&&S&&!S.over){try{save();t=raw(key)}catch(e){}}
   const d=info(key);if(!d)return toast('No hay partida que exportar.');
   const name='afterthesilence_dia'+d.day+'_'+(KEYS.indexOf(key)>=0?'ranura'+(KEYS.indexOf(key)+1):key)+'.json';
   download(name,t);
