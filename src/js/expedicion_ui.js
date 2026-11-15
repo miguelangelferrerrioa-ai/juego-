@@ -38,6 +38,6 @@ window.expMenu=function(){
     `<button class="bup xgo" ${ready?'':'disabled'} onclick="${tab==='villa'?'exVilla()':'exGo()'}">Partir<small>${busy?'misión en curso':exSel.length+'/'+mx}</small></button></div>`;
   if(tab==='villa'&&!items.length)h+='<div class="xdest xnone"><div class="xdi"><b>Sin encargos de la Villa</b><div class="bsub">Acepta encargos en el tablón de Villa Esperanza y aparecerán aquí para hacerlos.</div></div></div>';
   if(items.length>1||tab==='villa')h+=`<div class="bsec">Destino</div><div class="xg">`+items.map(x=>`<div class="xc${x.k===sel?' on':''}${x.lock?' lk':''}" ${x.lock?'':`onclick="${pick(x.k)}"`}><span class="xn">${x.done?'✔':x.num||x.icon||'•'}</span><div class="xt"><b>${x.n}</b>${x.lock?`<small>🔒 Ayuntamiento ${x.h}</small>`:pips(x.g)}</div></div>`).join('')+`</div>`;
-  h+=`<div class="bsec">Equipo <b>${exSel.length}/${mx}</b></div><div class="pg sm">`+free.map(p=>pcard(p,`exTog(${p.id})`,exSel.includes(p.id)?'sel':'',exSel.includes(p.id)?'✔':'⚔'+upow(p))).join('')+`</div>`+(free.length?'':'<p class="bsub">No hay supervivientes disponibles.</p>');
+  h+=`<div class="bsec">Equipo <b>${exSel.length}/${mx}</b></div><div class="pg sm">`+free.slice().sort((a,b)=>(window.teamScore?teamScore(b)-teamScore(a):0)).map(p=>pcard(p,`exTog(${p.id})`,exSel.includes(p.id)?'sel':'',exSel.includes(p.id)?'✔':'⚔'+upow(p))).join('')+`</div>`+(free.length?'':'<p class="bsub">No hay supervivientes disponibles.</p>');
   show('Expedición',h);paintCards()};
 })();

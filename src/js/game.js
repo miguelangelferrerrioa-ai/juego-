@@ -741,6 +741,8 @@ function soloDanger(st){return(25+6*hallLv())*(1+.02*(st||0))}
 function soloArm(p){const d=(p.arm&&CL[p.arm]?CL[p.arm].def:0)+(typeof clothingDef==='function'?clothingDef(p):0);return Math.max(.4,1-d*.03)}
 /* probabilidad de ganar un combate (zombis) en el tramo st */
 function soloWin(p,st,band){const pw=upow(p),d=soloDanger(st)*(band?1.1:1),r=d/Math.max(1,pw);return Math.max(0,Math.min(1,(1.4-r)/.8))}
+/* recomendación para misiones con equipo (historia, libres, villa…): fuerza de combate (la de la misión), vida y protección; un poco de suerte de explorador */
+function teamScore(p){return upow(p)*(.5+.5*p.hp/mhp(p))+(1-soloArm(p))*40+soloLuck(p)*60}
 /* recomendación para la lista: combates ganados (al empezar y en el tramo 20), heridas que evita y suerte de explorador */
 function soloScore(p){return(soloWin(p,0)+soloWin(p,20))*50+(1-soloArm(p))*30+soloLuck(p)*150+p.hp/mhp(p)*5}
 function soloLuck(p,s){return(p.ps.Explorador||0)*.03+(p.prof=='Explorador'?.04:0)+(th('expl1')?.03:0)+(th('expl2')?.03:0)+(s&&s.dog?.05:0)}
