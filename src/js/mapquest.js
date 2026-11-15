@@ -203,7 +203,7 @@ function setMode(M0,e){const z=e.z;if(e.step!==0||z.mode==='none')return;let k=z
   else if(k==='escort'){tg=modeTile(M0,COLS-8,COLS-3,av,2);if(!tg)return;const v={p:{arm:'soldado',hp:90,injury:0,n:'Superviviente'},ally:1,vip:1,dmg:5,rate:1.1,mhp:90,x:2.3,y:4.2,path:[],pt:0,cd:0,fa:0};(M0.ally=M0.ally||[]).push(v);M0.mo={k,tg,vip:v,txt:'Escolta al superviviente hasta la marca',brief:'Objetivo: escoltar a un superviviente herido hasta el punto marcado. Si muere, el botín se reduce a la mitad.'}}
   else if(k==='rescue'){tg=modeTile(M0,COLS-8,COLS-3,av,2);if(!tg)return;M0.mo={k,tg,t:0,lim:140,txt:'Rescata al prisionero',brief:'Objetivo: llegar al prisionero antes de 140 s o llegarán refuerzos.'}}
   else if(k==='boss'){tg=modeTile(M0,COLS-7,COLS-3,av,2);if(!tg)return;const ks=Object.keys(window.BOSS||{});if(!ks.length)return;const bk=(window.BOSSMAP&&BOSSMAP[z.chap])||ks[Math.floor(z.chap/5)%ks.length],lvl=lvlOf(S.exp.z),hp=Math.round(ZT[bk].hp*(.5+.04*lvl));const bz={t:bk,x:tg.x,y:tg.y,hp,mhp:hp,st:0,path:[],pt:0,dm:.9+.05*lvl,cd:1,boss:1};M0.en.push(bz);M0.mo={k,boss:bz,txt:'Abate al jefe: '+BOSS[bk].n,brief:(BOSS[bk].lore?BOSS[bk].lore+' ':'')+'Objetivo: abatir a '+BOSS[bk].n+'. Es mucho más resistente y usa habilidades propias. Al caer deja aleación.'}}
-  else{let a,b;for(let i=0;i<8&&!b;i++){a=modeTile(M0,10,COLS-4,av,2);if(a)b=modeTile(M0,10,COLS-4,av.concat([a]),5)}if(!a||!b)return;M0.mo={k:'sabotage',ch:[{x:a.x,y:a.y,p:0},{x:b.x,y:b.y,p:0}],txt:'Coloca las cargas',brief:'Objetivo: colocar 2 cargas (3 s cada una). Cada carga atrae a los infectados.'}}
+  else{let a,b;for(let i=0;i<8&&!b;i++){a=modeTile(M0,10,COLS-4,av,2);if(a)for(let j=0;j<25&&!b;j++){const c=modeTile(M0,10,COLS-4,av.concat([a]),2);if(c&&Math.hypot(c.x-a.x,c.y-a.y)>=5)b=c}}/* antes pedía 5 casillas de TODOS los puntos de interés: en los cap. 7, 16, 24 y 31 nunca cabía y se quedaban sin objetivo */if(!a||!b)return;M0.mo={k:'sabotage',ch:[{x:a.x,y:a.y,p:0},{x:b.x,y:b.y,p:0}],txt:'Coloca las cargas',brief:'Objetivo: colocar 2 cargas (3 s cada una). Cada carga atrae a los infectados.'}}
   M0.mo.done=0}
 function moSpawn(n,E){const e=S.exp,lvl=lvlOf(e.z),hpM=(.85+.035*lvl)*(S.adv&&S.adv.weather===3?1.15:1),dmM=(.85+.025*lvl)*(S.adv&&S.adv.weather===3?1.15:1);const f=[];for(let y=1;y<ROWS-1;y++)for(let x=Math.floor(COLS*.55);x<COLS-1;x++)if(!M.g[y][x]&&M.vis[y*COLS+x]!=2)f.push([x,y]);
   for(let i=0;i<n&&f.length;i++){const t=f.splice(Math.floor(Math.random()*f.length),1)[0],ty=mixType(lvl,Math.random,themeOf(e)),hp=Math.round(ZT[ty].hp*hpM);M.en.push({t:ty,x:t[0]+.5,y:t[1]+.5,hp,mhp:hp,st:1,path:[],pt:0,dm:dmM,cd:1})}}
@@ -227,8 +227,16 @@ function gen(e){
   if(th&&PAL[th]){const sk=e.z.n+':'+(e.dist||1)+':'+e.step+(story?'':':'+e.seed);
     if(story){const R=rngS(sk);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)))}
     else{if(th=='house')th='casa';for(let i=0;i<14&&!T;i++){const R=rngS(sk+':'+i);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)),vtpl(th,R,e.z.sub))}if(!T){th=themeOf(e);if(th=='casa')th='house';const R=rngS(sk);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)))}}}
-  const M0=genDefault(e,T);M0.theme=T?th:null;M0.pal=T?PAL[th]:null;if(T){M0.fv=T.fv;M0.pr=T.pr;M0.dc=T.dc}
+  const M0=genDefault(e,T);unPocket(M0);M0.theme=T?th:null;M0.pal=T?PAL[th]:null;if(T){M0.fv=T.fv;M0.pr=T.pr;M0.dc=T.dc}
   setMode(M0,e);return M0}
+/* Huecos cerrados por paredes: lo que cae dentro (coches, cajas, enemigos…) se mueve a la casilla alcanzable más cercana, para que todo se pueda coger o abatir */
+function unPocket(M){try{const R=new Uint8Array(COLS*ROWS),q=[];const sol=(x,y)=>x<0||y<0||x>=COLS||y>=ROWS||M.g[y][x]>0;
+  (M.units||[]).forEach(u=>{const x=Math.floor(u.x),y=Math.floor(u.y);if(!sol(x,y)&&!R[y*COLS+x]){R[y*COLS+x]=1;q.push([x,y])}});if(!q.length)return;
+  for(let h=0;h<q.length;h++){const[x,y]=q[h];for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+a,ny=y+b;if(sol(nx,ny)||R[ny*COLS+nx])continue;R[ny*COLS+nx]=1;q.push([nx,ny])}}
+  const used=new Set();const all=['pois','crates','cars','meds','barrels','en'];all.forEach(k=>(M[k]||[]).forEach(o=>used.add(Math.floor(o.x)+','+Math.floor(o.y))));
+  const near=(o,r)=>{for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if(R[y*COLS+x]&&Math.hypot(x+.5-o.x,y+.5-o.y)<r)return true;return false};
+  all.forEach(k=>(M[k]||[]).forEach(o=>{if(near(o,k==='en'?.8:1.3))return;let best=null,bd=1e9;for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){if(!R[y*COLS+x]||used.has(x+','+y)||x<5)continue;const d=Math.hypot(x+.5-o.x,y+.5-o.y);if(d<bd){bd=d;best=[x,y]}}
+   if(best){used.delete(Math.floor(o.x)+','+Math.floor(o.y));o.x=best[0]+.5;o.y=best[1]+.5;used.add(best[0]+','+best[1])}}))}catch(e){}}
 const solid=(M,x,y)=>x<0||y<0||x>=COLS||y>=ROWS||M.g[y][x]>0;
 function bfs(M,sx,sy,tx,ty){
   sx=Math.floor(sx);sy=Math.floor(sy);tx=Math.floor(tx);ty=Math.floor(ty);if(solid(M,tx,ty))return null;

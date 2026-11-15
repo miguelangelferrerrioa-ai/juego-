@@ -1,4 +1,5 @@
 /* Aviso de versión nueva: compara la versión de este archivo con la del sw.js publicado; si hay una más nueva, ofrece actualizar (guarda antes). */
+window.__ATS_READY=1;
 (function(){
 'use strict';
 const VER=+'__ATS_VER__';if(!(VER>0)||location.protocol==='file:')return;
