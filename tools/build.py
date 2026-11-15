@@ -14,6 +14,7 @@ sw=os.path.join(R,'sw.js');t=open(sw,encoding='utf-8').read()
 # número de versión visible en la portada (el mismo que la caché del sw.js)
 nv=int(re.search(r"ats-v(\d+)",t).group(1))+1
 s=s.replace('Edición 2.7</div>','Edición 2.7 · v%d</div>'%nv,1)
+s=s.replace("+'__ATS_VER__'","+'%d'"%nv)
 open(os.path.join(R,'index.html'),'w',encoding='utf-8').write(s)
 t=re.sub(r"ats-v(\d+)",lambda m:'ats-v%d'%(int(m.group(1))+1),t,count=1)
 open(sw,'w',encoding='utf-8').write(t)
