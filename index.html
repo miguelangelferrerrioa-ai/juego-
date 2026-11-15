@@ -764,7 +764,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v68</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v70</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -6390,6 +6390,45 @@ const st=document.createElement('style');st.textContent=`
 @media (max-width:700px){.op-wx{flex-direction:column}.op-wx canvas{width:100%}.op-wi{padding:8px 10px}}`;document.head.appendChild(st);
 })();
 </script>
+<script>/* Barra de recursos viva: los números suben/bajan poco a poco en vez de saltar, y al ganar una cantidad de golpe (recompensas, botín, compras…) aparece un "+N" flotando junto al recurso. */
+(function(){
+'use strict';
+const SHOWN={};            /* último valor que se ha enseñado de cada recurso (por nombre) */
+const ANIM=new WeakMap();
+function tween(el,from,to){const t0=performance.now(),D=650,a=ANIM.get(el);if(a)cancelAnimationFrame(a);
+ el.classList.remove('rb-up','rb-dn');void el.offsetWidth;el.classList.add(to>from?'rb-up':'rb-dn');
+ const f=now=>{if(!el.isConnected)return;const k=Math.min(1,(now-t0)/D),e=1-Math.pow(1-k,3);el.textContent=String(Math.round(from+(to-from)*e));if(k<1)ANIM.set(el,requestAnimationFrame(f))};ANIM.set(el,requestAnimationFrame(f))}
+function onPaint(col){col.querySelectorAll('.r[title]').forEach(r=>{const k=r.getAttribute('title'),b=r.querySelector('b');if(!b)return;const v=+b.textContent;if(!isFinite(v))return;
+ const old=SHOWN[k];SHOWN[k]=v;if(old===undefined||old===v)return;if(Math.abs(v-old)<1)return;b.textContent=String(old);tween(b,old,v)})}
+let mo=null;
+function hook(){const col=document.getElementById('rbCol');if(!col||mo)return;mo=new MutationObserver(()=>{mo.disconnect();try{onPaint(col)}finally{mo.observe(col,{childList:true})}});mo.observe(col,{childList:true})}
+/* "+N" flotante */
+let last=null,lastS=null;
+const NAME=k=>{try{return((RK.find(r=>r[0]===k)||[])[1])||k}catch(e){return k}};
+function live(){try{if(typeof S==='undefined'||!S||!S.res||!S.bld||!S.bld.length||S.over)return false;if(typeof LIVE!=='undefined'&&!LIVE)return false;const ts=document.getElementById('titleScreen');if(ts&&getComputedStyle(ts).display!=='none')return false;return true}catch(e){return false}}
+function anchor(k){const col=document.getElementById('rbCol');if(col&&col.classList.contains('open')){const r=[...col.querySelectorAll('.r[title]')].find(e=>e.getAttribute('title')===NAME(k));if(r){const b=r.getBoundingClientRect();if(b.width)return[b.right-3,b.top+b.height/2,1]}}
+ const t=document.getElementById('rbTog');if(t){const b=t.getBoundingClientRect();if(b.width)return[b.left+b.width/2,b.bottom+4]}return[innerWidth/2,44]}
+let stack=0,stackT=0;
+function float(k,n){const now=performance.now();if(now-stackT>900)stack=0;stackT=now;const [x,y,inRow]=anchor(k),i=inRow?0:stack++;if(stack>5)return;
+ const el=document.createElement('div');el.className='rb-float';let ic='';try{ic=typeof ICO!=='undefined'&&ICO[k]?`<img src="${ICO[k]}">`:''}catch(e){}
+ el.innerHTML=`${ic}<b>+${n}</b>`;el.style.left=x+'px';el.style.top=(y+i*20)+'px';document.body.appendChild(el);setTimeout(()=>el.remove(),1500)}
+function watch(){if(!live()){last=null;return}
+ if(lastS!==S){lastS=S;last=null}
+ const cur={};for(const k in S.res)cur[k]=+S.res[k]||0;
+ if(last){let d=null;try{d=rate()}catch(e){}
+  for(const k in cur){if(k==='rp'||k==='elec')continue;const g=cur[k]-(last[k]||0),exp=d&&d[k]?Math.abs(d[k])/600*0.6*3:0;
+   /* solo saltos de golpe: no la producción normal ni el goteo de los edificios */
+   if(g>=10&&g>exp+8)float(k,Math.round(g))}}
+ last=cur}
+setInterval(()=>{try{hook();watch()}catch(e){}},600);
+const st=document.createElement('style');st.textContent=`
+#rbCol b.rb-up{animation:rbUp .9s ease-out}#rbCol b.rb-dn{animation:rbDn .9s ease-out}
+@keyframes rbUp{0%{color:#7dff7d;text-shadow:0 0 8px #5f5}100%{}}@keyframes rbDn{0%{color:#ff9a8a;text-shadow:0 0 8px #f55}100%{}}
+.rb-float{position:fixed;z-index:9990;pointer-events:none;display:flex;align-items:center;gap:4px;transform:translate(-100%,-50%);padding:2px 8px 2px 4px;border-radius:10px;background:rgba(14,24,12,.88);border:1px solid #5fbf5f;color:#9dff9d;font:800 13px system-ui,sans-serif;text-shadow:0 1px 2px #000;animation:rbFl 1.5s ease-out forwards}
+.rb-float img{width:16px;height:16px}
+@keyframes rbFl{0%{opacity:0;margin-top:6px}15%{opacity:1;margin-top:0}70%{opacity:1}100%{opacity:0;margin-top:-26px}}`;document.head.appendChild(st);
+})();
+</script>
 <script>/* ===== Lista de supervivientes con filtros: rol, sexo, edad, estado y orden ===== */
 (function(){
 'use strict';
@@ -10903,7 +10942,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'68';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'70';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
