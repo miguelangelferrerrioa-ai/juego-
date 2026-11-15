@@ -10,7 +10,7 @@ const ST=[
  ['Defiéndete: levanta muros (arrastra el dedo), una torreta o una torre.',()=>['wall','barr','turret','tower','gate'].some(t=>cnt(t)>=1),{metal:30,ammo:15}],
  ['Aguanta la primera horda (día 5). Los soldados salen solos a luchar.',()=>S.stat&&S.stat.hordes>=1,{metal:40,ammo:20}],
  ['Mejora el Ayuntamiento a nivel 2 (toca el edificio → Mejorar).',()=>hallLv()>=2,{wood:60,metal:40}],
- ['Abre «Investigación» y estudia una tecnología.',()=>Object.keys(S.tech).length>=1,{wood:50,metal:30}],
+ ['Sube el Ayuntamiento a nivel 4 para desbloquear la investigación y estudia una tecnología.',()=>Object.keys(S.tech).length>=1,{wood:50,metal:30}],
  ['Con el Ayuntamiento en nivel 4, construye la Estación de radio.',()=>cnt('radio')>=1,{metal:60,comp:4}],
 ];
 let box,open=false,lastKey='';
