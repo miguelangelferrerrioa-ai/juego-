@@ -28,6 +28,8 @@ const L=[
   {sc:'fight',p:{l:['🛡','🪖','🪖'],r:['🐦','🐍'],wall:1,label:'Dos bastiones seguidos'},t:'La guerra del Alba',x:'Valeria está en tu base. Completa sus misiones del tablón y luego abre «Asalto final» en el menú: necesitas 2000 de poder. Atacaréis los dos bastiones seguidos; durante la batalla puedes usar explosivos, fuego de cobertura y botiquines.'}]}
 ];
 L.forEach(m=>{if(!P.byId[m.id])P.byId[m.id]={id:m.id,n:m.n,ic:m.ic,st:0,h:1,d:m.d};P.tut[m.id]=m.pages});
-setInterval(()=>{try{if(typeof S==='undefined'||!S||!S.ppl||!S.bld||!S.bld.length||S.over||S.mode==='creativo'||window.ZI_OFF)return;S.tips=S.tips||{};
+setInterval(()=>{try{if(typeof S==='undefined'||!S||!S.ppl||!S.bld||!S.bld.length||S.over||S.mode==='creativo'||window.ZI_OFF)return;
+ /* partida guardada antes de existir estas tarjetas: lo que ya está en marcha se da por visto sin enseñarlo (antes salían todas seguidas al cargar) */
+ if(!S.tips){S.tips={};if(S.day>1){for(const m of L){let ok=false;try{ok=m.when()}catch(e){}if(ok)S.tips[m.id]=1}return}}
  for(const m of L){if(S.tips[m.id])continue;let ok=false;try{ok=m.when()}catch(e){}if(ok){S.tips[m.id]=1;window.tutShow&&tutShow(m.id)}}}catch(e){}},2500);
 })();
