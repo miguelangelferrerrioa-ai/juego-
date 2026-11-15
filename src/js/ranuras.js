@@ -15,7 +15,7 @@ function draw(){
   if(view=='rec'){const bs=backups(rec);let h='<p><b>Copias de la ranura '+(rec+1)+'</b><br><small>Restaurar sustituye la partida actual de la ranura (la actual se guarda antes como copia).</small></p><div class="slots">';
     h+=bs.length?bs.map(b=>'<div class="slot"><div class="si"><b>'+b.n+'</b><span>'+line(b.d)+'</span></div><div class="sb"><button class="primary" onclick="slotRestore(\''+b.key+'\')">Restaurar</button></div></div>').join(''):'<p>No hay copias en esta ranura.</p>';
     el.innerHTML=h+'</div><div class="title-actions"><button onclick="slotView(\'list\')">Volver</button></div>';return}
-  if(view=='imp'){el.innerHTML='<p><b>Importar partida</b><br><small>Elige el archivo .json que exportaste, o pega su texto.</small></p><div class="slots"><div class="slot" style="display:block"><input type="file" id="impF" accept=".json,.txt,application/json,text/plain" style="width:100%;margin-bottom:6px"><textarea id="impT" rows="3" style="width:100%;font-size:10px" placeholder="…o pega aquí el texto de la partida"></textarea><div style="margin-top:6px">Guardar en: <select id="impS">'+KEYS.map((k,i)=>'<option value="'+i+'"'+(i==imp?' selected':'')+'>Ranura '+(i+1)+(info(k)?' (sobrescribe)':' (vacía)')+'</option>').join('')+'</select> <button class="primary" onclick="slotImport()">Importar</button></div><div id="impM" style="color:#e8c25a;margin-top:4px"></div></div></div><div class="title-actions"><button onclick="slotView(\'list\')">Volver</button></div>';
+  if(view=='imp'){el.innerHTML='<p><b>Importar partida</b><br><small>Elige el archivo .json que exportaste, o pega su texto.</small></p><div class="slots"><div class="slot" style="display:block"><input type="file" id="impF" accept=".json,.txt,application/json,text/plain" style="width:100%;margin-bottom:6px"><textarea id="impT" rows="3" style="width:100%;font-size:10px" placeholder="…o pega aquí el texto de la partida"></textarea><div style="margin-top:6px">Guardar en: <span id="impSC"></span> <button class="primary" onclick="slotImport()">Importar</button></div><div id="impM" style="color:#e8c25a;margin-top:4px"></div></div></div><div class="title-actions"><button onclick="slotView(\'list\')">Volver</button></div>';window._impSlot=String(imp>=0?imp:0);window._cpOpen='';impRen();
     $('impF').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('impT').value=String(r.result||'')};r.readAsText(f)};return}
   let h='<p>'+(mode=='load'?'Elige la partida que quieres continuar.':'Elige una ranura para la nueva partida.')+'</p><div class="slots">';
   KEYS.forEach((k,i)=>{const d=info(k),nb=backups(i).length;
@@ -53,7 +53,10 @@ window.exportSlotKey=key=>{
   download(name,t);
   try{navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>toast('Partida exportada y copiada al portapapeles.'),()=>toast('Partida exportada como archivo.'))}catch(e){toast('Partida exportada como archivo.')}};
 window.slotExport=i=>exportSlotKey(KEYS[i]);
-window.slotImport=()=>{const t=($('impT').value||'').trim(),m=$('impM'),i=+$('impS').value,s=parse(t);
+/* selector de ranura con los chips del juego (sin desplegable nativo); solo se redibuja el chip para no perder el archivo elegido */
+function impRen(){const e=$('impSC');if(e)e.innerHTML=chipSel('impS',window._impSlot,KEYS.map((k,i)=>[String(i),'Ranura '+(i+1)+(info(k)?' (sobrescribe)':' (vacía)')]),'window._impSlot=$V','_impRen()')}
+window._impRen=impRen;
+window.slotImport=()=>{const t=($('impT').value||'').trim(),m=$('impM'),i=+(window._impSlot||0),s=parse(t);
   if(!s){m.textContent='Ese texto no es una partida válida.';return}
   const k=KEYS[i];try{if(info(k))bkRotate(k,0,1);if(!lsPut(k,JSON.stringify(s)))throw 0}catch(e){m.textContent='No se pudo guardar (almacenamiento lleno).';return}
   view='list';mode='load';draw();toast('Partida importada en la ranura '+(i+1)+'. Ya puedes cargarla.')};
