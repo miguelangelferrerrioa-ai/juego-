@@ -764,7 +764,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v55</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v56</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -10712,6 +10712,28 @@ setInterval(()=>{try{if(typeof S==='undefined'||!S||!S.ppl||!S.bld||!S.bld.lengt
  for(const m of L){if(S.tips[m.id])continue;let ok=false;try{ok=m.when()}catch(e){}if(ok){S.tips[m.id]=1;window.tutShow&&tutShow(m.id)}}}catch(e){}},2500);
 })();
 </script>
+<script>/* Filtro anti-spoilers: en los menús y en la guía, cualquier nombre de edificio, material o enemigo aún bloqueado se cambia por «???» (también dentro de frases). */
+(function(){
+'use strict';
+const MAT={stone:['piedra'],plank:['tablones','tablón'],comp:['componentes','componente'],brick:['ladrillos','ladrillo'],abx:['antibióticos','antibiótico'],sheet:['chapa'],chem:['químicos','químico'],glass:['cristal'],steel:['acero'],concrete:['hormigón'],alloy:['aleación']};
+let RE=null,SIG='';
+function terms(){const t=[];try{
+  for(const k in BT){const d=BT[k];if(!d||!d.n||k==='road')continue;let ok=true;try{ok=avail(k)||cnt(k)>0}catch(e){}if(!ok)t.push(d.n)}
+  if(window.resLocked)for(const k in MAT)if(resLocked(k))t.push(...MAT[k]);
+  const seen=S.zseen||{};for(const k in ZT){if(k==='z'||k==='b')continue;const z=ZT[k];if(z&&z.n&&!seen[k])t.push(z.n)}
+ }catch(e){}return t}
+function build(){if(typeof S==='undefined'||!S||!S.bld)return null;const t=terms();const sig=t.join('|');if(sig!==SIG){SIG=sig;
+  /* los más largos primero ("Zombi soldado" antes que "soldado") */
+  RE=t.length?new RegExp('(^|[^\\wáéíóúüñÁÉÍÓÚÜÑ])('+t.sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')(?![\\wáéíóúüñÁÉÍÓÚÜÑ])','gi'):null}return RE}
+function clean(root){const re=build();if(!re||!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;const L=[];while((n=w.nextNode()))L.push(n);
+ for(const x of L){const v=x.nodeValue;if(!v||v.length<3)continue;re.lastIndex=0;if(!re.test(v))continue;re.lastIndex=0;x.nodeValue=v.replace(re,'$1???')}}
+window.spoilClean=clean;
+let busy=0;const q=new Set();
+function run(){busy=0;for(const r of q)clean(r);q.clear()}
+function watch(id){const el=document.getElementById(id);if(!el)return;new MutationObserver(()=>{q.add(el);if(!busy){busy=1;requestAnimationFrame(run)}}).observe(el,{childList:true,subtree:true,characterData:true})}
+['pan','guideScreen'].forEach(watch);
+})();
+</script>
 <script>/* Recordatorio de copia de seguridad: cada 10 días de juego sin exportar, aviso con botón Exportar (las partidas solo viven dentro del navegador). */
 (function(){
 'use strict';
@@ -10734,7 +10756,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'55';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'56';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
