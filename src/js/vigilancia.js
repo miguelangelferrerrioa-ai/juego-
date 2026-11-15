@@ -41,8 +41,8 @@ let AT=-1,AS=new Map();
 /* zombi que está atacando a alguien del pueblo (a ≤2,5 de una persona que no es soldado) */
 function acosa(z){return S.ppl.some(p=>!p.away&&!p.inside&&Math.hypot(p.x-z.x,p.y-z.y)<2.5)}
 function assign(g){if(AT===T)return AS;AT=T;AS=new Map();const best=new Map();
- /* fuera de hordas (zombis sueltos) los soldados van a por todos; en hordas, a por los colados o los que acosan a alguien */
- Z.forEach(z=>{if(!z.act||z.hp<=0)return;if(horde&&!colado(z,g)&&!acosa(z))return;let bu=null,bd=1e9;U.forEach(u=>{if(u.hp<=0)return;const d=Math.hypot(z.x-u.x,z.y-u.y);if(d<bd){bd=d;bu=u}});
+ /* soldados: van a por los zombis colados, los que acosan a alguien y (fuera de hordas) los que entran en la zona del pueblo */
+ Z.forEach(z=>{if(!z.act||z.hp<=0)return;/* solo los que están dentro del pueblo (o colados) o atacando a alguien; los que siguen lejos, en el campo, no se persiguen */if(!colado(z,g)&&!acosa(z)&&(horde||!nearTown(z.x,z.y)))return;let bu=null,bd=1e9;U.forEach(u=>{if(u.hp<=0)return;const d=Math.hypot(z.x-u.x,z.y-u.y);if(d<bd){bd=d;bu=u}});
   if(bu&&(!best.has(bu)||best.get(bu)>bd)){best.set(bu,bd);AS.set(bu,z)}});return AS}
 /* tramos del contorno: se reparten por ángulo entre los soldados */
 let arcG=null,arcN=-1;
@@ -71,7 +71,7 @@ window.uUpd=function(u,dt){const c=CL[u.p.arm];u.cd-=dt;u.mv=0;
 try{uUpd=window.uUpd}catch(e){}
 /* fuera de las hordas: los alistados sin puesto hacen la ronda (se controla antes y después del paseo normal para que este no les cambie el destino) */
 function pick(p,g){const pts=g.town;if(!pts.length)return false;let best=null;for(let i=0;i<14;i++){const q=pts[Math.floor(Math.random()*pts.length)],d=Math.hypot(q[0]-p.x,q[1]-p.y);if(d>2&&d<9){best=q;break}if(!best||d<Math.hypot(best[0]-p.x,best[1]-p.y))best=q}p.vtx=best[0];p.vty=best[1];return true}
-const idleOK=p=>p.arm&&!p.away&&!p.inside&&!p.job&&p.age>=18;
+const idleOK=p=>p.arm&&!p.away&&!p.inside&&!p.job&&p.age>=18&&!p.preg;
 const oU=window.upd;window.upd=function(dt){let L=[],g=null;
  try{if(!horde&&typeof S!=='undefined'&&S&&S.ppl){L=S.ppl.filter(idleOK);if(L.length){g=geo();L.forEach(p=>{if(p.vtx===undefined&&!pick(p,g))return;
    if(p.vw>0){p._px=p.x;p._py=p.y;p._dx=p.dx;p.tx=p.x+1;p.ty=p.y}else{p.tx=p.vtx;p.ty=p.vty}})}}}catch(e){L=[]}

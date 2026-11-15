@@ -27,7 +27,7 @@ function spawnRaid(){
   if(side[1]===0){sx=along;sy=1.5}else if(side[1]===1){sx=N-2.5;sy=along}else if(side[1]===2){sx=along;sy=N-2.5}else{sx=1.5;sy=along}
   let k=0;for(const t in comp)for(let i=0;i<comp[t];i++){const z=mkZ(t,cl(sx+rn(-2,2),.5,N-.5),cl(sy+rn(-2,2),.5,N-.5),1);z.raid=1;Z.push(z);k++}
   // defensores: los soldados enrolados salen a recibirlos
-  if(!U.length){const h=S.bld.find(b=>b.type=='hall')||{x:26,y:26};S.ppl.filter(p=>p.arm&&!p.away&&p.hp>25).forEach((p,i)=>U.push({p,x:h.x+1+i%4,y:h.y+5+(i>>2),hp:p.hp,cd:0}))}
+  if(!U.length){const h=S.bld.find(b=>b.type=='hall')||{x:26,y:26};S.ppl.filter(p=>p.arm&&!p.away&&p.hp>25&&!p.preg&&p.age>=18).forEach((p,i)=>U.push({p,x:h.x+1+i%4,y:h.y+5+(i>>2),hp:p.hp,cd:0}))}
   window.raidOn={n:k,t:0,side:side[0]};
   toast(k===1?'Un zombi solitario se acerca por el '+side[0]+'.':'Un grupo de '+k+' infectados merodea por el '+side[0]+' y se dirige al pueblo.');
   try{sfxAt('zombie',sx,sy,{rate:.8,v:.9})}catch(e){}

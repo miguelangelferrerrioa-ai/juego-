@@ -764,7 +764,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v96</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v98</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -5078,7 +5078,7 @@ function spawnRaid(){
   if(side[1]===0){sx=along;sy=1.5}else if(side[1]===1){sx=N-2.5;sy=along}else if(side[1]===2){sx=along;sy=N-2.5}else{sx=1.5;sy=along}
   let k=0;for(const t in comp)for(let i=0;i<comp[t];i++){const z=mkZ(t,cl(sx+rn(-2,2),.5,N-.5),cl(sy+rn(-2,2),.5,N-.5),1);z.raid=1;Z.push(z);k++}
   // defensores: los soldados enrolados salen a recibirlos
-  if(!U.length){const h=S.bld.find(b=>b.type=='hall')||{x:26,y:26};S.ppl.filter(p=>p.arm&&!p.away&&p.hp>25).forEach((p,i)=>U.push({p,x:h.x+1+i%4,y:h.y+5+(i>>2),hp:p.hp,cd:0}))}
+  if(!U.length){const h=S.bld.find(b=>b.type=='hall')||{x:26,y:26};S.ppl.filter(p=>p.arm&&!p.away&&p.hp>25&&!p.preg&&p.age>=18).forEach((p,i)=>U.push({p,x:h.x+1+i%4,y:h.y+5+(i>>2),hp:p.hp,cd:0}))}
   window.raidOn={n:k,t:0,side:side[0]};
   toast(k===1?'Un zombi solitario se acerca por el '+side[0]+'.':'Un grupo de '+k+' infectados merodea por el '+side[0]+' y se dirige al pueblo.');
   try{sfxAt('zombie',sx,sy,{rate:.8,v:.9})}catch(e){}
@@ -11097,8 +11097,8 @@ let AT=-1,AS=new Map();
 /* zombi que está atacando a alguien del pueblo (a ≤2,5 de una persona que no es soldado) */
 function acosa(z){return S.ppl.some(p=>!p.away&&!p.inside&&Math.hypot(p.x-z.x,p.y-z.y)<2.5)}
 function assign(g){if(AT===T)return AS;AT=T;AS=new Map();const best=new Map();
- /* fuera de hordas (zombis sueltos) los soldados van a por todos; en hordas, a por los colados o los que acosan a alguien */
- Z.forEach(z=>{if(!z.act||z.hp<=0)return;if(horde&&!colado(z,g)&&!acosa(z))return;let bu=null,bd=1e9;U.forEach(u=>{if(u.hp<=0)return;const d=Math.hypot(z.x-u.x,z.y-u.y);if(d<bd){bd=d;bu=u}});
+ /* soldados: van a por los zombis colados, los que acosan a alguien y (fuera de hordas) los que entran en la zona del pueblo */
+ Z.forEach(z=>{if(!z.act||z.hp<=0)return;/* solo los que están dentro del pueblo (o colados) o atacando a alguien; los que siguen lejos, en el campo, no se persiguen */if(!colado(z,g)&&!acosa(z)&&(horde||!nearTown(z.x,z.y)))return;let bu=null,bd=1e9;U.forEach(u=>{if(u.hp<=0)return;const d=Math.hypot(z.x-u.x,z.y-u.y);if(d<bd){bd=d;bu=u}});
   if(bu&&(!best.has(bu)||best.get(bu)>bd)){best.set(bu,bd);AS.set(bu,z)}});return AS}
 /* tramos del contorno: se reparten por ángulo entre los soldados */
 let arcG=null,arcN=-1;
@@ -11127,7 +11127,7 @@ window.uUpd=function(u,dt){const c=CL[u.p.arm];u.cd-=dt;u.mv=0;
 try{uUpd=window.uUpd}catch(e){}
 /* fuera de las hordas: los alistados sin puesto hacen la ronda (se controla antes y después del paseo normal para que este no les cambie el destino) */
 function pick(p,g){const pts=g.town;if(!pts.length)return false;let best=null;for(let i=0;i<14;i++){const q=pts[Math.floor(Math.random()*pts.length)],d=Math.hypot(q[0]-p.x,q[1]-p.y);if(d>2&&d<9){best=q;break}if(!best||d<Math.hypot(best[0]-p.x,best[1]-p.y))best=q}p.vtx=best[0];p.vty=best[1];return true}
-const idleOK=p=>p.arm&&!p.away&&!p.inside&&!p.job&&p.age>=18;
+const idleOK=p=>p.arm&&!p.away&&!p.inside&&!p.job&&p.age>=18&&!p.preg;
 const oU=window.upd;window.upd=function(dt){let L=[],g=null;
  try{if(!horde&&typeof S!=='undefined'&&S&&S.ppl){L=S.ppl.filter(idleOK);if(L.length){g=geo();L.forEach(p=>{if(p.vtx===undefined&&!pick(p,g))return;
    if(p.vw>0){p._px=p.x;p._py=p.y;p._dx=p.dx;p.tx=p.x+1;p.ty=p.y}else{p.tx=p.vtx;p.ty=p.vty}})}}}catch(e){L=[]}
@@ -11179,7 +11179,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'96';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'98';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
