@@ -1,0 +1,23 @@
+/* ===== Dead Town · arcos de las bandas nuevas: Los Segadores, Los Hijos del Humo y La Hermandad del Hierro ===== */
+(function(){
+const ok=id=>()=>S.mode==='creativo'||(window.bandAvail&&bandAvail().includes(id));
+const R=(a)=>a.map(r=>r[0]==='f'?{t:'f',n:r[1]}:r[0]==='s'?{t:'s'}:{t:'r',k:r[1],n:r[2]});
+const A=(id,n,w,hint,st)=>({n,w,hint,ok:ok(id),st:st.map(s=>({t:s[0],z:s[1],ic:'⚔',x:s[2],o:s[3],rw:R(s[4])}))});
+window.ARC_EXTRA=Object.assign(window.ARC_EXTRA||{},{
+segadores:A('segadores','Los Segadores','un espantapájaros con una nota','Un espantapájaros clavado ante la puerta lleva una nota: «La cosecha ha empezado». Los Segadores acechan los campos de la zona. Las misiones aparecen en el tablón de la villa.',[
+ ['La primera cosecha','suburb','Los Segadores arrasan las granjas del barrio y se llevan a los campesinos «a la siega». Hay que averiguar a dónde los conducen.','En un granero encontráis marcas en el suelo: cada noche trasladan a los cautivos al almacén de la zona industrial.',[['f',380],['r','scrap',60]]],
+ ['El granero de las hoces','warehouse','El almacén funciona como granero de la secta. Dentro guardan las hoces, los sacos y un libro de cuentas con nombres.','El libro revela a su líder, la Madre Espiga, y un rito que celebrarán en la torre de radio.',[['f',420],['r','metal',70]]],
+ ['El rito de la espiga','tower','La Madre Espiga reunirá a sus fieles en lo alto de la torre. Cortad el rito antes de que sacrifiquen a los cautivos.','Rompéis el rito. Los cautivos huyen y la Madre Espiga escapa herida hacia los antiguos campos de cultivo.',[['f',480],['r','ammo',60]]],
+ ['La última siega','greenhouse','La Madre Espiga se ha atrincherado entre los invernaderos con sus hoces más fieles. Es su última cosecha.','La Madre Espiga cae. Los campesinos liberados os ofrecen semillas y a uno de los suyos como ayuda.',[['s',0],['f',700],['r','scrap',150],['r','alloy',10]]]]),
+humo:A('humo','Los Hijos del Humo','un cielo ennegrecido','Una columna de humo negro se ve al horizonte: Los Hijos del Humo queman todo lo que encuentran. Las misiones aparecen en el tablón de la villa.',[
+ ['Cenizas en el horizonte','gas','Los Hijos del Humo han incendiado una estación de servicio para atraer a los supervivientes. Hay que apagar el cebo y averiguar quién los dirige.','Entre las cenizas hallamos un casco quemado y un mapa: su depósito de combustible está en el puerto.',[['f',420],['r','chem',60]]],
+ ['El depósito del puerto','port','Toda su munición incendiaria sale del depósito del puerto. Destruidlo con cuidado: cualquier chispa lo volaría todo.','El depósito arde un día entero. Un prisionero habla de un «Padre Brasa» que vive en las fábricas.',[['f',470],['r','metal',80]]],
+ ['La fundición','factory','El Padre Brasa predica en una fundición abandonada, rodeado de fieles con máscaras. Es peligroso entrar sin protección.','Salís entre humo y chispas con unos planos: Brasa planea prender fuego a la presa para inundar los valles.',[['f',520],['r','comp',50]]],
+ ['Fuego en la presa','dam','Brasa quiere quemar los generadores de la presa. Detenedlo antes de que el humo cubra toda la zona.','Brasa cae junto a la presa. Los Hijos del Humo se dispersan y dejan atrás un lote de aleación.',[['s',0],['f',720],['r','chem',120],['r','alloy',10]]]]),
+hierro:A('hierro','La Hermandad del Hierro','un yunque marcado a fuego','Un yunque con una estrella de hierro aparece en vuestra puerta: es el aviso de La Hermandad del Hierro. Las misiones aparecen en el tablón de la villa.',[
+ ['El aviso del yunque','police','La Hermandad exige «tributo de metal» a todos los asentamientos. Han tomado la comisaría como cuartel de zona.','Os llevan a la armería de la Hermandad: allí fabrican las armaduras y deciden mandar sobre las rutas.',[['f',450],['r','metal',90]]],
+ ['La fragua de la Hermandad','military','Una base militar abandonada es su fragua. Es una operación dura: sus soldados van acorazados y avanzan juntos.','Destruís la fragua. Un herrero desertor os cuenta que su jefe, el Mariscal, mantiene un fortín en el campamento.',[['f',520],['r','alloy',8],['r','ammo',70]]],
+ ['Convoy de hierro','highway','El Mariscal envía un convoy cargado de blindaje a sus aliados. Interceptadlo.','Capturado el convoy, quedan planos de una brecha en su fortín, un punto ciego en la muralla.',[['f',560],['r','metal',120]]],
+ ['El fortín del Mariscal','camp','El fortín del Mariscal es un muro de chatarra y acero. Es la batalla final contra la Hermandad.','El Mariscal cae y el fortín se abre. La Hermandad se rompe: uno de sus herreros se une a vosotros.',[['s',0],['f',800],['r','metal',200],['r','alloy',15]]]])
+});
+})();

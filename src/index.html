@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>After the Silence</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#172318">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="After the Silence">
+
+</head><body>
+<div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
+<div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
+<div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
+<div id="bot" class="dock-collapsed"><button id="dockToggle" onclick="toggleDock()" aria-expanded="false">☰ Menú</button><button onclick="bldList()"><i class="ib">🏠</i>Edificios</button><button onclick="pplMenu()"><i class="ib">👥</i>Supervivientes</button><button onclick="upgMenu()"><i class="ib">⬆</i>Mejoras</button><button onclick="storeMenu()"><i class="ib">📦</i>Almacén</button><button onclick="missMenu()"><i class="ib">🎯</i>Misiones</button><button onclick="menu()"><i class="ib">💾</i>Partida</button><button onclick="zoomBy(1.25)"><i class="ib">🔍</i>Zoom +</button><button onclick="zoomBy(.8)"><i class="ib">🔎</i>Zoom −</button></div>
+<script src="js/iconos.js"></script>
+<script src="js/game.js"></script>
+<script src="js/edificios.js"></script>
+<script src="js/edificios2.js"></script>
+<script src="js/edificios3.js"></script>
+<script src="js/edificios4.js"></script>
+<script src="js/edificios_etapas.js"></script>
+<script src="js/edificios_nivel.js"></script>
+<script src="js/edificios_nivel2.js"></script>
+<script src="js/materiales.js"></script>
+<script src="js/energia.js"></script>
+<script src="js/historia.js"></script>
+<script src="js/mision.js"></script>
+<script src="js/exped.js"></script>
+<script src="js/equipo.js"></script>
+<script src="js/acto2.js"></script>
+<script src="js/acto3.js"></script>
+<script src="js/extra.js"></script>
+<script src="js/ui3.js"></script>
+<script src="js/ficha.js"></script>
+<script src="js/entrenamiento.js"></script>
+<script src="js/edificios_ent.js"></script>
+<script src="js/antibioticos.js"></script>
+<script src="js/raids.js"></script>
+<script src="js/llegadas.js"></script>
+<script src="js/poblacion.js"></script>
+<script src="js/tutorial.js"></script>
+<script src="js/audio_act.js"></script>
+<script src="js/ranuras.js"></script>
+<script src="js/mapquest.js"></script>
+<script src="js/borde.js"></script>
+<script src="js/rutas.js"></script>
+<script src="js/edificio_ui.js"></script>
+<script src="js/menus_ui.js"></script>
+<script src="js/filtros_ppl.js"></script>
+<script src="js/recursos_bar.js"></script>
+<script src="js/misiones_ui.js"></script>
+<script src="js/diario_ui.js"></script>
+<script src="js/expedicion_ui.js"></script>
+<script src="js/solo_ui.js"></script>
+<script src="js/viaje.js"></script>
+<script src="js/muros.js"></script>
+<script src="js/construir_ui.js"></script>
+<script src="js/investigacion.js"></script>
+<script src="js/investigacion2.js"></script>
+<script src="js/gasolina.js"></script>
+<script src="js/pueblo.js"></script>
+<script src="js/almacen_ui.js"></script>
+<script src="js/forja.js"></script>
+<script src="js/zombis2.js"></script>
+<script src="js/bosses.js"></script>
+<script src="js/ciudadanos.js"></script>
+<script src="js/casino.js"></script>
+<script src="js/villa_mapa.js"></script>
+<script src="js/guardado.js"></script>
+<script src="js/guardia_mapa.js"></script>
+<script src="js/guardia.js"></script>
+<script src="js/ruinas.js"></script>
+<script src="js/arcos_ciudades.js"></script>
+<script src="js/arcos_bandas.js"></script>
+<script src="js/arcos.js"></script>
+<script src="js/asalto.js"></script>
+<script src="js/asalto_mapa.js"></script>
+<script src="js/asalto_torre.js"></script>
+<script src="js/asalto_sillas.js"></script>
+<script src="js/bandas.js"></script>
+<script src="js/bandas2.js"></script>
+<script src="js/guia2.js"></script>
+<script src="js/musica_guerra.js"></script>
+<script src="js/sonidos2.js"></script>
+<script src="js/balbuceo.js"></script>
+<script src="js/reparar.js"></script>
+<script src="js/audio_dark.js"></script>
+<script src="js/progreso.js"></script>
+<script src="js/escenas.js"></script><script src="js/escenas2.js"></script>
+<script src="js/escenas3.js"></script><script src="js/tutoriales.js"></script>
+<script src="js/epico.js"></script>
+<script src="js/atras.js"></script>
+<script src="js/carga.js"></script>
+
+<script src="audio/soundbank.js"></script>
+<script src="js/enemigos_intro.js"></script>
+<script src="js/guia_img.js"></script>
+<script src="js/guia3.js"></script>
+<script src="js/bloqueos.js"></script>
+<script src="js/desbloqueos.js"></script>
+<script src="js/rendimiento.js"></script>
+<script src="js/sin_venta.js"></script>
+<script src="js/mat_bloq.js"></script>
+<script src="js/tutoriales2.js"></script></body></html>
