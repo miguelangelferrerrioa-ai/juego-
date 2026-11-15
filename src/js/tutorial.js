@@ -8,7 +8,7 @@ const ST=[
  ['Toca un edificio y asigna trabajadores (botón de puestos).',()=>S.ppl.some(p=>p.job&&!p.arm),{food:30}],
  ['Construye una Casa: más camas, más supervivientes.',()=>cnt('house')>=2,{wood:40,metal:10}],
  ['Defiéndete: levanta muros (arrastra el dedo), una torreta o una torre.',()=>['wall','barr','turret','tower','gate'].some(t=>cnt(t)>=1),{metal:30,ammo:15}],
- ['Aguanta la primera horda (día 5). Los soldados salen solos a luchar.',()=>S.stat&&S.stat.hordes>=1,{metal:40,ammo:20}],
+ ['Aguanta la primera horda (día 5). Los soldados defienden el pueblo solos.',()=>S.stat&&S.stat.hordes>=1,{metal:40,ammo:20}],
  ['Mejora el Ayuntamiento a nivel 2 (toca el edificio → Mejorar).',()=>hallLv()>=2,{wood:60,metal:40}],
  ['Sube el Ayuntamiento a nivel 4 para desbloquear la investigación y estudia una tecnología.',()=>Object.keys(S.tech).length>=1,{wood:50,metal:30}],
  ['Con el Ayuntamiento en nivel 4, construye la Estación de radio.',()=>cnt('radio')>=1,{metal:60,comp:4}],
