@@ -134,3 +134,4 @@
 
 ## Sesión 7 (15-nov)
 - Guardado seguro (game.js lsPut/lsFree/saveFail): si el almacenamiento está lleno se borran copias por orden de menos a más útiles (dañadas/protegidas, "mejor" si es igual a la principal, bk2, bk1 y "b" de otras ranuras, bk1 propia, "mejor" de otras, "mejor" propia); nunca una partida principal ni el inicio del día actual. Si ni borrando todo cabría, no se borra nada. Si falla: aviso fijo arriba con botón Exportar (se repite como mucho cada 3 min y se quita al volver a guardar). Sustituye al parche de Storage.setItem de guardado.js. save() devuelve true/false; el botón Guardar ya no dice "Partida guardada" si falla. retryDay ya no pisa la partida si no hay copia del inicio del día. Importar/restaurar copia usan lsPut. Ranuras: "Cap. X/48" (antes /28). sw ats-v35.
+- vercel.json: cabeceras no-cache para /, /index.html y /sw.js (equivalente a _headers de Netlify) para publicar en Vercel desde el repositorio.
