@@ -38,8 +38,11 @@ window.vigGeo=geo;
 function colado(z,g){const ix=Math.floor(z.x),iy=Math.floor(z.y);if(!inMap(ix,iy))return false;
  if(!g.out[iy*N+ix]&&!pathBlocked(ix,iy))return true;const p=[z.x,z.y],R=g.bMax[g.bin(p)];return R>0&&g.rad(p)<R-2}
 let AT=-1,AS=new Map();
+/* zombi que está atacando a alguien del pueblo (a ≤2,5 de una persona que no es soldado) */
+function acosa(z){return S.ppl.some(p=>!p.away&&!p.inside&&Math.hypot(p.x-z.x,p.y-z.y)<2.5)}
 function assign(g){if(AT===T)return AS;AT=T;AS=new Map();const best=new Map();
- Z.forEach(z=>{if(!z.act||!colado(z,g))return;let bu=null,bd=1e9;U.forEach(u=>{if(u.hp<=0)return;const d=Math.hypot(z.x-u.x,z.y-u.y);if(d<bd){bd=d;bu=u}});
+ /* fuera de hordas (zombis sueltos) los soldados van a por todos; en hordas, a por los colados o los que acosan a alguien */
+ Z.forEach(z=>{if(!z.act||z.hp<=0)return;if(horde&&!colado(z,g)&&!acosa(z))return;let bu=null,bd=1e9;U.forEach(u=>{if(u.hp<=0)return;const d=Math.hypot(z.x-u.x,z.y-u.y);if(d<bd){bd=d;bu=u}});
   if(bu&&(!best.has(bu)||best.get(bu)>bd)){best.set(bu,bd);AS.set(bu,z)}});return AS}
 /* tramos del contorno: se reparten por ángulo entre los soldados */
 let arcG=null,arcN=-1;
