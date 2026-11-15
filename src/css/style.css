@@ -733,3 +733,16 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 /* Rendimiento: el desenfoque de fondo se recalcula en cada fotograma del canvas; se sustituye por fondos más opacos */
 #top,#bot,#rail button,#rl button,#pan,.ch{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 #top{background:linear-gradient(#10150ef2,#10150ecc)!important}#bot{background:linear-gradient(#10150ecc,#10150ef2)!important}
+/* Pantalla de inicio en móvil horizontal: portada a la izquierda, título y botones a la derecha (antes se cortaba por arriba) */
+#titleScreen{align-items:safe center}
+@media (orientation:landscape) and (max-height:560px){
+#titleScreen{padding:10px}
+.titlebox{width:min(980px,98vw);max-height:calc(100vh - 20px);display:grid;grid-template-columns:minmax(0,44fr) minmax(0,56fr);grid-template-rows:auto auto minmax(0,1fr);column-gap:22px;align-items:start;padding:20px 22px}
+.titlebox .coverart{grid-column:1;grid-row:1/4;height:100%;min-height:200px;max-height:calc(100vh - 60px);margin:0}
+.titlebox h1{grid-column:2;font-size:clamp(28px,6.2vh,44px);margin:4px 0 0}
+.titlebox .subtitle{grid-column:2;margin:6px 0 4px}
+#titleContent{grid-column:2;overflow:auto;max-height:calc(100vh - 160px);padding-right:2px}
+#titleContent p{font-size:13px;margin:6px 0}
+#titleContent .title-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+#titleContent .title-actions button{min-width:0;padding:11px 10px;font-size:13px}
+}
