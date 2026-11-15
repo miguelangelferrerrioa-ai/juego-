@@ -723,8 +723,7 @@ function exGo(){if(S.exp)return;exSel=exSel.filter(i=>{const q=byId(i);return q&
 /* ---------- Explorador solitario ---------- */
 const SOLO_RES=['food','water','wood','metal','meds','ammo'],SOLO_R={food:[20,45],water:[20,45],wood:[25,60],metal:[15,40],meds:[5,15],ammo:[10,25],fuel:[5,15]};
 function toggleDock(){const b=$('bot'),closed=b.classList.toggle('dock-collapsed');$('dockToggle').setAttribute('aria-expanded',closed?'false':'true');$('dockToggle').textContent=closed?'☰ Menú':'✕ Cerrar menú'}
-function soloGo(id){const p=byId(id);if(!p||p.away||S.solo)return;if(p.preg||p.age<18)return toast('No puede salir de expedición.');if(horde)return toast('No puedes salir durante una horda.');if(S.res.food<10||S.res.water<10)return toast('Necesitas 10 de comida y 10 de agua.');
-S.res.food-=10;S.res.water-=10;p.away=1;S.solo={id,step:0,max:50,loot:{},log:[],items:[],surv:0,tech:[],returning:false,txt:p.n+' sale de la ciudad por el camino viejo...'};soloView()}
+function soloGo(id){const p=byId(id);if(!p||p.away||S.solo)return;if(p.preg||p.age<18)return toast('No puede salir de expedición.');if(horde)return toast('No puedes salir durante una horda.');p.away=1;S.solo={id,step:0,max:50,loot:{},log:[],items:[],surv:0,tech:[],returning:false,txt:p.n+' sale de la ciudad por el camino viejo...'};soloView()}
 function soloView(){const s=S.solo,p=s&&byId(s.id);if(!p){S.solo=null;return}
 const L=Object.keys(s.loot).filter(k=>s.loot[k]>0).map(k=>Math.round(s.loot[k])+' '+RN[k]).concat(s.items.map(i=>i.n),s.surv?[s.surv+' superviviente(s)']:[],s.kit?[s.kit+' botiquín(es)']:[],s.tech.map(i=>'planos: '+TECH.find(q=>q[0]==i)[2])).join(', ')||'nada aún';
 const pd=s.pend?CH[s.pend.i]:null;const returnChance=Math.max(0,100-Math.floor(s.step/5)*10);
@@ -742,6 +741,8 @@ function soloDanger(st){return(25+6*hallLv())*(1+.02*(st||0))}
 function soloArm(p){const d=(p.arm&&CL[p.arm]?CL[p.arm].def:0)+(typeof clothingDef==='function'?clothingDef(p):0);return Math.max(.4,1-d*.03)}
 /* probabilidad de ganar un combate (zombis) en el tramo st */
 function soloWin(p,st,band){const pw=upow(p),d=soloDanger(st)*(band?1.1:1),r=d/Math.max(1,pw);return Math.max(0,Math.min(1,(1.4-r)/.8))}
+/* recomendación para la lista: combates ganados (al empezar y en el tramo 20), heridas que evita y suerte de explorador */
+function soloScore(p){return(soloWin(p,0)+soloWin(p,20))*50+(1-soloArm(p))*30+soloLuck(p)*150+p.hp/mhp(p)*5}
 function soloLuck(p,s){return(p.ps.Explorador||0)*.03+(p.prof=='Explorador'?.04:0)+(th('expl1')?.03:0)+(th('expl2')?.03:0)+(s&&s.dog?.05:0)}
 function soloPick(k){const s=S.solo,p=s&&byId(s.id);if(!p||!s.pend)return;const c=CH[s.pend.i];s.pend=null;const t=c.r[k](s,p);s.txt=t;s.log.push(s.step+'. '+t);if(p.hp<=0)return soloEnd(1);soloView()}
 function soloUse(){const s=S.solo,p=s&&byId(s.id);if(!p||s.returning||p.hp>=mhp(p)-1)return;if(s.kit>0)s.kit--;else if(S.res.meds>0)S.res.meds--;else return toast('No quedan botiquines ni medicinas.');const old=Math.round(p.hp);p.hp=Math.min(mhp(p),p.hp+35);p.injury=Math.max(0,(p.injury||0)-8);s.txt=p.n+' se cura durante la expedición (+'+(Math.round(p.hp)-old)+' salud).';s.log.push('Tramo '+s.step+': '+s.txt);save();soloView()}

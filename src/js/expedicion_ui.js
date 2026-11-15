@@ -22,9 +22,9 @@ window.expMenu=function(){
     else h+=`<div class="xbusy"><span class="xbi">🧭</span><div class="xdi"><b>Misión en curso</b><div class="bsub">${dn} · ${who}</div></div><button class="bup" onclick="exEvent()">Ver</button></div>`}
   if(!has)h+=`<p class="bsub" style="color:#e8a090">Para misiones con equipo necesitas un <b>Centro de expediciones</b> (ayuntamiento nivel 3). Mientras tanto puedes enviar al explorador solitario.</p>`;
   if(tab==='solo'){
-    const poor=S.res.food<10||S.res.water<10||busyS;
-    h+=`<div class="xdest"><div class="xdi"><b>Explorador solitario</b><div class="bsub">Un superviviente explora los alrededores y tú decides cuándo vuelve. Puede traer suministros, armas, planos o gente… o no volver.</div><div class="bchs"><span class="bch"><img src="${ICO.food}" width=13> −10</span><span class="bch"><img src="${ICO.water}" width=13> −10</span></div></div></div>`+
-     `<div class="bsec">Elige a quién enviar</div><div class="pg sm">${free.map(p=>pcard(p,poor?`toast('${busyS?'Ya hay un explorador en camino.':'Necesitas 10 de comida y 10 de agua.'}')`:`soloGo(${p.id})`,poor?'dis':'',p.ps&&p.ps.Explorador?'★'+p.ps.Explorador:'⚔'+upow(p))).join('')||'<p class="bsub">No hay supervivientes disponibles.</p>'}</div>`;
+    const poor=busyS;
+    h+=`<div class="xdest"><div class="xdi"><b>Explorador solitario</b><div class="bsub">Un superviviente explora los alrededores y tú decides cuándo vuelve. Puede traer suministros, armas, planos o gente… o no volver.</div><div class="bchs"><span class="bch">Sin coste</span><span class="bch">Los más recomendados salen primero</span></div></div></div>`+
+     `<div class="bsec">Elige a quién enviar</div><div class="pg sm">${free.slice().sort((a,b)=>(window.soloScore?soloScore(b)-soloScore(a):0)).map(p=>pcard(p,poor?`toast('Ya hay un explorador en camino.')`:`soloGo(${p.id})`,poor?'dis':'',p.ps&&p.ps.Explorador?'★'+p.ps.Explorador:'⚔'+upow(p))).join('')||'<p class="bsub">No hay supervivientes disponibles.</p>'}</div>`;
     show('Expedición',h);paintCards();return}
   /* destinos */
   let items=[],cur=null,sel=null,pick;
