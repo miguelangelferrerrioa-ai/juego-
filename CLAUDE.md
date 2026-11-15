@@ -12,7 +12,7 @@ Se juega sobre todo en un **Android en horizontal (2424×1080, devicePixelRatio 
 - `sw.js`, `manifest.webmanifest`, `icon-*.png`, `_headers` → para que se pueda instalar como aplicación y jugar sin conexión.
 - `tools/build.py` → junta `src/` en `index.html` y sube la versión de caché de `sw.js` (para que los móviles cojan la versión nueva).
 - `tools/scan.py` → prueba rápida: dibuja todos los edificios en todos los niveles; debe imprimir `[2440, [], 0] []`.
-- `partidas/` → partidas guardadas para probar (`prueba_asalto_final.json`: día 248, pueblo grande, listo para el asalto final; `dia3.json`: partida temprana).
+- `partidas/` → partidas guardadas para probar (`partida_larga_dia248.json`: la de día 248 sin tutoriales pendientes, lista para importar en el móvil; `prueba_asalto_final.json`: día 248, pueblo grande, listo para el asalto final; `dia3.json`: partida temprana).
 - `HISTORIAL.md` → notas de todo lo que se ha cambiado en sesiones anteriores (leer antes de tocar algo grande).
 
 ## Después de cada cambio
@@ -25,6 +25,7 @@ Se juega sobre todo en un **Android en horizontal (2424×1080, devicePixelRatio 
 ## Preferencias del dueño del juego (importante)
 - Responder **siempre en español**, corto y yendo al grano.
 - Mandar **capturas de prueba** de los cambios cuando se pueda.
+- Si un cambio se nota en partidas largas (rendimiento, pueblo grande, capítulos avanzados…), mandar SIEMPRE con SendUserFile un guardado largo para importar (`partidas/partida_larga_dia248.json`, o uno nuevo si hace falta), comprobado antes con Importar partida.
 - No tardar horas en pruebas/simulaciones largas.
 - **No proponer nunca un botón de velocidad**: no se va a hacer.
 - Los ratos lentos del juego (parones) se quedan.
