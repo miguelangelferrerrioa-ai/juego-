@@ -30,6 +30,7 @@ Se juega sobre todo en un **Android en horizontal (2424×1080, devicePixelRatio 
 - **No proponer nunca un botón de velocidad**: no se va a hacer.
 - Los ratos lentos del juego (parones) se quedan.
 - Solo los ciudadanos comunes mueren de vejez.
+- Los asaltos (final, Torre, sillas) NO se pueden perder, a propósito: no proponer añadir derrota.
 - **Nada de spoilers**: lo bloqueado se muestra como "???" o siluetas oscuras en todas partes (guía, recursos, opciones, etc.).
 - La moral ya se quitó del juego: no proponer cosas basadas en moral.
 - Si dice "no hagas nada hasta que te diga", solo mandar maquetas/capturas.
