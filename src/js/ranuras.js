@@ -49,7 +49,7 @@ function download(name,txt){try{const b=new Blob([txt],{type:'application/json'}
 window.exportSlotKey=key=>{
   let t=raw(key);if(window.LIVE&&key===KEY&&window.S&&!S.over){try{save();t=raw(key)}catch(e){}}
   const d=info(key);if(!d)return toast('No hay partida que exportar.');
-  const name='afterthesilence_dia'+d.day+'_'+(key.replace('dtls_','').replace('dtls','s1'))+'.json';
+  const name='afterthesilence_dia'+d.day+'_'+(KEYS.indexOf(key)>=0?'ranura'+(KEYS.indexOf(key)+1):key)+'.json';
   download(name,t);
   try{navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>toast('Partida exportada y copiada al portapapeles.'),()=>toast('Partida exportada como archivo.'))}catch(e){toast('Partida exportada como archivo.')}};
 window.slotExport=i=>exportSlotKey(KEYS[i]);

@@ -764,7 +764,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v45</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v48</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -5367,7 +5367,7 @@ function download(name,txt){try{const b=new Blob([txt],{type:'application/json'}
 window.exportSlotKey=key=>{
   let t=raw(key);if(window.LIVE&&key===KEY&&window.S&&!S.over){try{save();t=raw(key)}catch(e){}}
   const d=info(key);if(!d)return toast('No hay partida que exportar.');
-  const name='afterthesilence_dia'+d.day+'_'+(key.replace('dtls_','').replace('dtls','s1'))+'.json';
+  const name='afterthesilence_dia'+d.day+'_'+(KEYS.indexOf(key)>=0?'ranura'+(KEYS.indexOf(key)+1):key)+'.json';
   download(name,t);
   try{navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>toast('Partida exportada y copiada al portapapeles.'),()=>toast('Partida exportada como archivo.'))}catch(e){toast('Partida exportada como archivo.')}};
 window.slotExport=i=>exportSlotKey(KEYS[i]);
@@ -10700,10 +10700,28 @@ setInterval(()=>{try{if(typeof S==='undefined'||!S||!S.ppl||!S.bld||!S.bld.lengt
  for(const m of L){if(S.tips[m.id])continue;let ok=false;try{ok=m.when()}catch(e){}if(ok){S.tips[m.id]=1;window.tutShow&&tutShow(m.id)}}}catch(e){}},2500);
 })();
 </script>
+<script>/* Recordatorio de copia de seguridad: cada 10 días de juego sin exportar, aviso con botón Exportar (las partidas solo viven dentro del navegador). */
+(function(){
+'use strict';
+const CADA=10,POSP=3;
+const oExp=window.exportSlotKey;
+if(typeof oExp==='function')window.exportSlotKey=function(key){const r=oExp.apply(this,arguments);try{if(typeof LIVE!=='undefined'&&LIVE&&key===KEY&&typeof S!=='undefined'&&S&&!S.over){S.expD=S.day;S.expP=0;hide();save()}}catch(e){}return r};
+function hide(){const el=document.getElementById('bkBar');if(el)el.remove()}
+function busy(){try{if(typeof LIVE==='undefined'||!LIVE||typeof S==='undefined'||!S||S.over||horde)return true;const ts=document.getElementById('titleScreen');if(ts&&getComputedStyle(ts).display!=='none')return true}catch(e){return true}return false}
+function check(){try{if(busy()||document.getElementById('bkBar'))return;if(S.expD==null){S.expD=S.day;return}
+ const d=S.day-S.expD;if(d<CADA||(S.expP&&S.day<S.expP))return;show(d)}catch(e){}}
+function show(d){const el=document.createElement('div');el.id='bkBar';
+ el.style.cssText='position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:9997;max-width:min(92vw,540px);background:#1b2226;border:2px solid #8fa3ad;color:#e3ecef;padding:8px 10px;border-radius:8px;font:600 12px system-ui,sans-serif;display:flex;gap:8px;align-items:center;box-shadow:0 4px 18px #000a';
+ el.innerHTML='<span style="flex:1">Hace '+d+' días que no guardas una copia de tu partida. Si se borra la app, se perdería.</span><button class="primary" style="padding:5px 10px">Exportar ahora</button><button style="padding:5px 8px">Luego</button>';
+ const [be,bl]=el.querySelectorAll('button');be.onclick=()=>{try{exportSlotKey(KEY)}catch(e){}hide()};bl.onclick=()=>{try{S.expP=S.day+POSP}catch(e){}hide()};document.body.appendChild(el)}
+window.bkCheck=check;
+setInterval(check,20000);
+})();
+</script>
 <script>/* Aviso de versión nueva: compara la versión de este archivo con la del sw.js publicado; si hay una más nueva, ofrece actualizar (guarda antes). */
 (function(){
 'use strict';
-const VER=+'45';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'48';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
