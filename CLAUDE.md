@@ -20,7 +20,7 @@ Se juega sobre todo en un **Android en horizontal (2424×1080, devicePixelRatio 
 2. `python3 tools/build.py`
 3. `python3 tools/scan.py` (si hay Playwright) → sin errores.
 4. Añadir una línea a `HISTORIAL.md` explicando el cambio.
-5. Commit y push → Vercel lo publica solo.
+5. Commit y push a `main` → Vercel lo publica solo.
 
 ## Preferencias del dueño del juego (importante)
 - Responder **siempre en español**, corto y yendo al grano.
