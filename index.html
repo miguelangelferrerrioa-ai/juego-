@@ -764,7 +764,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v91</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v92</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -1548,23 +1548,29 @@ const CH=[
 {t:'Un perro callejero te sigue, hambriento.',a:'Compartir tu comida',b:'Ahuyentarlo',r:[(s,p)=>{if(s.loot.food>=5)s.loot.food-=5;s.dog=1;return'El perro se queda contigo y te avisa de peligros (+5% de suerte el resto del viaje).'},(s,p)=>'El perro se aleja gimoteando. Sigues solo.']},
 {t:'Una caravana abandonada tiene un cofre cerrado con candado.',a:'Forzar el cofre',b:'Dejarlo',r:[(s,p)=>{if(Math.random()<.5+soloLuck(p,s)){if(Math.random()<.4){const w=pk(WP.filter(q=>!q.t||th(q.t)));s.items.push({n:w.n,v:w.v});return'¡El cofre guardaba un arma: '+w.n+'!'}s.loot.ammo=(s.loot.ammo||0)+25;return'Dentro hay munición (+25).'}const dm=Math.round(rn(10,20));p.hp-=dm;return'El ruido atrae a unos infectados. Escapas herido (-'+dm+' salud).'},(s,p)=>'Prefieres no arriesgarte y sigues tu camino.']},
 {t:'Un superviviente herido te pide ayuda al borde del camino.',a:'Ayudarle',b:'Ignorarle',r:[(s,p)=>{if(s.kit>0){s.kit--;s.surv++;return'Usas un botiquín para curarle. Agradecido, decide seguirte a la ciudad.'}s.loot.scrap=(s.loot.scrap||0)+15;return'No tienes con qué curarle, pero te habla de un escondite cercano (+15 chatarra).'},(s,p)=>'Sigues adelante sin mirar atrás.']}];
+/* Expedición solitaria: el peligro depende de lo avanzada que va la partida y sube poco a poco con los tramos (antes +10 por tramo: a los pocos tramos todos perdían los combates y la fuerza no se notaba) */
+function soloDanger(st){return(25+6*hallLv())*(1+.02*(st||0))}
+/* defensa (tipo de soldado + atuendo + prendas) reduce las heridas de los combates */
+function soloArm(p){const d=(p.arm&&CL[p.arm]?CL[p.arm].def:0)+(typeof clothingDef==='function'?clothingDef(p):0);return Math.max(.4,1-d*.03)}
+/* probabilidad de ganar un combate (zombis) en el tramo st */
+function soloWin(p,st,band){const pw=upow(p),d=soloDanger(st)*(band?1.1:1),r=d/Math.max(1,pw);return Math.max(0,Math.min(1,(1.4-r)/.8))}
 function soloLuck(p,s){return(p.ps.Explorador||0)*.03+(p.prof=='Explorador'?.04:0)+(th('expl1')?.03:0)+(th('expl2')?.03:0)+(s&&s.dog?.05:0)}
 function soloPick(k){const s=S.solo,p=s&&byId(s.id);if(!p||!s.pend)return;const c=CH[s.pend.i];s.pend=null;const t=c.r[k](s,p);s.txt=t;s.log.push(s.step+'. '+t);if(p.hp<=0)return soloEnd(1);soloView()}
 function soloUse(){const s=S.solo,p=s&&byId(s.id);if(!p||s.returning||p.hp>=mhp(p)-1)return;if(s.kit>0)s.kit--;else if(S.res.meds>0)S.res.meds--;else return toast('No quedan botiquines ni medicinas.');const old=Math.round(p.hp);p.hp=Math.min(mhp(p),p.hp+35);p.injury=Math.max(0,(p.injury||0)-8);s.txt=p.n+' se cura durante la expedición (+'+(Math.round(p.hp)-old)+' salud).';s.log.push('Tramo '+s.step+': '+s.txt);save();soloView()}
 function soloRequestReturn(){const s=S.solo,p=s&&byId(s.id);if(!s||!p||s.returning)return;if(s.step===0){return soloEnd(0)}s.returning=true;s.returnDay=S.day+1;s.txt=p.n+' ha iniciado el regreso. La vuelta tardará un día completo.';save();soloView()}
 function soloResolveReturn(){const s=S.solo,p=s&&byId(s.id);if(!s||!p||!s.returning||S.day<s.returnDay)return '';const chance=Math.max(0,100-Math.floor(s.step/5)*10);if(Math.random()*100>=chance){S.solo=null;p.away=0;die(p,'desapareció durante el regreso de una expedición solitaria');save();return p.n+' no ha conseguido regresar. Probabilidad de supervivencia: '+chance+'%. Se ha perdido el botín.';}return soloEnd(0,true)}
 function soloStep(){const s=S.solo,p=s&&byId(s.id);if(!p){S.solo=null;return}if(s.returning)return toast('Ya está regresando a la ciudad.');if(s.step>=50)return soloView();
-const lk=soloLuck(p,s),pw=upow(p),d=22+s.step*10,fight=dg=>pw*rn(.6,1.4)>dg,add=(r,n)=>{s.loot[r]=(s.loot[r]||0)+n};
+const lk=soloLuck(p,s),pw=upow(p),d=soloDanger(s.step),ar=soloArm(p),fight=dg=>pw*rn(.6,1.4)>dg,add=(r,n)=>{s.loot[r]=(s.loot[r]||0)+n};
 const W=[['sup',30],['zom',24],['trap',9],['calm',9],['rest',8],['band',7+s.step],['surv',2+lk*40],['wp',2+lk*40],['bp',1+lk*30],['ch',12],['kit',5]];
 let r=rn(0,W.reduce((a,w)=>a+w[1],0)),k=W[0][0];for(const w of W){if(r<w[1]){k=w[0];break}r-=w[1]}
 let t='';if(S.solo&&s.pend)return;
 if(k=='ch'){const i=ri(0,CH.length-1);s.step++;s.pend={i};s.txt=CH[i].t;return soloView()}
 if(k=='sup'){const res=pk(SOLO_RES),n=Math.round(ri(...SOLO_R[res])*(1+lk));add(res,n);t=pk(['Registras unas ruinas abandonadas','Encuentras un coche destrozado','Un almacén olvidado aún guarda cosas útiles'])+': +'+n+' '+RN[res]+'.'}
-else if(k=='zom'){if(fight(d)){p.xp+=4;t='Un grupo de zombis te cierra el paso. Logras abatirlos y sigues.';if(Math.random()<.4){add('ammo',8);t+=' Recoges +8 munición.'}}else{const dm=Math.round(rn(10,28));p.hp-=dm;t='Los zombis te rodean. Escapas herido (-'+dm+' salud).'}}
+else if(k=='zom'){if(fight(d)){p.xp+=4;t='Un grupo de zombis te cierra el paso. Logras abatirlos y sigues.';if(Math.random()<.4){add('ammo',8);t+=' Recoges +8 munición.'}}else{const dm=Math.round(rn(10,28)*ar);p.hp-=dm;t='Los zombis te rodean. Escapas herido (-'+dm+' salud'+(ar<.99?', la protección te salva de lo peor':'')+').'}}
 else if(k=='trap'){const dm=Math.round(rn(5,15));p.hp-=dm;t=pk(['Pisas una trampa oxidada','Te cortas con unos cristales','Caes por un suelo podrido'])+' (-'+dm+' salud).'}
 else if(k=='calm')t=pk(['El camino está tranquilo. Solo se oye el viento.','Encuentras un mirador y observas la zona sin novedad.','Cruzas un barrio vacío, sin nada que merezca la pena.'])
 else if(k=='rest'){p.hp=Math.min(mhp(p),p.hp+18);t='Encuentras un refugio improvisado. Descansas un rato (+18 salud).'}
-else if(k=='band'){if(fight(d+12)){add('ammo',15);add('scrap',15);t='Unos bandidos te tienden una emboscada, pero los vences y les quitas sus cosas (+15 munición, +15 chatarra).'}else{const dm=Math.round(rn(15,35));p.hp-=dm;for(const q in s.loot)s.loot[q]*=.5;t='Unos bandidos te roban la mitad del botín y te hieren (-'+dm+' salud).'}}
+else if(k=='band'){if(fight(d*1.1)){add('ammo',15);add('scrap',15);t='Unos bandidos te tienden una emboscada, pero los vences y les quitas sus cosas (+15 munición, +15 chatarra).'}else{const dm=Math.round(rn(15,35)*ar);p.hp-=dm;for(const q in s.loot)s.loot[q]*=.5;t='Unos bandidos te roban la mitad del botín y te hieren (-'+dm+' salud).'}}
 else if(k=='kit'){s.kit=(s.kit||0)+1;t='Encuentras un botiquín en una mochila abandonada. Puedes usarlo cuando quieras.'}
 else if(k=='surv'){s.surv++;t='Encuentras a un superviviente escondido que decide seguirte a la ciudad.'}
 else if(k=='wp'){add('scrap',8+ri(0,8));t='Entre unos escombros reúnes un buen puñado de chatarra.'}
@@ -11122,6 +11128,23 @@ const oU=window.upd;window.upd=function(dt){let L=[],g=null;
  return r};
 })();
 </script>
+<script>/* Expedición solitaria: indicador de cómo le irán los combates (según su fuerza y el tramo) y de cuánto le protege su defensa, al elegir a quién mandar y durante la expedición. */
+(function(){
+'use strict';
+function lab(w){return w>=.8?['ok','los ganará casi siempre']:w>=.4?['mid','los ganará a veces']:['bad','los perderá casi siempre']}
+function prot(p){const a=soloArm(p);return Math.round((1-a)*100)}
+const oV=window.soloView;window.soloView=function(){const r=oV.apply(this,arguments);try{const s=S.solo,p=s&&byId(s.id);if(!p)return r;
+ const w=soloWin(p,s.step),[k,t]=lab(w),pr=prot(p),pan=document.getElementById('pan');const bar=pan&&pan.querySelector('.sright .sbar');
+ if(bar&&!pan.querySelector('.sf-odds')){const d=document.createElement('div');d.className='sf-odds '+k;d.innerHTML=`⚔ Combates en el próximo tramo: <b>${t}</b> <em>(${Math.round(w*100)} %)</em>${pr?` · 🛡 heridas −${pr} %`:''}`;bar.after(d)}}catch(e){}return r};
+const oE=window.expMenu;window.expMenu=function(){const r=oE.apply(this,arguments);try{const pan=document.getElementById('pan');if(!pan)return r;
+ pan.querySelectorAll('.pg.sm [onclick*="soloGo("]').forEach(c=>{const m=(c.getAttribute('onclick')||'').match(/soloGo\((\d+)\)/);if(!m||c.querySelector('.sf-tag'))return;const p=byId(+m[1]);if(!p)return;
+  const w=soloWin(p,0),w20=soloWin(p,20),[k]=lab((w+w20)/2),e=document.createElement('small');e.className='sf-tag '+k;e.textContent=k==='ok'?'⚔ Fuerte':k==='mid'?'⚔ Normal':'⚔ Débil';e.title='Combates: '+Math.round(w*100)+' % al empezar, '+Math.round(w20*100)+' % en el tramo 20';c.appendChild(e)})}catch(e){}return r};
+const st=document.createElement('style');st.textContent=`
+.sf-odds{margin:6px 0;padding:5px 9px;border-radius:8px;font-size:12px;border:1px solid}.sf-odds em{font-style:normal;opacity:.75}
+.sf-odds.ok{border-color:#4f9a4f;background:#142614;color:#bfeabf}.sf-odds.mid{border-color:#b8962a;background:#2a230c;color:#ffe08a}.sf-odds.bad{border-color:#c0442e;background:#2e110c;color:#ffc2b0}
+.sf-tag{display:block;margin-top:2px;font-weight:800;font-size:10.5px}.sf-tag.ok{color:#8fe08f}.sf-tag.mid{color:#ffd877}.sf-tag.bad{color:#ff9a8a}`;document.head.appendChild(st);
+})();
+</script>
 <script>/* Recordatorio de copia de seguridad: cada 10 días de juego sin exportar, aviso con botón Exportar (las partidas solo viven dentro del navegador). */
 (function(){
 'use strict';
@@ -11144,7 +11167,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'91';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'92';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
