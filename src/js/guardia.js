@@ -29,7 +29,7 @@ const pips=g=>'●'.repeat(g)+'<span style="opacity:.25">'+'●'.repeat(Math.max
 const bk=`<button class="vl-back" onclick="hide()">← Salir del edificio</button>`;
 function head(){const g=gd(),k=rank(),nx=RT[k+1],pr=nx?Math.min(100,(g.rep-RT[k])/(nx-RT[k])*100):100;
  return `<div class="mu-sts"><div class="mu-st"><span>🪙</span><b>${Math.floor(fich())}</b><small>Fichas</small></div><div class="mu-st"><span>🛡</span><b>${RANKS[k]}</b><small>${g.rep}${nx?' / '+nx:''} rep.</small></div></div><div style="height:6px;background:#0d120c;border-radius:4px;margin:2px 0 6px;overflow:hidden"><i style="display:block;height:100%;width:${pr}%;background:linear-gradient(90deg,#3f6a8f,#f2c542)"></i></div>`}
-function npc(id){const n=NPCS[id],k=rank();return `<div class="vl-npc"><div class="vl-av" style="background:${n.col}">${n.ic}</div><div><b>${n.n}</b><small>${n.role}</small><p>“${pk(n.say[k])}”</p></div></div>`}
+function npc(id){const n=NPCS[id],k=rank();return `<div class="vl-npc">${window.npcAv?npcAv(id,n,1):`<div class="vl-av" style="background:${n.col}">${n.ic}</div>`}<div><b>${n.n}</b><small>${n.role}</small><p>“${pk(n.say[k])}”</p></div></div>`}
 const T=(t)=>'Guardia del Alba · '+t;
 function lock(){show('La Guardia del Alba',`<div class="mu-empty"><span>🔒</span><b>La Guardia del Alba</b><small>Soldados con insignia dorada patrullan al norte. Aún no sabes cómo encontrarlos: avanza en la historia (capítulo 8).</small></div>`)}
 function arrive(){const g=gd();if(g.met)return;g.met=1;rep(5);A.gain(60);toast('La Guardia te recibe: +60 fichas y +5 de reputación.');try{save()}catch(e){}}

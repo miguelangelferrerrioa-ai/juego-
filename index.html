@@ -764,7 +764,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v61</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v64</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -6848,6 +6848,65 @@ G.splice(at,0,['Gasolina',()=>'<p>La <b>gasolina</b> se gasta al salir de la bas
 const st=document.createElement('style');st.textContent='.gas-b{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#241f12;border:1px solid #6a5a1a;border-radius:10px;padding:6px 10px;margin:0 0 8px;font-size:13px;color:#ffe9a8}.gas-b small{opacity:.7}.gas-b.low{background:#2c1a16;border-color:#8a3a2a;color:#ffb3a8}';document.head.appendChild(st);
 })();
 </script>
+<script>/* Retratos de los vecinos (Villa Esperanza y Guardia del Alba): misma cara dibujada que los supervivientes + un detalle de su oficio. Sustituye al círculo de color con emoji. */
+(function(){
+'use strict';
+/* id: [sexo, edad, piel, pelo, ropa, detalle, id de estilo] */
+const LOOK={
+ raul:['M',41,'#c98f68','#1c1c1c','#8a2f3e','pajarita',4],
+ berta:['F',46,'#e8b88a','#5a3a1a','#5d6a76','llave',2],
+ telmo:['M',64,'#dca77e','#a9a9a4','#c4741c','gorra',3],
+ lola:['F',38,'#f0c9a0','#8a3a1a','#4f7a4f','delantal',5],
+ marta:['F',51,'#c98f68','#2a1a10','#b5763a','panuelo',1],
+ elena:['F',34,'#f0c9a0','#c8a050','#e4e8e8','fonendo',6],
+ gus:['M',58,'#e8b88a','#a9a9a4','#7a5a32','gafas',7],
+ ibarra:['M',47,'#9d684b','#1c1c1c','#48607e','boina',9],
+ valeria:['F',52,'#dca77e','#2a1a10','#3f4c3a','estrella',10],
+ soler:['M',45,'#e8b88a','#5a3a1a','#4a5638','oficial',11],
+ reyes:['F',41,'#c98f68','#1c1c1c','#e4e8e8','cruz',13],
+ olmos:['M',56,'#9d684b','#a9a9a4','#5a5f48','casco',14],
+ nina:['F',29,'#f0c9a0','#8a3a1a','#e8e2d0','gorro',17],
+ mateo:['M',35,'#dca77e','#5a3a1a','#6a6248','carpeta',18]
+};
+const dark=(h,k)=>{const n=parseInt(h.slice(1),16),f=c=>Math.max(0,Math.round(c*k));return'#'+[n>>16,(n>>8)&255,n&255].map(f).map(v=>v.toString(16).padStart(2,'0')).join('')};
+function acc(x,k){const OL='#2a1a11';x.lineJoin='round';x.lineCap='round';const st=(w)=>{x.strokeStyle=OL;x.lineWidth=w||2.2;x.stroke()};
+ switch(k){
+  case'pajarita':x.fillStyle='#b8242e';x.beginPath();x.moveTo(90,150);x.lineTo(74,141);x.lineTo(74,159);x.closePath();x.moveTo(90,150);x.lineTo(106,141);x.lineTo(106,159);x.closePath();x.fill();st(2);x.fillStyle='#7a141c';x.beginPath();x.arc(90,150,4.5,0,7);x.fill();st(1.6);
+   x.fillStyle='rgba(30,140,90,.85)';x.beginPath();x.moveTo(48,52);x.quadraticCurveTo(90,30,132,52);x.lineTo(136,60);x.quadraticCurveTo(90,44,44,60);x.closePath();x.fill();st(2);break;
+  case'llave':x.save();x.translate(140,148);x.rotate(-.75);x.fillStyle='#aab3ba';x.fillRect(-4,-30,8,44);x.beginPath();x.arc(0,-34,10,0,7);x.fill();x.strokeStyle=OL;x.lineWidth=2;x.strokeRect(-4,-30,8,44);x.beginPath();x.arc(0,-34,10,0,7);x.stroke();x.fillStyle='#3a3d32';x.fillRect(-4,-46,8,10);x.restore();break;
+  case'gorra':x.fillStyle='#c4741c';x.beginPath();x.moveTo(50,58);x.quadraticCurveTo(90,22,130,58);x.lineTo(130,64);x.lineTo(50,64);x.closePath();x.fill();st(2.2);x.fillStyle='#8a4e10';x.beginPath();x.moveTo(50,62);x.quadraticCurveTo(90,70,146,66);x.lineTo(146,72);x.quadraticCurveTo(90,78,50,70);x.closePath();x.fill();st(2);x.fillStyle='#ffd877';x.fillRect(84,42,12,9);break;
+  case'delantal':x.fillStyle='#efe6d0';x.beginPath();x.moveTo(62,150);x.lineTo(118,150);x.lineTo(124,190);x.lineTo(56,190);x.closePath();x.fill();st(2);x.strokeStyle='#efe6d0';x.lineWidth=5;x.beginPath();x.moveTo(66,150);x.lineTo(70,128);x.moveTo(114,150);x.lineTo(110,128);x.stroke();
+   x.fillStyle='#d9a23a';x.fillRect(128,150,20,24);x.strokeStyle=OL;x.lineWidth=2;x.strokeRect(128,150,20,24);x.fillStyle='#fff6';x.fillRect(128,150,20,6);break;
+  case'panuelo':x.fillStyle='#b8242e';x.beginPath();x.moveTo(46,66);x.quadraticCurveTo(90,14,134,66);x.quadraticCurveTo(90,52,46,66);x.closePath();x.fill();st(2.2);x.fillStyle='#f2d27a';for(let i=0;i<5;i++){x.beginPath();x.arc(60+i*15,48-Math.sin(i/4*Math.PI)*8,2.4,0,7);x.fill()}break;
+  case'fonendo':x.strokeStyle='#2a2d33';x.lineWidth=3.2;x.beginPath();x.moveTo(70,128);x.quadraticCurveTo(66,160,84,168);x.moveTo(110,128);x.quadraticCurveTo(114,160,96,168);x.stroke();x.fillStyle='#aab3ba';x.beginPath();x.arc(90,170,6,0,7);x.fill();st(1.8);
+   x.fillStyle='#d33';x.fillRect(118,154,14,4);x.fillRect(123,149,4,14);break;
+  case'gafas':x.strokeStyle='#2a1a11';x.lineWidth=2.6;x.fillStyle='rgba(200,230,255,.22)';x.beginPath();x.arc(74,84,11,0,7);x.fill();x.stroke();x.beginPath();x.arc(106,84,11,0,7);x.fill();x.stroke();x.beginPath();x.moveTo(85,84);x.lineTo(95,84);x.stroke();break;
+  case'boina':x.fillStyle='#2f3f5a';x.beginPath();x.ellipse(84,50,46,16,-.12,0,7);x.fill();st(2.2);x.fillStyle='#d9a23a';x.beginPath();x.arc(112,50,5,0,7);x.fill();st(1.4);
+   x.fillStyle='#d9a23a';x.beginPath();x.arc(118,162,6,0,7);x.fill();st(1.6);x.fillStyle='#b8242e';x.fillRect(114,148,8,8);break;
+  case'estrella':x.fillStyle='#3f4c3a';x.beginPath();x.ellipse(86,50,46,16,-.1,0,7);x.fill();st(2.2);x.fillStyle='#f2c542';x.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?3.6:8.5;x.lineTo(108+Math.cos(a)*r,48+Math.sin(a)*r)}x.closePath();x.fill();st(1.4);
+   x.fillStyle='#f2c542';for(let i=0;i<3;i++)x.fillRect(112+i*7,150,5,10);break;
+  case'oficial':x.fillStyle='#4a5638';x.beginPath();x.moveTo(52,58);x.quadraticCurveTo(90,26,128,58);x.lineTo(128,64);x.lineTo(52,64);x.closePath();x.fill();st(2.2);x.fillStyle='#1c1f18';x.beginPath();x.ellipse(90,66,42,6,0,0,7);x.fill();st(1.8);x.fillStyle='#f2c542';x.fillRect(84,48,12,8);
+   x.fillStyle='#f2c542';x.fillRect(56,146,16,4);x.fillRect(108,146,16,4);break;
+  case'cruz':x.fillStyle='#fff';x.beginPath();x.moveTo(54,60);x.quadraticCurveTo(90,30,126,60);x.lineTo(126,64);x.lineTo(54,64);x.closePath();x.fill();st(2);x.fillStyle='#d33';x.fillRect(86,40,8,18);x.fillRect(81,45,18,8);
+   x.fillStyle='#d33';x.fillRect(116,152,14,4);x.fillRect(121,147,4,14);break;
+  case'casco':x.fillStyle='#5a6248';x.beginPath();x.moveTo(44,66);x.quadraticCurveTo(46,24,90,22);x.quadraticCurveTo(134,24,136,66);x.closePath();x.fill();st(2.4);x.fillStyle='#454b36';x.fillRect(42,62,96,7);x.strokeStyle='#2a1a11';x.lineWidth=2;x.strokeRect(42,62,96,7);break;
+  case'gorro':x.fillStyle='#fbf8ef';x.beginPath();x.moveTo(56,62);x.lineTo(56,40);x.arc(68,34,13,Math.PI,0);x.arc(90,26,15,Math.PI,0);x.arc(112,34,13,Math.PI,0);x.lineTo(124,62);x.closePath();x.fill();st(2.2);x.fillStyle='#e7e1cf';x.fillRect(56,54,68,9);break;
+  case'carpeta':x.save();x.translate(132,160);x.rotate(.18);x.fillStyle='#8a6a3a';x.fillRect(-14,-20,28,36);x.strokeStyle=OL;x.lineWidth=2;x.strokeRect(-14,-20,28,36);x.fillStyle='#f4efe0';x.fillRect(-10,-14,20,26);x.fillStyle='#aab3ba';x.fillRect(-6,-23,12,6);
+   x.fillStyle='#6a6f74';for(let i=0;i<4;i++)x.fillRect(-7,-9+i*6,14,1.6);x.restore();break}
+}
+const CACHE={};
+window.npcFace=function(id){if(CACHE[id])return CACHE[id];const L=LOOK[id];if(!L||typeof window.paintFace!=='function')return null;
+ try{const cv=document.createElement('canvas');cv.width=120;cv.height=126;const [sex,age,skin,hair,shirt,k,sid]=L;
+  const p={id:sid,n:id,sex,age,prof:'',look:{skin,hair,shirt},mor:80,hp:100};const sv=[SUIT,SUITD];SUIT=shirt;SUITD=dark(shirt,.7);
+  try{window.paintFace(cv,p)}finally{SUIT=sv[0];SUITD=sv[1]}
+  const x=cv.getContext('2d');x.save();x.setTransform(cv.width/180,0,0,cv.height/190,0,0);acc(x,k);x.restore();
+  return CACHE[id]=cv.toDataURL()}catch(e){return null}};
+/* HTML del avatar (cae al círculo de color si algo falla) */
+window.npcAv=function(id,n,big){const u=window.npcFace(id);if(!u)return `<span class="vl-av" style="background:${n.col}">${n.ic}</span>`;
+ return `<span class="vl-av vl-face${big?' big':''}" style="border-color:${n.col}"><img src="${u}" alt=""></span>`};
+const st=document.createElement('style');st.textContent=`.vl-av.vl-face{background:#14160f;overflow:hidden;padding:0;border-width:2px;border-style:solid}.vl-av.vl-face img{width:100%;height:100%;object-fit:cover;display:block}.vl-npc .vl-av.vl-face{width:54px;height:54px;border-radius:12px}`;document.head.appendChild(st);
+})();
+</script>
 <script>/* ===== Dead Town · Villa Esperanza: pueblo central con clínica, casino, armería, gasolinera, taberna y encargos ===== */
 (function(){
 const V={food:1,water:1,wood:1,metal:2,meds:5,ammo:3,tarp:3,stone:2,plank:3,sheet:4,brick:5,glass:8,steel:10,concrete:12,comp:8,chem:6,scrap:1,gas:9};
@@ -6881,7 +6940,7 @@ function pay(n){st().f-=n}function gain(n){st().f+=n}
 const chip=(ic,v,l)=>`<div class="mu-st"><span>${ic}</span><b>${v}</b><small>${l}</small></div>`;
 function head(place){const v=st(),L=lvl(),nx=RT[L+1];return `<div class="mu-sts">${chip('🪙',Math.floor(v.f),'Fichas')}${place==='gas'?chip('⛽',Math.floor(S.res.gas||0),'Gasolina'):''}</div>`}
 const back=`<button class="vl-back" onclick="hide()">← Salir del edificio</button>`;
-function npcBox(id){const n=NPC[id],L=lvl(),line=pk(n.say[L]);return `<div class="vl-npc"><div class="vl-av" style="background:${n.col}">${n.ic}</div><div><b>${n.n}</b><small>${n.role}</small><p>“${line}”</p></div></div>`}
+function npcBox(id){const n=NPC[id],L=lvl(),line=pk(n.say[L]);return `<div class="vl-npc">${window.npcAv?npcAv(id,n,1):`<div class="vl-av" style="background:${n.col}">${n.ic}</div>`}<div><b>${n.n}</b><small>${n.role}</small><p>“${line}”</p></div></div>`}
 function questBox(id){const q=st().q[id],n=NPC[id];if(!q)return'';if(q.done)return `<div class="vl-q done"><b>Encargo completado</b><small>Vuelve mañana: ${n.n} tendrá algo nuevo.</small></div>`;
  const have=Math.floor(S.res[q.r]||0),ok=have>=q.n;return `<div class="vl-q"><div><b>Encargo de ${n.n}</b><small>Necesito ${q.n} de ${NAME(q.r).toLowerCase()}.</small><div class="mu-uk"><span class="mu-k ${ok?'':'no'}"><img src="${ICO[q.r]}" width=13>${q.n}<small>${have}</small></span><span class="mu-k">🪙 ${q.f}</span></div></div><button class="mu-ub" ${ok?'':'disabled'} onclick="villaQuest('${id}')">Entregar</button></div>`}
 window.villaQuest=id=>{const q=st().q[id];if(!q||q.done)return;if((S.res[q.r]||0)<q.n)return toast('Te faltan recursos.');S.res[q.r]-=q.n;q.done=1;st().qd[id]=S.day;gain(q.f);toast(`Encargo completado: +${q.f} fichas.`);if(S.mode!=='creativo')refresh();try{save()}catch(e){}villaGo(NPC[id].pl)};
@@ -6895,7 +6954,7 @@ function scene(){const names=ORDER.map(k=>PL[k]);const cols=['#8a5a3a','#6a2f45'
  return `<svg class="vl-scene" viewBox="0 0 700 170" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="vlsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d3e55"/><stop offset="1" stop-color="#c98a52"/></linearGradient></defs><rect width="700" height="170" fill="url(#vlsky)"/><circle cx="620" cy="34" r="16" fill="#f4d68a" opacity=".85"/><path d="M0 120 l60 -34 l50 22 l70 -44 l60 36 l80 -30 l90 38 l90 -28 l100 30 l90 -22 v60 h-700z" fill="#3a3f45" opacity=".6"/><rect y="148" width="700" height="22" fill="#4a4034"/><rect y="148" width="700" height="3" fill="#6a5a44"/>${g}</svg>`}
 window.villaPlaza=function(){if(!unlocked())return show('Villa Esperanza',`<div class="mu-empty"><span>🔒</span><b>Villa Esperanza</b><small>Un pueblo de comerciantes y supervivientes al otro lado de la carretera. Descubrirás cómo llegar al completar la primera misión de la historia.</small></div>`);
  const v=st();refresh();let first='';if(!v.met){v.met=1;gain(100);first='<div class="gas-b"><b>¡Bienvenido a Villa Esperanza!</b><small>Los vecinos te regalan 100 fichas para empezar.</small></div>';try{save()}catch(e){}}
- show('Villa Esperanza',first+head()+scene()+`<div class="mu-h">Vecinos</div><div class="vl-people">${Object.keys(NPC).map(id=>`<button onclick="villaGo('${NPC[id].pl}')"><span class="vl-av" style="background:${NPC[id].col}">${NPC[id].ic}</span><b>${NPC[id].n}</b><small>${NPC[id].role}</small>${st().q[id]&&!st().q[id].done?'<i>!</i>':''}</button>`).join('')}</div><small class="mu-mut">Toca un edificio o un vecino. Haz encargos para ganar fichas y gástalas en los edificios.</small>`)};
+ show('Villa Esperanza',first+head()+scene()+`<div class="mu-h">Vecinos</div><div class="vl-people">${Object.keys(NPC).map(id=>`<button onclick="villaGo('${NPC[id].pl}')">${window.npcAv?npcAv(id,NPC[id]):`<span class="vl-av" style="background:${NPC[id].col}">${NPC[id].ic}</span>`}<b>${NPC[id].n}</b><small>${NPC[id].role}</small>${st().q[id]&&!st().q[id].done?'<i>!</i>':''}</button>`).join('')}</div><small class="mu-mut">Toca un edificio o un vecino. Haz encargos para ganar fichas y gástalas en los edificios.</small>`)};
 window.villaGo=function(k,t){if(!unlocked())return villaMenu();refresh();const f=({empeno:empeno,mercado:mercado,clinica:clinica,casino:()=>window.casinoView&&casinoView(),armeria:armeria,gasolinera:gasolinera,taberna:taberna,tablon:tablon})[k];if(f)f(t);else villaPlaza()};
 /* ---------- mercado ---------- */
 let mtab='buy';
@@ -8419,7 +8478,7 @@ const pips=g=>'●'.repeat(g)+'<span style="opacity:.25">'+'●'.repeat(Math.max
 const bk=`<button class="vl-back" onclick="hide()">← Salir del edificio</button>`;
 function head(){const g=gd(),k=rank(),nx=RT[k+1],pr=nx?Math.min(100,(g.rep-RT[k])/(nx-RT[k])*100):100;
  return `<div class="mu-sts"><div class="mu-st"><span>🪙</span><b>${Math.floor(fich())}</b><small>Fichas</small></div><div class="mu-st"><span>🛡</span><b>${RANKS[k]}</b><small>${g.rep}${nx?' / '+nx:''} rep.</small></div></div><div style="height:6px;background:#0d120c;border-radius:4px;margin:2px 0 6px;overflow:hidden"><i style="display:block;height:100%;width:${pr}%;background:linear-gradient(90deg,#3f6a8f,#f2c542)"></i></div>`}
-function npc(id){const n=NPCS[id],k=rank();return `<div class="vl-npc"><div class="vl-av" style="background:${n.col}">${n.ic}</div><div><b>${n.n}</b><small>${n.role}</small><p>“${pk(n.say[k])}”</p></div></div>`}
+function npc(id){const n=NPCS[id],k=rank();return `<div class="vl-npc">${window.npcAv?npcAv(id,n,1):`<div class="vl-av" style="background:${n.col}">${n.ic}</div>`}<div><b>${n.n}</b><small>${n.role}</small><p>“${pk(n.say[k])}”</p></div></div>`}
 const T=(t)=>'Guardia del Alba · '+t;
 function lock(){show('La Guardia del Alba',`<div class="mu-empty"><span>🔒</span><b>La Guardia del Alba</b><small>Soldados con insignia dorada patrullan al norte. Aún no sabes cómo encontrarlos: avanza en la historia (capítulo 8).</small></div>`)}
 function arrive(){const g=gd();if(g.met)return;g.met=1;rep(5);A.gain(60);toast('La Guardia te recibe: +60 fichas y +5 de reputación.');try{save()}catch(e){}}
@@ -10756,7 +10815,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'61';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'64';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
