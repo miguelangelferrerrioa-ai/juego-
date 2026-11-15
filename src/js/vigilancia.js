@@ -46,17 +46,21 @@ function assign(g){if(AT===T)return AS;AT=T;AS=new Map();const best=new Map();
   if(bu&&(!best.has(bu)||best.get(bu)>bd)){best.set(bu,bd);AS.set(bu,z)}});return AS}
 /* tramos del contorno: se reparten por ángulo entre los soldados */
 let arcG=null,arcN=-1;
-function arcs(g){if(arcG===g&&arcN===U.length)return;arcG=g;arcN=U.length;const L=g.ring.length;if(!L)return;
+/* se rehace si cambia el mapa, el número de soldados o hay soldados nuevos sin tramo (p. ej. en la horda siguiente) */
+function arcs(g){if(arcG===g&&arcN===U.length&&!U.some(u=>u.si===undefined))return;arcG=g;arcN=U.length;const L=g.ring.length;if(!L)return;
  const us=U.slice().sort((a,b)=>Math.atan2(a.y-g.cy,a.x-g.cx)-Math.atan2(b.y-g.cy,b.x-g.cx)),k=Math.max(1,Math.ceil(L/Math.max(1,us.length)));
  us.forEach((u,i)=>{u.si=Math.min(L-1,i*k);u.ei=Math.min(L-1,u.si+k-1);if(u.pi===undefined||u.pi<u.si||u.pi>u.ei)u.pi=u.si+Math.floor(Math.random()*(u.ei-u.si+1));u.pd=Math.random()<.5?1:-1;u.pw=0;u.ptg=null})}
 function walk(u,x,y,sp,dt){u.mv=1;if(!(window.pstep&&pstep(u,x,y,sp*dt)))step(u,x,y,sp*dt)}
 function patrol(u,dt,g){arcs(g);const L=g.ring.length;
  if(!L){const h=S.bld.find(b=>b.type==='hall');if(h&&Math.hypot(h.x+2-u.x,h.y+h.h+1.5-u.y)>.4)walk(u,h.x+2,h.y+h.h+1.5,2,dt);return}
  if(u.pw>0){u.pw-=dt;return}
+ if(u.si===undefined||u.pi===undefined||u.pi>=L){arcG=null;arcs(g)}
  if(!u.ptg){let ni=u.pi+u.pd*(2+Math.floor(Math.random()*4));if(ni>u.ei||ni<u.si){u.pd=-u.pd;ni=Math.max(u.si,Math.min(u.ei,u.pi+u.pd*2))}u.pi=Math.max(0,Math.min(L-1,ni));u.ptg=g.ring[u.pi]}
  const d=Math.hypot(u.ptg[0]-u.x,u.ptg[1]-u.y);if(d<.35){u.ptg=null;u.pw=.4+Math.random()*1.2;return}
  walk(u,u.ptg[0],u.ptg[1],u.ptg&&d>6?2.2:1.5,dt)}
-window.uUpd=function(u,dt){const c=CL[u.p.arm];u.cd-=dt;u.mv=0;
+/* conserva el agarre del Zombi cazador (zombis2.js): un soldado agarrado no se mueve hasta que muere el cazador */
+window.uUpd=function(u,dt){if(u.pin>T){if(u.pinBy&&u.pinBy.hp<=0)u.pin=0;else{const x=u.x,y=u.y;core(u,dt);u.x=x;u.y=y;return}}return core(u,dt)};
+function core(u,dt){const c=CL[u.p.arm];u.cd-=dt;u.mv=0;
  if(!u.vInit){u.vInit=1;if(u.p&&!u.p.away&&isFinite(u.p.x)&&isFinite(u.p.y)&&u.p.x>0){u.x=u.p.x;u.y=u.p.y}}
  const g=geo();
  let t=null,td=1e9;Z.forEach(z=>{if(!z.act)return;const dd=Math.hypot(z.x-u.x,z.y-u.y);if(dd<=c.rng&&dd<td&&!wallBetween(u.x,u.y,z.x,z.y)){td=dd;t=z}});
@@ -67,7 +71,7 @@ window.uUpd=function(u,dt){const c=CL[u.p.arm];u.cd-=dt;u.mv=0;
  if(td<=1.4){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.7;sfxAt('punch',u.x,u.y);t.hp-=(c.dmg*.8+(u.p.wp?u.p.wp.v*.5:0)+u.p.lvl)*(.9+Math.random()*.2);burst(t.x,t.y,2,'#b22',1,6)}}
  else if(td<=c.rng){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.8;const m=S.res.ammo>=.05;if(m)S.res.ammo-=.05;{const k=({franco:'sniper',pesado:'rifle',esp:'blaster',expl:'pistol',medico:'pistol',ing:'pistol'})[u.p.arm]||'rifle';sfxAt(k,u.x,u.y);if(Math.random()<.3)setTimeout(()=>sfxAt('casing',u.x,u.y),330)}
   t.hp-=(c.dmg+(u.p.wp?u.p.wp.v:0)+u.p.lvl)*(th('arms1')?1.2:1)*(th('arms3')?1.2:1)*(th('arms4')?1.2:1)*(m?1:.6);FX.push({a:[u.x,u.y],b:[t.x,t.y],t:.1,col:'#fff'});burst(t.x,t.y,2,'#ffd24a',1,8)}}
- else walk(u,t.x,t.y,2.2,dt)};
+ else walk(u,t.x,t.y,2.2,dt)}
 try{uUpd=window.uUpd}catch(e){}
 /* fuera de las hordas: los alistados sin puesto hacen la ronda (se controla antes y después del paseo normal para que este no les cambie el destino) */
 function pick(p,g){const pts=g.town;if(!pts.length)return false;let best=null;for(let i=0;i<14;i++){const q=pts[Math.floor(Math.random()*pts.length)],d=Math.hypot(q[0]-p.x,q[1]-p.y);if(d>2&&d<9){best=q;break}if(!best||d<Math.hypot(best[0]-p.x,best[1]-p.y))best=q}p.vtx=best[0];p.vty=best[1];return true}

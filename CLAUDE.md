@@ -12,6 +12,7 @@ Se juega sobre todo en un **Android en horizontal (2424×1080, devicePixelRatio 
 - `sw.js`, `manifest.webmanifest`, `icon-*.png`, `_headers` → para que se pueda instalar como aplicación y jugar sin conexión.
 - `tools/build.py` → junta `src/` en `index.html` y sube la versión de caché de `sw.js` (para que los móviles cojan la versión nueva).
 - `tools/scan.py` → prueba rápida: dibuja todos los edificios en todos los niveles; debe imprimir `[2440, [], 0] []`.
+- `tools/regresion.js` → batería de comportamiento (node tools/regresion.js, ~4 min): zombis sueltos (con y sin soldados), hordas temprana/avanzada, horda con muros, agarre del cazador, bandas, sucesos encadenados, guardar/cargar y expediciones. Comprueba que embarazadas/menores/desarmados no pelean, que todo termina, sin matanzas ni errores. Debe acabar en "0 FALLOS".
 - `partidas/` → partidas guardadas para probar (`partida_larga_dia248.json`: la de día 248 sin tutoriales pendientes, lista para importar en el móvil; `prueba_asalto_final.json`: día 248, pueblo grande, listo para el asalto final; `dia3.json`: partida temprana).
 - `HISTORIAL.md` → notas de todo lo que se ha cambiado en sesiones anteriores (leer antes de tocar algo grande).
 
@@ -19,6 +20,7 @@ Se juega sobre todo en un **Android en horizontal (2424×1080, devicePixelRatio 
 1. Editar en `src/`.
 2. `python3 tools/build.py`
 3. `python3 tools/scan.py` (si hay Playwright) → sin errores.
+3b. Si el cambio toca combate, hordas, ciudadanos, soldados o expediciones: `node tools/regresion.js` → 0 FALLOS. Tras cambios de comportamiento, añadir a esa batería un escenario que lo cubra.
 4. Añadir una línea a `HISTORIAL.md` explicando el cambio.
 5. Commit y push a `main` → Vercel lo publica solo.
 
