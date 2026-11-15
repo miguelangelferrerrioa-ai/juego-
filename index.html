@@ -764,7 +764,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v81</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v83</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -2329,7 +2329,7 @@ if(!zn){/* sin zombis a la vista: se refugian junto al ayuntamiento */
 if(zn){p.dx=zn.x-p.x;if(p.hp<=35){p.tx=cl(p.x-(zn.x-p.x)*3,OB().x0,OB().x1-1);p.ty=cl(p.y-(zn.y-p.y)*3,OB().y0,OB().y1-1);p.mv=1;step(p,p.tx,p.ty,1.9*dt)}else if(zd>1.05){p.mv=1;step(p,zn.x,zn.y,1.7*dt)}else{p.mv=0;p.fg=T;if(!p.pa||T-p.pa>.5){p.pa=T;sfxAt(p.wp&&/pistola|revólver|escopeta|rifle|carabina|subfusil|ballesta|fusil/i.test(p.wp.n||'')?'pistol':'punch',p.x,p.y)}zn.hp-=(2+p.sk*.4+p.lvl*.2+(p.wp&&p.wp.v?p.wp.v*.5:0))*dt}return}}if(p.resting){p.resting=0;p.tx=p.x;p.ty=p.y}if(Math.hypot(p.tx-p.x,p.ty-p.y)<.15){p.mv=0;if(Math.random()<dt*.7){const b=bm[p.job];let a,c2,k=0;do{if(b){a=b.x+rn(-.5,b.w+.5);c2=b.y+b.h+rn(.2,1)}else{a=rn(OB().x0+1,OB().x1-1);c2=rn(OB().y0+1,OB().y1-1)}k++}while((occ[cl(Math.floor(c2),0,N-1)*N+cl(Math.floor(a),0,N-1)]>0||(!b&&!ownP(a,c2)))&&k<25);p.tx=a;p.ty=c2}}else{p.mv=1;if(!pstep(p,p.tx,p.ty,1.1*dt)){p.mv=0;p.tx=p.x;p.ty=p.y;p.nopath=T}else if(p.path&&!p.path.length&&occ[cl(Math.floor(p.ty),0,N-1)*N+cl(Math.floor(p.tx),0,N-1)]>0&&window.pathBlocked&&pathBlocked(Math.floor(p.tx),Math.floor(p.ty))){/* su destino quedó dentro de un edificio: ya está lo más cerca posible, elige otro sitio */p.tx=p.x;p.ty=p.y}}});
 FX.forEach(f=>f.t-=dt);FX=FX.filter(f=>f.t>0);
 if(Z.length)combat(dt);$('alert').style.display=horde?'block':'none';if(horde)$('alert').textContent=horde.name+' · enemigos: '+Z.filter(z=>z.act).length;if(!fading){for(const r in IV){S.tm[r]=(S.tm[r]||0)+dt;if(S.tm[r]>=IV[r]){S.tm[r]-=IV[r];resTick(r,IV[r])}}if(!horde){S.dayT+=dt;if(S.dayT>=600){S.dayT=0;nextDay()}}}}
-var QS=1,fa=16,qt=0,qg=0;let last=performance.now(),hu=0;function frame(n){/* hasta que no se han cargado todos los scripts no se dibuja ni se simula (antes daba errores de tipos de edificio aún sin definir durante el primer segundo) */if(!window.__ATS_READY){last=n;requestAnimationFrame(frame);return}const raw=n-last,dt=Math.min(.05,raw/1000);last=n;if(raw<250){fa+=(raw-fa)*.05;qt+=raw;if(qt>1500){qt=0;if(fa>30&&QS>.5){QS=Math.max(.5,QS-.15);qg=0}else if(fa<19&&QS<1){if(++qg>=4){QS=Math.min(1,QS+.1);qg=0}}else qg=0}}T+=dt;try{upd(dt)}catch(er){frErr(er,'upd')}try{render()}catch(er){frErr(er,'render')}hu-=dt;if(hu<=0){hu=.4;try{hud()}catch(er){frErr(er,'hud')}}requestAnimationFrame(frame)}
+var QS=1,fa=16,qt=0,qg=0;let last=performance.now(),hu=0;function frame(n){/* hasta que no se han cargado todos los scripts no se dibuja ni se simula (antes daba errores de tipos de edificio aún sin definir durante el primer segundo) */if(!window.__ATS_READY){last=n;requestAnimationFrame(frame);return}const raw=n-last,dt=Math.min(.05,raw/1000);last=n;if(raw<250){fa+=(raw-fa)*.05;qt+=raw;if(qt>1500){qt=0;if(fa>30&&QS>.75){/* mínimo 75 % de resolución: antes bajaba hasta el 50 % y se veía borroso */QS=Math.max(.75,QS-.15);qg=0}else if(fa<19&&QS<1){if(++qg>=4){QS=Math.min(1,QS+.1);qg=0}}else qg=0}}T+=dt;try{upd(dt)}catch(er){frErr(er,'upd')}try{render()}catch(er){frErr(er,'render')}hu-=dt;if(hu<=0){hu=.4;try{hud()}catch(er){frErr(er,'hud')}}requestAnimationFrame(frame)}
 var FE=0;function frErr(er,w){FE++;if(FE<4)console.error('frame '+w,er)}
 var HS='';function hud(){RK.forEach(q=>{if(S.res[q[0]]==null)S.res[q[0]]=0;if(S.mode==='creativo'&&S.res[q[0]]<999999)S.res[q[0]]=999999});if(S.mode==='creativo')TECH.forEach(t=>{if(!S.tech[t[0]])S.tech[t[0]]=1});if(!S.matG&&window.MATK){S.matG=1;S.res.tarp+=40;S.res.stone+=30}const d=rate();const hs=`<div class="ch"><b>Ayunt. ${realHall()}</b></div><div class="ch">${({facil:"Fácil",normal:"Normal",dificil:"Difícil",apocaliptico:"Apocalíptico",creativo:"Creativo"})[S.mode||"normal"]}</div><div class="ch">Día ${S.day} · ${clockTxt()}</div><div class="ch">Pob. ${S.ppl.length}/${pcap()}</div><div class="ch">Poder ${armyPow()}</div>`+(window.powChip?powChip():'')+(window.rqList&&(!window.rpOn||rpOn())?`<div class="ch" onclick="techMenu()" style="cursor:pointer;pointer-events:auto">🔬 ${Math.floor(S.res.rp||0)}${rqList().length?' · '+rqList().length+'▸':''}</div>`:'');if(hs!==HS){HS=hs;$('top').innerHTML=hs}const hb=$('top').offsetHeight+4;$('rail').style.top=hb+'px';$('log').style.top=(hb+2)+'px';$('alert').style.top=hb+'px'}
 if(!load())newGame();syncCleanerUnits();advInit();
@@ -10979,6 +10979,48 @@ function watch(id){const el=document.getElementById(id);if(!el)return;new Mutati
 ['pan','guideScreen'].forEach(watch);
 })();
 </script>
+<script>/* Buzón de notificaciones con filtros por tipo y agrupado por día (las nuevas, resaltadas). */
+(function(){
+'use strict';
+const CAT={villa:'#c9a24a',inv:'#7fe0ff',expe:'#6aa9ff',base:'#9fb0b6',alerta:'#ff6a5a',fam:'#e88ab8',historia:'#f2c542',horda:'#ff6a5a'};
+const F=[['all','Todo',null],['historia','Historia',['historia']],['horda','Hordas y alertas',['horda','alerta']],['expe','Expediciones',['expe']],['villa','Villa',['villa']],['base','Pueblo',['base','inv','fam']]];
+let cur='all',fresh=new Set();
+const box=()=>{if(typeof S==='undefined'||!S)return[];return S.inbox||(S.inbox=[])};
+const esc=s=>String(s==null?'':s);
+window.inboxOpen=function(f){if(typeof f==='string')cur=f;else{cur='all';fresh=new Set(box().filter(n=>!n.r))}
+ const b=box(),fl=F.find(x=>x[0]===cur)||F[0],L=fl[2]?b.filter(n=>fl[2].includes(n.c||'base')):b;
+ const chips='<div class="bz-f">'+F.map(([k,t,cs])=>{const n=cs?b.filter(x=>cs.includes(x.c||'base')).length:b.length,nw=cs?b.filter(x=>cs.includes(x.c||'base')&&fresh.has(x)).length:fresh.size;
+   return n||k==='all'?`<button class="${k===cur?'on':''}" onclick="inboxOpen('${k}')">${t} <em>${n}</em>${nw?`<i>${nw} nueva${nw>1?'s':''}</i>`:''}</button>`:''}).join('')+'</div>';
+ let h='',day=null;L.forEach(n=>{if(n.d!==day){day=n.d;h+=`<div class="bz-d">Día ${day}</div>`}
+  h+=`<div class="inb${fresh.has(n)?' new':''}"><span class="ii">${esc(n.ic)}</span><div><b style="color:${CAT[n.c]||'#fff'}">${esc(n.t)}</b><small>${esc(n.x)}</small></div>${fresh.has(n)?'<span class="bz-n">NUEVA</span>':''}</div>`});
+ if(!L.length)h='<p class="bsub">No hay notificaciones de este tipo.</p>';
+ b.forEach(n=>n.r=1);
+ show('🔔 Buzón de notificaciones',chips+'<div class="bz-l">'+h+'</div>'+(b.length?'<div class="prow"><button onclick="inboxClear()">Vaciar buzón</button></div>':''))};
+window.inboxClear=function(){if(typeof S!=='undefined'&&S)S.inbox=[];fresh=new Set();window.inboxOpen()};
+const st=document.createElement('style');st.textContent=`
+.bz-f{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}.bz-f button{padding:5px 10px;font-size:12px;border-radius:14px}.bz-f button.on{background:linear-gradient(180deg,#ffd877,#e0a124);color:#1b1203}
+.bz-f em{font-style:normal;opacity:.7;margin-left:3px}.bz-f i{font-style:normal;margin-left:5px;background:#e03a3a;color:#fff;border-radius:8px;padding:0 5px;font-size:10px}
+.bz-d{margin:10px 0 2px;font-size:11px;font-weight:800;letter-spacing:.6px;color:#9aa58c;text-transform:uppercase;border-bottom:1px solid #2c3826;padding-bottom:2px}
+.inb .bz-n{margin-left:auto;align-self:center;font-size:9.5px;font-weight:900;color:#fff;background:#e03a3a;border-radius:6px;padding:1px 6px}`;document.head.appendChild(st);
+})();
+</script>
+<script>/* Guía: añade lo nuevo (aviso de horda, soldados que defienden el pueblo, efectos reales del clima, lista de edificios, avisos de versión y copia, columna animada). */
+(function(){
+'use strict';
+if(typeof GD==='undefined')return;
+const W=(name,fn)=>{const i=GD.findIndex(g=>g[0]===name);if(i<0)return;const o=GD[i][1];GD[i][1]=()=>{let h='';try{h=o()}catch(e){}try{return fn(h)}catch(e){return h}}};
+const P=t=>'<p>'+t+'</p>';
+W('Interfaz',h=>h+P('<b>🧟 Aviso de la próxima horda</b> (barra superior, junto a Recursos): dice cuándo llega («3 días», «Mañana», «¡Hoy!») y su color indica si tu defensa basta: <b>verde</b> suficiente, <b>amarillo</b> justa, <b>rojo</b> insuficiente. Tócalo para ver el detalle y un consejo. Durante la horda muestra los enemigos que quedan.')
+ +P('Con la columna de <b>📦 Recursos</b> abierta, los números suben o bajan poco a poco (verde o rojo) y al ganar una cantidad de golpe (recompensas, botín, compras) aparece un <b>+N</b> junto al recurso.')
+ +P('<b>Menú → Edificios</b> agrupa los edificios del mismo tipo con su miniatura («Arma automática ×24») y avisa de los dañados o parados. Toca un grupo para ver cada uno y toca uno para ir a él.'));
+W('Ejército',h=>h+P('<b>En las hordas</b> los soldados <b>defienden el pueblo</b>: forman junto al ayuntamiento y solo atacan a los zombis que entran en la zona del pueblo (cerca de tus edificios y muros) o que ya tienen a tiro. No salen a campo abierto a perseguirlos; sin enemigos cerca, vuelven a su puesto.'));
+W('Zombis y defensa',h=>h+P('<b>Rezagados:</b> si al final de una horda quedan muy pocos zombis (3 o menos, o el 10 % de la horda) y durante 20 segundos ninguno se acerca al pueblo, se dispersan y la horda termina con su recompensa normal.')
+ +P('Mira el <b>🧟 aviso de horda</b> de la barra superior para saber si tu defensa basta antes de que lleguen.'));
+W('Clima y expediciones',h=>h+P('Además, en la <b>tormenta</b> los zombis de las hordas van un <b>12 % más rápido</b>, y en la <b>niebla</b> los zombis errantes van un 10 % más lentos. En <b>Operaciones</b> ves el clima actual en movimiento, cuánto falta para que cambie y todos sus efectos en tu pueblo.'));
+W('Guardado y controles',h=>h+P('<b>Copia de seguridad:</b> la partida solo vive dentro del navegador o la app; si se borra, se pierde. Cada 10 días de juego sin exportar sale un recordatorio con el botón <b>Exportar ahora</b>. Para recuperarla: Nueva partida → Importar partida.')
+ +P('<b>Versión nueva:</b> cuando hay una actualización publicada sale un aviso abajo con <b>Actualizar</b> (guarda antes y recarga). El número de versión aparece en la portada, debajo del título.'));
+})();
+</script>
 <script>/* Recordatorio de copia de seguridad: cada 10 días de juego sin exportar, aviso con botón Exportar (las partidas solo viven dentro del navegador). */
 (function(){
 'use strict';
@@ -11001,7 +11043,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'81';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'83';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
