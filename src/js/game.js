@@ -538,6 +538,14 @@ if(b.hp<mxhp(b))h+=btn('Reparar (5 madera)',`repair(${id})`);show(d.n,h)}
 var pairM=0,pairF=0;
 function kin(a,b){if(!a||!b)return false;const pa=a.par||[],pb=b.par||[];return pa.includes(b.id)||pb.includes(a.id)||(pa.length&&pb.length&&pa.some(x=>x&&pb.includes(x)))}
 function whyNot(p){if(p.away)return'fuera';if(p.preg)return'embarazada';if(p.illness)return'enfermo';if(p.hp<50||p.injury>50)return'herido';if((p.pcd||0)>S.day)return'descansa';return''}
+/* motivo con los días que faltan, para la lista de parejas */
+window.whyTxt=function(p,w){const d=n=>n+' día'+(n===1?'':'s');try{
+ if(w==='embarazada'){const q=S.pregnancies.find(q=>q.mother===p.id&&!q.born);return 'Embarazada · parto en '+d(Math.max(1,3-((q&&q.gest)||0)))}
+ if(w==='descansa')return 'Descansa · '+d(Math.max(1,(p.pcd||0)-S.day));
+ if(w==='enfermo')return 'Enfermo · '+d(window.illLeft?illLeft(p):3);
+ if(w==='herido')return 'Herido · cúralo en el hospital';
+ if(w==='fuera')return 'Fuera de la base';
+ if(w==='pariente')return 'Pariente';}catch(e){}return w};
 function pairSurvivors(){if(horde)return toast('No es momento: hay una horda.');pairM=0;pairF=0;pairUI()}
 function pairPick(k,id){if(k==='F')pairF=pairF===id?0:id;else pairM=pairM===id?0:id;pairUI()}
 function pairUI(){let M=byId(pairM),F=byId(pairF);if(!M||whyNot(M)||M.sex!=='M'||M.age<18){pairM=0;M=null}if(!F||whyNot(F)||F.sex!=='F'||F.age<18){pairF=0;F=null}if(M&&F&&kin(M,F)){pairF=0;F=null;toast('Son parientes.')}
