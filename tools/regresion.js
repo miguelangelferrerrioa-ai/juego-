@@ -11,10 +11,10 @@ async function open(b,save){const pg=await b.newPage({viewport:{width:932,height
  for(let i=0;i<10;i++){for(const t of['text=Saltar','text=Entendido','text=Cerrar']){try{await pg.click(t,{timeout:120})}catch(e){}}}
  await pg.evaluate(()=>{window.__U0=window.upd;window.upd=()=>{};window.render=()=>{};
   /* vigila reglas en cada paso */
-  window.__V={preg:0,kid:0,unarmed:0,nan:0,err:0,em:''};
+  window.__V={preg:0,kid:0,unarmed:0,old:0,nan:0,err:0,em:''};
   window.__step=dt=>{T+=dt;try{__U0(dt)}catch(e){__V.err++;__V.em=String(e).slice(0,120)}
    U.forEach(u=>{const p=u.p;if(p&&p.id!==undefined&&typeof p.id==='number'){if(p.preg)__V.preg++;if(p.age<18)__V.kid++}if(!isFinite(u.x)||!isFinite(u.y)||!isFinite(u.hp))__V.nan++});
-   S.ppl.forEach(p=>{if(p.fg===T){if(p.preg)__V.preg++;if(p.age<18)__V.kid++;if(!p.wp)__V.unarmed++}if(!isFinite(p.x)||!isFinite(p.y)||!isFinite(p.hp))__V.nan++})};
+   S.ppl.forEach(p=>{if(p.fg===T){if(p.preg)__V.preg++;if(p.age<18)__V.kid++;if(!p.wp&&horde)__V.unarmed++;if(!p.wp&&p.age>=65)__V.old++}if(!isFinite(p.x)||!isFinite(p.y)||!isFinite(p.hp))__V.nan++})};
   window.__run=async(s,stop)=>{let t=0;while(t<s){__step(.05);t+=.05;if(Math.round(t/.05)%40===0)await new Promise(r=>setTimeout(r,25));if(stop&&stop())break}return t}});
  return {pg,pe}}
 const scenarios=[];
@@ -29,6 +29,10 @@ scenarios.push(['Zombis sueltos','dia3.json',async pg=>pg.evaluate(async()=>{
 /* 2) zombis sueltos sin soldados */
 scenarios.push(['Zombis sueltos sin soldados','dia3.json',async pg=>pg.evaluate(async()=>{S.ppl.forEach(p=>p.arm=null);const a=S.ppl.find(p=>p.age>=18&&!p.preg);if(a)a.wp={n:'Pistola',v:5};const out=[];
  for(let k=0;k<4;k++){const pop=S.ppl.length;S.raidT=.01;let seen=0;await __run(260,()=>{if(window.raidOn)seen=1;return seen&&!window.raidOn&&!Z.some(z=>z.act)});out.push({seen,dead:pop-S.ppl.length})}
+ return {out,V:__V}})]);
+/* 2b) el caso real: el único soldado está de expedición y nadie tiene arma */
+scenarios.push(['Pueblo desarmado','dia3.json',async pg=>pg.evaluate(async()=>{S.ppl.forEach(p=>{p.wp=null});const sol=S.ppl.find(p=>p.arm);if(sol)sol.away=1;const out=[];
+ for(let k=0;k<5;k++){const pop=S.ppl.length;S.raidT=.01;let seen=0;await __run(300,()=>{if(window.raidOn)seen=1;return seen&&!window.raidOn&&!Z.some(z=>z.act)});out.push({seen,dead:pop-S.ppl.length,left:Z.filter(z=>z.act).length})}
  return {out,V:__V}})]);
 /* 3) hordas temprana y avanzada */
 for(const sv of ['dia3.json','partida_larga_dia248.json'])scenarios.push(['Hordas '+sv,sv,async pg=>pg.evaluate(async()=>{const out=[];
@@ -65,8 +69,9 @@ scenarios.push(['Expediciones','partida_larga_dia248.json',async pg=>pg.evaluate
  for(const [name,sv,fn] of scenarios){const {pg,pe}=await open(b,SV(sv));let r=null;try{r=await fn(pg)}catch(e){r={crash:String(e).slice(0,200)}}
   const V=r&&r.V||{};const tag=name;
   if(r.crash)ok(tag+': se ejecuta',false,r.crash);
-  if(V.err!==undefined){ok(tag+': sin errores de juego',!V.err,V.em);ok(tag+': embarazadas no pelean',!V.preg,V.preg);ok(tag+': menores no pelean',!V.kid,V.kid);ok(tag+': nadie pelea sin arma',!V.unarmed,V.unarmed);ok(tag+': sin valores rotos',!V.nan,V.nan)}
-  if(name==='Zombis sueltos'){ok(tag+': aparecen',r.out.every(o=>o.seen),JSON.stringify(r.out));ok(tag+': no matan al pueblo (≤1 muerto)',r.out.every(o=>o.dead<=1),JSON.stringify(r.out.map(o=>o.dead)));ok(tag+': soldados no salen al campo (≤2 casillas)',r.out.every(o=>o.far<=2),JSON.stringify(r.out.map(o=>o.far)))}
+  if(V.err!==undefined){ok(tag+': sin errores de juego',!V.err,V.em);ok(tag+': embarazadas no pelean',!V.preg,V.preg);ok(tag+': menores no pelean',!V.kid,V.kid);ok(tag+': en hordas nadie pelea sin arma',!V.unarmed,V.unarmed);ok(tag+': mayores de 65 sin arma no pelean',!V.old,V.old);ok(tag+': sin valores rotos',!V.nan,V.nan)}
+  if(name==='Zombis sueltos'){ok(tag+': aparecen',r.out.every(o=>o.seen),JSON.stringify(r.out));ok(tag+': no matan al pueblo (≤1 muerto)',r.out.every(o=>o.dead<=1),JSON.stringify(r.out.map(o=>o.dead)));ok(tag+': soldados no salen al campo (≤4,5 casillas del pueblo)',r.out.every(o=>o.far<=4.5),JSON.stringify(r.out.map(o=>o.far)))}
+  if(name==='Pueblo desarmado'){ok(tag+': los zombis sueltos no matan al pueblo (≤1 muerto cada uno)',r.out.every(o=>o.seen&&o.dead<=1),JSON.stringify(r.out));ok(tag+': el zombi acaba muerto',r.out.every(o=>!o.left),JSON.stringify(r.out))}
   if(name==='Zombis sueltos sin soldados')ok(tag+': no matan al pueblo (≤2 muertos)',r.out.every(o=>o.dead<=2),JSON.stringify(r.out));
   if(name.startsWith('Hordas')){ok(tag+': terminan',r.out.every(o=>o.ended),JSON.stringify(r.out));ok(tag+': nadie queda encerrado tras la horda',r.out.every(o=>!o.inside&&!o.U),JSON.stringify(r.out))}
   if(name==='Horda con muros'){ok(tag+': termina',r.ended);ok(tag+': soldados por dentro del muro',r.outsideSamples<20,r.outsideSamples+' '+JSON.stringify(r.ex)+' '+JSON.stringify(r.box))}

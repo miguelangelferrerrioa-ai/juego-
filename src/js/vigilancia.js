@@ -39,7 +39,7 @@ function colado(z,g){const ix=Math.floor(z.x),iy=Math.floor(z.y);if(!inMap(ix,iy
  if(!g.out[iy*N+ix]&&!pathBlocked(ix,iy))return true;const p=[z.x,z.y],R=g.bMax[g.bin(p)];return R>0&&g.rad(p)<R-2}
 let AT=-1,AS=new Map();
 /* zombi que está atacando a alguien del pueblo (a ≤2,5 de una persona que no es soldado) */
-function acosa(z){return S.ppl.some(p=>!p.away&&!p.inside&&Math.hypot(p.x-z.x,p.y-z.y)<2.5)}
+function acosa(z){const inU=new Set(U.map(u=>u.p));return S.ppl.some(p=>!p.away&&!p.inside&&!inU.has(p)&&Math.hypot(p.x-z.x,p.y-z.y)<2.5)}
 function assign(g){if(AT===T)return AS;AT=T;AS=new Map();const best=new Map();
  /* soldados: van a por los zombis colados, los que acosan a alguien y (fuera de hordas) los que entran en la zona del pueblo */
  Z.forEach(z=>{if(!z.act||z.hp<=0)return;/* solo los que están dentro del pueblo (o colados) o atacando a alguien; los que siguen lejos, en el campo, no se persiguen */if(!colado(z,g)&&!acosa(z)&&(horde||!nearTown(z.x,z.y)))return;let bu=null,bd=1e9;U.forEach(u=>{if(u.hp<=0)return;const d=Math.hypot(z.x-u.x,z.y-u.y);if(d<bd){bd=d;bu=u}});
