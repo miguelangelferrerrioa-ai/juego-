@@ -33,7 +33,7 @@ function clothPicker(p,sl){const id=p.id,cur=(p.clothes||{})[sl],nm=(CSL.find(x=
 window.clothOff=function(id,sl){const p=byId(id);if(!p||!p.clothes||!p.clothes[sl])return;S.inv.push(p.clothes[sl]);delete p.clothes[sl];toast(p.n+' se quita la prenda.');save();pSheet(id)};
 function tabEs(p){const id=p.id,hs=cnt('hosp')>0,rels=Object.entries(p.rel||{}).map(([r,v])=>{const q=byId(+r);return q?q.n.split(' ')[0]+' '+v:''}).filter(Boolean);
   return `<div class="pgrid">${mini('Hambre',p.hunger,'#d89b45')}${mini('Sed',p.thirst,'#49a9e8')}${mini('Experiencia '+Math.floor(p.xp)+'/'+p.lvl*50,p.xp/(p.lvl*50)*100,'#48c')}</div>
-  <p class="invb">${p.illness?'Enfermo ('+p.illness+')':'Sin enfermedad'} · ${p.injury>0?'Herido ('+Math.round(p.injury)+'%)':'Sin heridas'} · Personalidad ${p.trait} · Habilidad ${p.sk}</p>
+  <p class="invb">${p.illness?'Enfermo ('+p.illness+') · se cura sola en '+(window.illLeft?illLeft(p):'unos')+' día(s)':'Sin enfermedad'} · ${p.injury>0?'Herido ('+Math.round(p.injury)+'%)':'Sin heridas'} · Personalidad ${p.trait} · Habilidad ${p.sk}</p>
   <p class="invb">Relaciones: ${rels.join(' · ')||'todavía conociendo a la comunidad'}</p>
   <div class="prow">${btn('Curar heridas ('+healCost(p,S.bld.find(x=>x.type=='hosp'))+' medicinas)',`heal(${id})`,!hs||p.hp>=mhp(p)-1&&!p.injury)}${btn('💊 Antibiótico (1)',`cure(${id})`,!p.illness||!(S.res.abx>=1))}</div>`}
 const SI={Médico:['M','#e0556a'],Soldado:['S','#8a9a4a'],Constructor:['C','#d2a24a'],Agricultor:['A','#6fb04e'],Cocinero:['K','#d9824a'],Explorador:['E','#4a8ad0'],Mecánico:['X','#8f98a3'],Recolector:['R','#b0824a'],Científico:['I','#4ac0b0']};

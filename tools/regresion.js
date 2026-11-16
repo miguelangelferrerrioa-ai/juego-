@@ -62,6 +62,9 @@ for(const sv of ['dia3.json','partida_larga_dia248.json'])scenarios.push(['Secue
  const horda=async n=>{const p=S.ppl.length;n?bandRaid('cuervos'):startHorde();await __run(420,()=>!horde);await __run(20);log.push((n?'banda':'horda')+':'+(!horde?'ok':'NO ACABA')+':'+(p-S.ppl.length))};
  const suelto=async()=>{const p=S.ppl.length;S.raidT=.01;let seen=0;await __run(260,()=>{if(window.raidOn)seen=1;return seen&&!window.raidOn&&!Z.some(z=>z.act)});log.push('suelto:'+(seen?'ok':'no sale')+':'+(p-S.ppl.length))};
  await horda(0);await suelto();await horda(0);await horda(1);await suelto();await horda(0);return {log,dead:pop0-S.ppl.length,pop0,V:__V}})]);
+/* 4d) enfermedades: se curan solas sin antibióticos */
+scenarios.push(['Enfermedades','dia3.json',async pg=>pg.evaluate(async()=>{S.res.abx=0;const ps=S.ppl.filter(p=>p.age>=18).slice(0,3);ps[0].illness='Gripe';ps[0].illD=3;ps[1].illness='Infección';ps[1].illD=6;ps[2].illness='Fiebre';delete ps[2].illD;
+ const days=[];for(let d=0;d<7;d++){S.nextH=S.day+60;S.raidT=1e6;S.dayT=599.9;await __run(1);days.push(ps.map(p=>p.illness?1:0).join(''))}return {days,left:ps.filter(p=>p.illness).length,V:__V}})]);
 /* 5) guardar / cargar */
 scenarios.push(['Guardar y cargar','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{await __run(20);const IGN=new Set(['php','fl','inside','mv','path','pk','pg','pv','pT','dx','tx','ty','x','y','thru','nopath','vtx','vty','vw','_px','_py','_dx']);
  const norm=o=>{const c=JSON.parse(JSON.stringify(o));c.obs=(c.obs||[]).map(q=>q.x+','+q.y+','+q.t).sort();return c};const a=norm(S);save(true);load();const b=norm(S);let d=0,ex='';
@@ -85,6 +88,7 @@ scenarios.push(['Expediciones','partida_larga_dia248.json',async pg=>pg.evaluate
   if(name==='Horda con muros'){ok(tag+': termina',r.ended);ok(tag+': soldados por dentro del muro',r.outsideSamples<20,r.outsideSamples+' '+JSON.stringify(r.ex)+' '+JSON.stringify(r.box))}
   if(name==='Agarre y bandas'){ok(tag+': soldado agarrado no se mueve',r.m1<.01,r.m1);ok(tag+': al morir el cazador queda libre',r.m2>.3,r.m2);ok(tag+': el asalto de banda empieza y termina',r.st&&r.ended,JSON.stringify(r))}
   if(name.startsWith('Secuencia')){ok(tag+': todo termina',!r.log.some(l=>/NO ACABA|no sale/.test(l)),r.log.join(' '));ok(tag+': sin matanzas (≤25 % de bajas en total)',r.dead<=Math.max(3,Math.ceil(.25*r.pop0)),r.dead+'/'+r.pop0+' · '+r.log.join(' '))}
+  if(name==='Enfermedades'){ok(tag+': se curan solas sin antibióticos (cada una se cura en algún momento)',[0,1,2].every(i=>r.days.some(d=>d[i]==='0')),r.days.join(' '));ok(tag+': la gripe no se cura el primer día',r.days[0][0]==='1',r.days.join(' '))}
   if(name==='Guardar y cargar')ok(tag+': partida idéntica',r.diffs===0,r.ex);
   if(name==='Expediciones'){ok(tag+': solitaria arranca sin coste',r.started&&r.cost<=0,JSON.stringify(r));ok(tag+': vuelve y queda en casa',r.back,JSON.stringify(r))}
   ok(tag+': sin errores de página',!pe.length,pe.slice(0,2).join(' | '));await pg.close()}
