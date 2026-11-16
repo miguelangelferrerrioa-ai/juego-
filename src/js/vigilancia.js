@@ -40,9 +40,11 @@ function colado(z,g){const ix=Math.floor(z.x),iy=Math.floor(z.y);if(!inMap(ix,iy
 let AT=-1,AS=new Map();
 /* zombi que está atacando a alguien del pueblo (a ≤2,5 de una persona que no es soldado) */
 function acosa(z){const inU=new Set(U.map(u=>u.p));return S.ppl.some(p=>!p.away&&!p.inside&&!inU.has(p)&&Math.hypot(p.x-z.x,p.y-z.y)<2.5)}
+/* zombi pegado a un edificio del pueblo (lo está atacando); los muros no cuentan: tras el muro no se le puede disparar */
+function atkB(z){const ix=Math.floor(z.x),iy=Math.floor(z.y);for(let a=-1;a<=1;a++)for(let c=-1;c<=1;c++){if(!inMap(ix+a,iy+c))continue;const b=tb(ix+a,iy+c);if(isB(b)&&Math.hypot(ix+a+.5-z.x,iy+c+.5-z.y)<1.3)return true}return false}
 function assign(g){if(AT===T)return AS;AT=T;AS=new Map();const best=new Map();
  /* soldados: van a por los zombis colados, los que acosan a alguien y (fuera de hordas) los que entran en la zona del pueblo */
- Z.forEach(z=>{if(!z.act||z.hp<=0)return;/* solo los que están dentro del pueblo (o colados) o atacando a alguien; los que siguen lejos, en el campo, no se persiguen */if(!colado(z,g)&&!acosa(z)&&(horde||!nearTown(z.x,z.y)))return;let bu=null,bd=1e9;U.forEach(u=>{if(u.hp<=0)return;const d=Math.hypot(z.x-u.x,z.y-u.y);if(d<bd){bd=d;bu=u}});
+ Z.forEach(z=>{if(!z.act||z.hp<=0)return;/* solo los que están dentro del pueblo (o colados) o atacando a alguien; los que siguen lejos, en el campo, no se persiguen */if(!colado(z,g)&&!acosa(z)&&!atkB(z)&&(horde||!nearTown(z.x,z.y)))return;let bu=null,bd=1e9;U.forEach(u=>{if(u.hp<=0)return;const d=Math.hypot(z.x-u.x,z.y-u.y);if(d<bd){bd=d;bu=u}});
   if(bu&&(!best.has(bu)||best.get(bu)>bd)){best.set(bu,bd);AS.set(bu,z)}});return AS}
 /* tramos del contorno: se reparten por ángulo entre los soldados */
 let arcG=null,arcN=-1;
@@ -51,7 +53,11 @@ function arcs(g){if(arcG===g&&arcN===U.length&&!U.some(u=>u.si===undefined))retu
  const us=U.slice().sort((a,b)=>Math.atan2(a.y-g.cy,a.x-g.cx)-Math.atan2(b.y-g.cy,b.x-g.cx)),k=Math.max(1,Math.ceil(L/Math.max(1,us.length)));
  us.forEach((u,i)=>{u.si=Math.min(L-1,i*k);u.ei=Math.min(L-1,u.si+k-1);if(u.pi===undefined||u.pi<u.si||u.pi>u.ei)u.pi=u.si+Math.floor(Math.random()*(u.ei-u.si+1));u.pd=Math.random()<.5?1:-1;u.pw=0;u.ptg=null})}
 function walk(u,x,y,sp,dt){u.mv=1;if(!(window.pstep&&pstep(u,x,y,sp*dt)))step(u,x,y,sp*dt)}
+function danger(u,g){const act=Z.filter(z=>z.act&&z.hp>0);if(!act.length)return -1;if(u.dgT&&T-u.dgT<1)return u.dgI;u.dgT=T;
+ let best=-1,bd=1e9;for(let i=u.si;i<=u.ei;i+=2){const q=g.ring[i];if(!q)continue;let m=1e9;act.forEach(z=>{const d=Math.hypot(z.x-q[0],z.y-q[1]);if(d<m)m=d});if(m<bd){bd=m;best=i}}u.dgI=best;return best}
 function patrol(u,dt,g){arcs(g);const L=g.ring.length;
+ /* con enemigos en marcha: colocarse en la parte de su tramo más cercana a ellos */
+ if(L&&u.si!==undefined){const di=danger(u,g);if(di>=0){const q=g.ring[di];u.pi=di;u.ptg=null;u.pw=0;if(Math.hypot(q[0]-u.x,q[1]-u.y)>.4)walk(u,q[0],q[1],2.2,dt);return}}
  if(!L){const h=S.bld.find(b=>b.type==='hall');if(h&&Math.hypot(h.x+2-u.x,h.y+h.h+1.5-u.y)>.4)walk(u,h.x+2,h.y+h.h+1.5,2,dt);return}
  if(u.pw>0){u.pw-=dt;return}
  if(u.si===undefined||u.pi===undefined||u.pi>=L){arcG=null;arcs(g)}

@@ -27,7 +27,7 @@ window.pregBadge=function(x,cx,cy,r){x.save();x.translate(cx,cy);const s=r/10;x.
 (function(){const o=window.paintFace;if(typeof o!=='function')return;window.paintFace=function(cv,p){const r=o.apply(this,arguments);try{if(p&&p.preg){const x=cv.getContext('2d');x.save();x.setTransform(1,0,0,1,0,0);const R=Math.max(9,cv.width*.12);pregBadge(x,R+4,cv.height-R-4,R);x.restore()}}catch(e){}return r}})();
 /* Durante un ataque, cada enemigo lleva un pequeño marcador rojo; los que quedan fuera de pantalla se indican con flechas en el borde. */
 (function(){const o=window.render;if(typeof o!=='function')return;
- window.render=function(){const r=o.apply(this,arguments);try{if(typeof horde==='undefined'||!horde||!Z||!Z.length)return r;const cv=document.getElementById('c'),c=cv.getContext('2d'),w=vw(),h=vh(),ar=[],bob=Math.sin(T*6)*1.4;
+ window.render=function(){const r=o.apply(this,arguments);try{if(typeof Z==='undefined'||!Z||!Z.some(z=>z.act&&z.hp>0))return r;/* hordas y zombis sueltos */const cv=document.getElementById('c'),c=cv.getContext('2d'),w=vw(),h=vh(),ar=[],bob=Math.sin(T*6)*1.4;
   c.save();c.setTransform(dpr,0,0,dpr,0,0);c.lineJoin='round';
   Z.forEach(z=>{if(!z.act||z.hp<=0)return;const q=P(z.x,z.y),sx=(q[0]-cam.x)*cam.z,sy=(q[1]-cam.y)*cam.z;
    if(sx>-8&&sx<w+8&&sy>-8&&sy<h+8){const y=sy-(z.big?40:z.t==='p'?56:30)*cam.z+bob;c.fillStyle='rgba(255,40,40,.28)';c.beginPath();c.arc(sx,y-3,7,0,7);c.fill();c.fillStyle='#ff2b2b';c.strokeStyle='#3a0606';c.lineWidth=1.4;c.beginPath();c.moveTo(sx-4.5,y-7);c.lineTo(sx+4.5,y-7);c.lineTo(sx,y);c.closePath();c.fill();c.stroke()}

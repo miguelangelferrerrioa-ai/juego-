@@ -38,6 +38,8 @@ scenarios.push(['Pueblo desarmado','dia3.json',async pg=>pg.evaluate(async()=>{S
 scenarios.push(['Horda en la puerta','dia3.json',async pg=>pg.evaluate(async()=>{S.ppl.forEach(p=>{p.wp=null;p.arm=null});const h=S.bld.find(b=>b.type==='hall');const pop=S.ppl.length;
  startHorde();await __run(8);Z.filter(z=>z.act).forEach((z,i)=>{z.x=h.x+h.w/2+(i%3)-1;z.y=h.y+h.h+3.5});let fought=0;const t=await __run(420,()=>{if(S.ppl.some(p=>p.fg===T&&!p.wp))fought=1;return !horde});
  return {fought,ended:!horde,t:Math.round(t),dead:pop-S.ppl.length,inside:S.ppl.filter(p=>p.inside).length,V:__V}})]);
+/* 2d) primera horda con un solo soldado: debe acudir a donde atacan y no dejar que rompan edificios */
+scenarios.push(['Primera horda con un soldado','dia3.json',async pg=>pg.evaluate(async()=>{const out=[];for(let k=0;k<3;k++){const nb=S.bld.length;startHorde();let first=-1;await __run(400,()=>{if(first<0&&Z.some(z=>z.act&&z.hp<z.mhp))first=1;return !horde});out.push({rotos:nb-S.bld.length,ended:!horde})}return {out,V:__V}})]);
 /* 3) hordas temprana y avanzada */
 for(const sv of ['dia3.json','partida_larga_dia248.json'])scenarios.push(['Hordas '+sv,sv,async pg=>pg.evaluate(async()=>{const out=[];
  for(let k=0;k<3;k++){const pop=S.ppl.length;startHorde();const t=await __run(420,()=>!horde);
@@ -77,6 +79,7 @@ scenarios.push(['Expediciones','partida_larga_dia248.json',async pg=>pg.evaluate
   if(name==='Zombis sueltos'){ok(tag+': aparecen',r.out.every(o=>o.seen),JSON.stringify(r.out));ok(tag+': no matan al pueblo (≤1 muerto)',r.out.every(o=>o.dead<=1),JSON.stringify(r.out.map(o=>o.dead)));ok(tag+': soldados no salen al campo (≤4,5 casillas del pueblo)',r.out.every(o=>o.far<=4.5),JSON.stringify(r.out.map(o=>o.far)))}
   if(name==='Pueblo desarmado'){ok(tag+': los zombis sueltos no matan al pueblo (≤1 muerto cada uno)',r.out.every(o=>o.seen&&o.dead<=1),JSON.stringify(r.out));ok(tag+': el zombi acaba muerto',r.out.every(o=>!o.left),JSON.stringify(r.out))}
   if(name==='Horda en la puerta'){ok(tag+': salen a pelear a puñetazos',r.fought,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r));ok(tag+': no muere todo el pueblo',r.dead<=4,JSON.stringify(r))}
+  if(name==='Primera horda con un soldado'){ok(tag+': terminan',r.out.every(o=>o.ended),JSON.stringify(r.out));ok(tag+': casi no rompen edificios (≤1 por horda)',r.out.every(o=>o.rotos<=1),JSON.stringify(r.out))}
   if(name==='Zombis sueltos sin soldados')ok(tag+': no matan al pueblo (≤2 muertos)',r.out.every(o=>o.dead<=2),JSON.stringify(r.out));
   if(name.startsWith('Hordas')){ok(tag+': terminan',r.out.every(o=>o.ended),JSON.stringify(r.out));ok(tag+': nadie queda encerrado tras la horda',r.out.every(o=>!o.inside&&!o.U),JSON.stringify(r.out))}
   if(name==='Horda con muros'){ok(tag+': termina',r.ended);ok(tag+': soldados por dentro del muro',r.outsideSamples<20,r.outsideSamples+' '+JSON.stringify(r.ex)+' '+JSON.stringify(r.box))}
