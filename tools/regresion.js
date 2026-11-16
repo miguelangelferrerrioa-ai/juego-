@@ -71,7 +71,7 @@ scenarios.push(['Guardar y cargar','partida_larga_dia248.json',async pg=>pg.eval
  const walk=(x,y,p)=>{if(IGN.has(p.split('.').pop()))return;if(x&&typeof x==='object'&&y&&typeof y==='object'){for(const k of new Set([...Object.keys(x),...Object.keys(y)]))walk(x[k],y[k],p+'.'+k)}else if(x!==y&&!(typeof x==='number'&&Math.abs(x-y)<1e-9)){d++;ex=ex||p}};walk(a,b,'S');return {diffs:d,ex}})]);
 /* 6) expedición solitaria y de equipo */
 scenarios.push(['Expediciones','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{window.show=()=>{};window.save=()=>{};
- const p=S.ppl.filter(q=>!q.away&&q.age>=18&&!q.preg).sort((a,b)=>upow(b)-upow(a))[0];const f0=S.res.food;soloGo(p.id);const started=!!S.solo;const cost=f0-S.res.food;
+ const p=S.ppl.filter(q=>!q.away&&q.age>=18&&!q.preg).sort((a,b)=>upow(b)-upow(a))[0];const f0=S.res.food,w0=S.res.water,g0=S.res.gas||0;soloGo(p.id);const started=!!S.solo;const cost=(f0-S.res.food)+(w0-S.res.water)+(g0-(S.res.gas||0));
  for(let i=0;i<6;i++){if(!S.solo)break;if(S.solo.pend)soloPick(0);else soloStep()}const away=p.away;if(S.solo){S.solo.step=0;soloRequestReturn()}
  return {started,cost,away,back:!S.solo&&!p.away}})]);
 (async()=>{const b=await chromium.launch();const t0=Date.now();
@@ -90,7 +90,7 @@ scenarios.push(['Expediciones','partida_larga_dia248.json',async pg=>pg.evaluate
   if(name.startsWith('Secuencia')){ok(tag+': todo termina',!r.log.some(l=>/NO ACABA|no sale/.test(l)),r.log.join(' '));ok(tag+': sin matanzas (≤25 % de bajas en total)',r.dead<=Math.max(3,Math.ceil(.25*r.pop0)),r.dead+'/'+r.pop0+' · '+r.log.join(' '))}
   if(name==='Enfermedades'){ok(tag+': se curan solas sin antibióticos (cada una se cura en algún momento)',[0,1,2].every(i=>r.days.some(d=>d[i]==='0')),r.days.join(' '));ok(tag+': la gripe no se cura el primer día',r.days[0][0]==='1',r.days.join(' '))}
   if(name==='Guardar y cargar')ok(tag+': partida idéntica',r.diffs===0,r.ex);
-  if(name==='Expediciones'){ok(tag+': solitaria arranca sin coste',r.started&&r.cost<=0,JSON.stringify(r));ok(tag+': vuelve y queda en casa',r.back,JSON.stringify(r))}
+  if(name==='Expediciones'){ok(tag+': solitaria arranca sin coste (comida, agua ni gasolina)',r.started&&r.cost<=0,JSON.stringify(r));ok(tag+': vuelve y queda en casa',r.back,JSON.stringify(r))}
   ok(tag+': sin errores de página',!pe.length,pe.slice(0,2).join(' | '));await pg.close()}
  await b.close();
  results.forEach(r=>console.log(r[0],r[1],r[0]!=='OK   '?r[2]:''));

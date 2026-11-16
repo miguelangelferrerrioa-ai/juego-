@@ -85,17 +85,17 @@ window.drawOil=function(c){if(!ensure())return;
 /* ---- coste de gasolina ---- */
 const COST_SOLO=4,COST_OP=3;
 function exCost(){let g=3;try{if(exTab=='hist'&&exC!==undefined)g=STORY[exC].g;else if(exTab=='world'&&exZ!==undefined)g=EXT_ZONES[exZ].g;else if(exZ!==undefined)g=ZN[exZ].g}catch(e){}return 3+2*(g||1)}
-window.gasCost={team:exCost,solo:()=>COST_SOLO,op:()=>COST_OP};
+window.gasCost={team:exCost,solo:()=>0,op:()=>COST_OP};
 const need=(c,what)=>{if((S.res.gas||0)>=c)return true;toast('Necesitas '+c+' de gasolina para '+what+' (tienes '+Math.floor(S.res.gas||0)+'). Encuéntrala en botines o construye un pozo petrolífero sobre un yacimiento.');return false};
 const oEx=window.exGo;window.exGo=function(){if(S.exp)return oEx.apply(this,arguments);const c=exCost();
  const had=S.exp;const ready=(()=>{try{const zz=exTab=='hist'?exC!==undefined:exZ!==undefined;return zz&&exSel.length}catch(e){return false}})();
  if(ready&&!need(c,'esta expedición'))return;oEx.apply(this,arguments);if(S.exp&&!had){S.res.gas-=c;S.exp.gas=c}};
-const oSo=window.soloGo;window.soloGo=function(id){if(S.solo)return oSo.apply(this,arguments);const p=byId(id);if(!p||p.away||horde||S.res.food<10||S.res.water<10)return oSo.apply(this,arguments);if(!need(COST_SOLO,'enviar al explorador'))return;oSo.apply(this,arguments);if(S.solo)S.res.gas-=COST_SOLO};
+/* el explorador solitario no tiene coste (ni gasolina) */
 const oAd=window.advExplore;window.advExplore=function(i){advInit();const q=S.adv.landmarks[i];if(!q||q.done||q.day>S.day)return oAd.apply(this,arguments);if(!need(COST_OP,'esta operación'))return;oAd.apply(this,arguments);if(q.done)S.res.gas-=COST_OP};
 const oCt=window.cancelTravel;if(oCt)window.cancelTravel=function(){const e=S.exp,g=e&&e.gas;oCt.apply(this,arguments);if(g&&!S.exp){S.res.gas=(S.res.gas||0)+g;toast('Se te devuelven '+g+' de gasolina.')}};
 /* aviso de coste en los paneles de expedición, misión y operación */
 const oShow=window.show;window.show=function(t,h){if(typeof h==='string'&&/exGo\(\)|soloGo\(|advExplore\(/.test(h)){const g=Math.floor(S.res.gas||0),low=g<COST_OP;
-  h=`<div class="gas-b ${low?'low':''}"><img src="${ICO.gas}" width=16> <b>Gasolina: ${g}</b><small>Expedición ${exCost()} · Explorador ${COST_SOLO} · Operación ${COST_OP}</small></div>`+h}return oShow.call(this,t,h)};
+  h=`<div class="gas-b ${low?'low':''}"><img src="${ICO.gas}" width=16> <b>Gasolina: ${g}</b><small>Expedición ${exCost()} · Explorador gratis · Operación ${COST_OP}</small></div>`+h}return oShow.call(this,t,h)};
 /* ---- botín ---- */
 try{ZN.forEach((z,i)=>{if(z.l&&i%3===2&&!z.l.gas)z.l.gas=[3,8]})}catch(e){}
 try{EXT_ZONES.forEach((z,i)=>{if(z.loot&&i%2===0&&!z.loot.gas)z.loot.gas=[3,8]})}catch(e){}
@@ -103,7 +103,7 @@ try{MS.forEach(m=>{if(m[3]==='Principal'&&m[2]&&!m[2].gas)m[2]=Object.assign({},
 const oLw=window.lootWreck;window.lootWreck=function(ob){const r=oLw.apply(this,arguments);let t='';if(Math.random()<.45){const v=Math.max(1,Math.round(ri(2,6)*(1+S.ppl.filter(p=>p.prof=='Recolector').length*.2)));S.res.gas=(S.res.gas||0)+v;t=', +'+v+' gasolina'}return r+t};
 /* ---- guía ---- */
 try{const G=window.GD||GD,at=Math.max(0,G.findIndex(q=>q[0]==='Edificios'));
-G.splice(at,0,['Gasolina',()=>'<p>La <b>gasolina</b> se gasta al salir de la base: <b>expediciones y misiones</b> (3 + 2 por nivel de peligro del destino), el <b>explorador solitario</b> (4) y las <b>operaciones</b> o lugares especiales (3). Si cancelas el viaje antes de llegar, se te devuelve.</p><p>Se consigue de dos formas: en <b>botines</b> (restos de vehículos, algunas expediciones y misiones principales) o construyendo un <b>Pozo petrolífero</b>.</p><p>El pozo solo se puede construir <b>sobre un yacimiento</b>: manchas negras con una gota dorada que verás en el mapa. Hay varios repartidos por el mundo, y <b>uno está justo al lado de tu territorio inicial</b>; compra esa parcela para poder construir encima. Un pozo consume energía y da más gasolina cuanto mayor es su nivel.</p>']);
+G.splice(at,0,['Gasolina',()=>'<p>La <b>gasolina</b> se gasta al salir de la base: <b>expediciones y misiones</b> (3 + 2 por nivel de peligro del destino); el <b>explorador solitario</b> es gratis; y las <b>operaciones</b> o lugares especiales (3). Si cancelas el viaje antes de llegar, se te devuelve.</p><p>Se consigue de dos formas: en <b>botines</b> (restos de vehículos, algunas expediciones y misiones principales) o construyendo un <b>Pozo petrolífero</b>.</p><p>El pozo solo se puede construir <b>sobre un yacimiento</b>: manchas negras con una gota dorada que verás en el mapa. Hay varios repartidos por el mundo, y <b>uno está justo al lado de tu territorio inicial</b>; compra esa parcela para poder construir encima. Un pozo consume energía y da más gasolina cuanto mayor es su nivel.</p>']);
 }catch(e){console.error('guia gasolina',e)}
 const st=document.createElement('style');st.textContent='.gas-b{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#241f12;border:1px solid #6a5a1a;border-radius:10px;padding:6px 10px;margin:0 0 8px;font-size:13px;color:#ffe9a8}.gas-b small{opacity:.7}.gas-b.low{background:#2c1a16;border-color:#8a3a2a;color:#ffb3a8}';document.head.appendChild(st);
 })();
