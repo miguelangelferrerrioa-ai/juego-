@@ -68,15 +68,16 @@ function patrol(u,dt,g){arcs(g);const L=g.ring.length;
 window.uUpd=function(u,dt){let r;if(u.pin>T){if(u.pinBy&&u.pinBy.hp<=0)u.pin=0;else{const x=u.x,y=u.y;core(u,dt);u.x=x;u.y=y;sync(u);return}}r=core(u,dt);sync(u);return r};
 /* la persona sigue al soldado de combate: al acabar el ataque no salta a donde estaba antes */
 function sync(u){const p=u.p;if(!p||typeof p.id!=='number'||!isFinite(u.x)||!isFinite(u.y))return;p.x=u.x;p.y=u.y;p.tx=u.x;p.ty=u.y;p.dx=u.dx||p.dx;p.path=null;p.pk=null;p.vtx=undefined;p.vw=0}
-function core(u,dt){const c=CL[u.p.arm];u.cd-=dt;u.mv=0;
+function core(u,dt){const c=CL[u.p.arm];/* alistado sin arma: solo cuerpo a cuerpo (los de la Guardia, sin id numérico, traen sus armas) */const bare=typeof u.p.id==='number'&&!u.p.wp,RNG=bare?1.4:c.rng;u.cd-=dt;u.mv=0;
  if(!u.vInit){u.vInit=1;if(u.p&&!u.p.away&&isFinite(u.p.x)&&isFinite(u.p.y)&&u.p.x>0){u.x=u.p.x;u.y=u.p.y}}
  const g=geo();
- let t=null,td=1e9;Z.forEach(z=>{if(!z.act)return;const dd=Math.hypot(z.x-u.x,z.y-u.y);if(dd<=c.rng&&dd<td&&!wallBetween(u.x,u.y,z.x,z.y)){td=dd;t=z}});
- if(!t){const z=assign(g).get(u);if(z){t=z;td=Math.hypot(z.x-u.x,z.y-u.y);u.ptg=null}}
+ let t=null,td=1e9;Z.forEach(z=>{if(!z.act)return;const dd=Math.hypot(z.x-u.x,z.y-u.y);if(dd<=RNG&&dd<td&&!wallBetween(u.x,u.y,z.x,z.y)){td=dd;t=z}});
+ if(!t){const z=assign(g).get(u);/* con un muro de por medio no se persigue (saldría por un hueco): se espera dentro */if(z&&!wallBetween(u.x,u.y,z.x,z.y)){t=z;td=Math.hypot(z.x-u.x,z.y-u.y);u.ptg=null}}
  if(u.p.arm=='medico'){let a=null;U.forEach(q=>{if(q!==u&&q.hp<mhp(q.p)-5&&Math.hypot(q.x-u.x,q.y-u.y)<3.5)a=q});if(a){a.hp+=10*dt;u.hl=T;return}}
  if(u.p.arm=='ing'){const b=S.bld.find(b=>b.hp<mxhp(b)&&Math.hypot(b.x+b.w/2-u.x,b.y+b.h/2-u.y)<b.w+3);if(b){b.hp=Math.min(mxhp(b),b.hp+15*dt);u.rp=T;return}}
  if(!t){patrol(u,dt,g);return}
- if(td<=1.4){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.7;sfxAt('punch',u.x,u.y);t.hp-=(c.dmg*.8+(u.p.wp?u.p.wp.v*.5:0)+u.p.lvl)*(.9+Math.random()*.2);burst(t.x,t.y,2,'#b22',1,6)}}
+ if(td<=1.4){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.7;sfxAt('punch',u.x,u.y);t.hp-=(bare?(4+u.p.lvl*.6):(c.dmg*.8+(u.p.wp?u.p.wp.v*.5:0)+u.p.lvl))*(.9+Math.random()*.2);burst(t.x,t.y,2,'#b22',1,6)}}
+ else if(bare)walk(u,t.x,t.y,2.2,dt)
  else if(td<=c.rng){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.8;const m=S.res.ammo>=.05;if(m)S.res.ammo-=.05;{const k=({franco:'sniper',pesado:'rifle',esp:'blaster',expl:'pistol',medico:'pistol',ing:'pistol'})[u.p.arm]||'rifle';sfxAt(k,u.x,u.y);if(Math.random()<.3)setTimeout(()=>sfxAt('casing',u.x,u.y),330)}
   t.hp-=(c.dmg+(u.p.wp?u.p.wp.v:0)+u.p.lvl)*(th('arms1')?1.2:1)*(th('arms3')?1.2:1)*(th('arms4')?1.2:1)*(m?1:.6);FX.push({a:[u.x,u.y],b:[t.x,t.y],t:.1,col:'#fff'});burst(t.x,t.y,2,'#ffd24a',1,8)}}
  else walk(u,t.x,t.y,2.2,dt)}

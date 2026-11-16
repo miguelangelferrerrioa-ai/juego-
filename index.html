@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v127</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v129</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -11078,8 +11078,8 @@ const dark=(h,k)=>{const n=parseInt(h.slice(1),16),c=v=>Math.max(0,Math.round(v*
 let curSol=false;
 function pick(p){if(!p||p.outfit)return null;if(p.arm)return [MIL,MILD,1];const c=WORK[p.prof];return c?[c,dark(c,.68),0]:null}
 const of=window.fig;
-window.fig=function(){const a=arguments,role=a[8],id=a[10];if(role==='ban'||role==='zom'||!id||typeof byId!=='function')return of.apply(this,a);
- const p=byId(id);const u=pick(p);if(!u)return of.apply(this,a);const sv=[SUIT,SUITD],sc=curSol;SUIT=u[0];SUITD=u[1];curSol=!!u[2];
+window.fig=function(){let a=arguments;const role=a[8],id=a[10];if(role==='ban'||role==='zom'||!id||typeof byId!=='function')return of.apply(this,a);
+ const p=byId(id);/* alistado sin arma: sin fusil en la mano */if(p&&p.arm&&!p.wp&&a[6]){a=Array.from(a);a[6]=0}const u=pick(p);if(!u)return of.apply(this,a);const sv=[SUIT,SUITD],sc=curSol;SUIT=u[0];SUITD=u[1];curSol=!!u[2];
  try{const r=of.apply(this,a);if(curSol)helmet(a);return r}finally{SUIT=sv[0];SUITD=sv[1];curSol=sc}};
 try{fig=window.fig}catch(e){}
 /* chaleco táctico: correas cruzadas, cinturón con cartucheras y hombreras (dibujado sobre el torso) */
@@ -11218,15 +11218,16 @@ function patrol(u,dt,g){arcs(g);const L=g.ring.length;
 window.uUpd=function(u,dt){let r;if(u.pin>T){if(u.pinBy&&u.pinBy.hp<=0)u.pin=0;else{const x=u.x,y=u.y;core(u,dt);u.x=x;u.y=y;sync(u);return}}r=core(u,dt);sync(u);return r};
 /* la persona sigue al soldado de combate: al acabar el ataque no salta a donde estaba antes */
 function sync(u){const p=u.p;if(!p||typeof p.id!=='number'||!isFinite(u.x)||!isFinite(u.y))return;p.x=u.x;p.y=u.y;p.tx=u.x;p.ty=u.y;p.dx=u.dx||p.dx;p.path=null;p.pk=null;p.vtx=undefined;p.vw=0}
-function core(u,dt){const c=CL[u.p.arm];u.cd-=dt;u.mv=0;
+function core(u,dt){const c=CL[u.p.arm];/* alistado sin arma: solo cuerpo a cuerpo (los de la Guardia, sin id numérico, traen sus armas) */const bare=typeof u.p.id==='number'&&!u.p.wp,RNG=bare?1.4:c.rng;u.cd-=dt;u.mv=0;
  if(!u.vInit){u.vInit=1;if(u.p&&!u.p.away&&isFinite(u.p.x)&&isFinite(u.p.y)&&u.p.x>0){u.x=u.p.x;u.y=u.p.y}}
  const g=geo();
- let t=null,td=1e9;Z.forEach(z=>{if(!z.act)return;const dd=Math.hypot(z.x-u.x,z.y-u.y);if(dd<=c.rng&&dd<td&&!wallBetween(u.x,u.y,z.x,z.y)){td=dd;t=z}});
- if(!t){const z=assign(g).get(u);if(z){t=z;td=Math.hypot(z.x-u.x,z.y-u.y);u.ptg=null}}
+ let t=null,td=1e9;Z.forEach(z=>{if(!z.act)return;const dd=Math.hypot(z.x-u.x,z.y-u.y);if(dd<=RNG&&dd<td&&!wallBetween(u.x,u.y,z.x,z.y)){td=dd;t=z}});
+ if(!t){const z=assign(g).get(u);/* con un muro de por medio no se persigue (saldría por un hueco): se espera dentro */if(z&&!wallBetween(u.x,u.y,z.x,z.y)){t=z;td=Math.hypot(z.x-u.x,z.y-u.y);u.ptg=null}}
  if(u.p.arm=='medico'){let a=null;U.forEach(q=>{if(q!==u&&q.hp<mhp(q.p)-5&&Math.hypot(q.x-u.x,q.y-u.y)<3.5)a=q});if(a){a.hp+=10*dt;u.hl=T;return}}
  if(u.p.arm=='ing'){const b=S.bld.find(b=>b.hp<mxhp(b)&&Math.hypot(b.x+b.w/2-u.x,b.y+b.h/2-u.y)<b.w+3);if(b){b.hp=Math.min(mxhp(b),b.hp+15*dt);u.rp=T;return}}
  if(!t){patrol(u,dt,g);return}
- if(td<=1.4){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.7;sfxAt('punch',u.x,u.y);t.hp-=(c.dmg*.8+(u.p.wp?u.p.wp.v*.5:0)+u.p.lvl)*(.9+Math.random()*.2);burst(t.x,t.y,2,'#b22',1,6)}}
+ if(td<=1.4){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.7;sfxAt('punch',u.x,u.y);t.hp-=(bare?(4+u.p.lvl*.6):(c.dmg*.8+(u.p.wp?u.p.wp.v*.5:0)+u.p.lvl))*(.9+Math.random()*.2);burst(t.x,t.y,2,'#b22',1,6)}}
+ else if(bare)walk(u,t.x,t.y,2.2,dt)
  else if(td<=c.rng){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.8;const m=S.res.ammo>=.05;if(m)S.res.ammo-=.05;{const k=({franco:'sniper',pesado:'rifle',esp:'blaster',expl:'pistol',medico:'pistol',ing:'pistol'})[u.p.arm]||'rifle';sfxAt(k,u.x,u.y);if(Math.random()<.3)setTimeout(()=>sfxAt('casing',u.x,u.y),330)}
   t.hp-=(c.dmg+(u.p.wp?u.p.wp.v:0)+u.p.lvl)*(th('arms1')?1.2:1)*(th('arms3')?1.2:1)*(th('arms4')?1.2:1)*(m?1:.6);FX.push({a:[u.x,u.y],b:[t.x,t.y],t:.1,col:'#fff'});burst(t.x,t.y,2,'#ffd24a',1,8)}}
  else walk(u,t.x,t.y,2.2,dt)}
@@ -11285,7 +11286,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'127';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'129';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';

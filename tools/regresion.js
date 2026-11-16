@@ -72,6 +72,10 @@ scenarios.push(['Parejas','dia3.json',async pg=>pg.evaluate(async()=>{window.sho
  const M=S.ppl.find(p=>p.sex==='M'&&p.age>=18&&!whyNot(p)),F=S.ppl.find(p=>p.sex==='F'&&p.age>=18&&!whyNot(p)&&!kin(p,M));pairM=M.id;pairF=F.id;pairGo();const st=!!F.preg;
  for(let d=0;d<9;d++){S.nextH=S.day+60;S.raidT=1e6;M.illness='';F.illness='';S.dayT=599.9;await __run(1)}
  M.illness='';F.illness='';return {st,M:whyNot(M)||'libre',F:whyNot(F)||'libre',txt:window.whyTxt?whyTxt(F,'descansa'):''}})]);
+/* 4f) soldado alistado sin arma: no dispara, pelea a puñetazos */
+scenarios.push(['Soldado sin arma','dia3.json',async pg=>pg.evaluate(async()=>{const sol=S.ppl.find(p=>p.arm);sol.wp=null;sol.outfit=null;let shots=0,punches=0;
+ const oF=FX.push;startHorde();await __run(400,()=>{const u=U.find(u=>u.p===sol);if(u){FX.forEach(f=>{if(f.t>.09&&f.a&&Math.hypot(f.a[0]-u.x,f.a[1]-u.y)<.01)shots++})}return !horde});
+ return {shots,ended:!horde,V:__V}})]);
 /* 5) guardar / cargar */
 scenarios.push(['Guardar y cargar','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{await __run(20);const IGN=new Set(['php','fl','inside','mv','path','pk','pg','pv','pT','dx','tx','ty','x','y','thru','nopath','vtx','vty','vw','_px','_py','_dx']);
  const norm=o=>{const c=JSON.parse(JSON.stringify(o));c.obs=(c.obs||[]).map(q=>q.x+','+q.y+','+q.t).sort();return c};const a=norm(S);save(true);load();const b=norm(S);let d=0,ex='';
@@ -97,6 +101,7 @@ scenarios.push(['Expediciones','partida_larga_dia248.json',async pg=>pg.evaluate
   if(name.startsWith('Secuencia')){ok(tag+': todo termina',!r.log.some(l=>/NO ACABA|no sale/.test(l)),r.log.join(' '));ok(tag+': sin matanzas (≤25 % de bajas en total)',r.dead<=Math.max(3,Math.ceil(.25*r.pop0)),r.dead+'/'+r.pop0+' · '+r.log.join(' '))}
   if(name==='Enfermedades'){ok(tag+': se curan solas sin antibióticos (cada una se cura en algún momento)',[0,1,2].every(i=>r.days.some(d=>d[i]==='0')),r.days.join(' '));ok(tag+': la gripe no se cura el primer día',r.days[0][0]==='1',r.days.join(' '))}
   if(name==='Parejas'){ok(tag+': se forma la pareja',r.st,JSON.stringify(r));ok(tag+': tras parto y descanso vuelven a estar disponibles',r.M==='libre'&&r.F==='libre',JSON.stringify(r))}
+  if(name==='Soldado sin arma'){ok(tag+': no dispara',r.shots===0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Guardar y cargar')ok(tag+': partida idéntica',r.diffs===0,r.ex);
   if(name==='Expediciones'){ok(tag+': solitaria arranca sin coste (comida, agua ni gasolina)',r.started&&r.cost<=0,JSON.stringify(r));ok(tag+': vuelve y queda en casa',r.back,JSON.stringify(r))}
   ok(tag+': sin errores de página',!pe.length,pe.slice(0,2).join(' | '));await pg.close()}
