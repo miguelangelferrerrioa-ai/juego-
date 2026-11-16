@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v125</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v126</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -11069,6 +11069,35 @@ W('Guardado y controles',h=>h+P('<b>Copia de seguridad:</b> la partida solo vive
  +P('<b>Versión nueva:</b> cuando hay una actualización publicada sale un aviso abajo con <b>Actualizar</b> (guarda antes y recarga). El número de versión aparece en la portada, debajo del título.'));
 })();
 </script>
+<script>/* Uniformes: los civiles visten ropa de trabajo con el color de su oficio y el verde militar queda solo para los alistados, que además llevan casco y chaleco con cartucheras. Los que tienen atuendo siguen con su atuendo. */
+(function(){
+'use strict';
+const WORK={'Médico':'#d4d8d2','Cocinero':'#e6dfcb','Constructor':'#c9952c','Agricultor':'#7d5c36','Explorador':'#3f6a86','Mecánico':'#40507e','Recolector':'#8c5a3a','Científico':'#3b8080','Soldado':'#6e6a61'};
+const MIL='#55603a',MILD='#3a4228';
+const dark=(h,k)=>{const n=parseInt(h.slice(1),16),c=v=>Math.max(0,Math.round(v*k)).toString(16).padStart(2,'0');return '#'+c(n>>16)+c((n>>8)&255)+c(n&255)};
+let curSol=false;
+function pick(p){if(!p||p.outfit)return null;if(p.arm)return [MIL,MILD,1];const c=WORK[p.prof];return c?[c,dark(c,.68),0]:null}
+const of=window.fig;
+window.fig=function(){const a=arguments,role=a[8],id=a[10];if(role==='ban'||role==='zom'||!id||typeof byId!=='function')return of.apply(this,a);
+ const p=byId(id);const u=pick(p);if(!u)return of.apply(this,a);const sv=[SUIT,SUITD],sc=curSol;SUIT=u[0];SUITD=u[1];curSol=!!u[2];
+ try{const r=of.apply(this,a);if(curSol)helmet(a);return r}finally{SUIT=sv[0];SUITD=sv[1];curSol=sc}};
+try{fig=window.fig}catch(e){}
+/* chaleco táctico: correas cruzadas, cinturón con cartucheras y hombreras (dibujado sobre el torso) */
+const oOv=window.ovFig;
+window.ovFig=function(g,H,FM){if(oOv)try{oOv(g,H,FM)}catch(e){}if(!curSol)return;g.save();
+ g.strokeStyle='#2b2f1e';g.lineWidth=1.1;g.beginPath();g.moveTo(-3,H+.6);g.lineTo(2.6,H+5.4);g.moveTo(3,H+.6);g.lineTo(-2.6,H+5.4);g.stroke();
+ g.fillStyle='#2b2f1e';g.fillRect(-3.8,H+5.2,7.6,1.5);g.fillStyle='#4a4f33';[-2.9,-.6,1.7].forEach(x=>g.fillRect(x,H+5.5,1.6,1.9));
+ g.fillStyle='#3f4a2b';g.beginPath();g.ellipse(-3.4,H+.9,1.4,1,0,0,7);g.ellipse(3.4,H+.9,1.4,1,0,0,7);g.fill();g.restore()};
+/* casco: misma posición que la cabeza que dibuja fig() */
+function helmet(a){try{const [x,y,,sc,wkg,,,dx,,act,id]=a,c=window.g;if(!c)return;const q=P(x,y),run=act==3,ph=T*(run?15:9)+x*3+(id||0),bob=act==6||act==11?null:wkg?Math.abs(Math.cos(ph))*(run?2.2:1.2):Math.sin(T*2+(id||0))*.35;if(bob===null)return;
+ const H=-17-bob,hy=H-3.4,f=dx<0?-1:1,s=(sc||1)*1.32;c.save();c.translate(q[0],q[1]);c.scale(s*f,s);if(run)c.rotate(.1);
+ const cy=hy+(hy-hy)*.74,top=hy-5*.74*1.04;c.fillStyle='#4f5a35';c.strokeStyle='#22261a';c.lineWidth=.8;c.beginPath();c.ellipse(0,hy-.9,5.2*.74*1.08,4.2*.74,0,Math.PI,0);c.lineTo(4.6*.74*1.1,hy-.6);c.lineTo(-4.6*.74*1.1,hy-.6);c.closePath();c.fill();c.stroke();
+ c.fillStyle='#3a4228';c.fillRect(-4.3*.74*1.1,hy-1.2,8.6*.74*1.1,.9);c.restore()}catch(e){}}
+/* retratos de las fichas: mismos colores */
+const oPF=window.paintFace;
+if(typeof oPF==='function')window.paintFace=function(cv,p){const u=pick(p);if(!u)return oPF.apply(this,arguments);const sv=[SUIT,SUITD];SUIT=u[0];SUITD=u[1];try{return oPF.apply(this,arguments)}finally{SUIT=sv[0];SUITD=sv[1]}};
+})();
+</script>
 <script>/* Resumen del día: al amanecer recoge todos los avisos que salen en los primeros segundos del día nuevo y muestra una tarjeta pequeña en una esquina («☀ Día N · K novedades») que no para el juego. Al tocarla, se ven todos juntos. */
 (function(){
 'use strict';
@@ -11256,7 +11285,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'125';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'126';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
