@@ -11,9 +11,11 @@ async function open(b,save){const pg=await b.newPage({viewport:{width:932,height
  for(let i=0;i<10;i++){for(const t of['text=Saltar','text=Entendido','text=Cerrar']){try{await pg.click(t,{timeout:120})}catch(e){}}}
  await pg.evaluate(()=>{window.__U0=window.upd;window.upd=()=>{};window.render=()=>{};
   /* vigila reglas en cada paso */
-  window.__V={preg:0,kid:0,unarmed:0,old:0,nan:0,err:0,em:''};
+  window.__V={preg:0,kid:0,unarmed:0,old:0,nan:0,err:0,em:'',jump:0,jex:''};window.__LP=new Map();
   window.__step=dt=>{T+=dt;try{__U0(dt)}catch(e){__V.err++;__V.em=String(e).slice(0,120)}
    U.forEach(u=>{const p=u.p;if(p&&p.id!==undefined&&typeof p.id==='number'){if(p.preg)__V.preg++;if(p.age<18)__V.kid++}if(!isFinite(u.x)||!isFinite(u.y)||!isFinite(u.hp))__V.nan++});
+   /* saltos: la posición visible de cada soldado (su unidad de combate o él mismo) no puede moverse más de 1,2 casillas de un paso a otro */
+   S.ppl.forEach(p=>{if(!p.arm||p.away)return;const u=U.find(u=>u.p===p),x=u?u.x:p.x,y=u?u.y:p.y,l=__LP.get(p);if(l&&Math.hypot(x-l[0],y-l[1])>1.2){__V.jump++;__V.jex=__V.jex||(p.n+' '+Math.hypot(x-l[0],y-l[1]).toFixed(1))}__LP.set(p,[x,y])});
    S.ppl.forEach(p=>{if(p.fg===T){if(p.preg)__V.preg++;if(p.age<18)__V.kid++;if(!p.wp&&horde){const h=S.bld.find(b=>b.type==='hall');if(!h||Math.hypot(p.x-(h.x+h.w/2),p.y-(h.y+h.h+.8))>7)__V.unarmed++}if(!p.wp&&p.age>=65)__V.old++}if(!isFinite(p.x)||!isFinite(p.y)||!isFinite(p.hp))__V.nan++})};
   window.__run=async(s,stop)=>{let t=0;while(t<s){__step(.05);t+=.05;if(Math.round(t/.05)%40===0)await new Promise(r=>setTimeout(r,25));if(stop&&stop())break}return t}});
  return {pg,pe}}
@@ -69,7 +71,7 @@ scenarios.push(['Enfermedades','dia3.json',async pg=>pg.evaluate(async()=>{S.res
 scenarios.push(['Parejas','dia3.json',async pg=>pg.evaluate(async()=>{window.show=()=>{};S.ppl.forEach(p=>{p.illness=''});S.bld.push(...[0,1,2,3].map(i=>({type:'house',x:2+i*3,y:2,w:2,h:2,lvl:1,hp:100,id:9000+i})));rebuild();
  const M=S.ppl.find(p=>p.sex==='M'&&p.age>=18&&!whyNot(p)),F=S.ppl.find(p=>p.sex==='F'&&p.age>=18&&!whyNot(p)&&!kin(p,M));pairM=M.id;pairF=F.id;pairGo();const st=!!F.preg;
  for(let d=0;d<9;d++){S.nextH=S.day+60;S.raidT=1e6;M.illness='';F.illness='';S.dayT=599.9;await __run(1)}
- return {st,M:whyNot(M)||'libre',F:whyNot(F)||'libre',txt:window.whyTxt?whyTxt(F,'descansa'):''}})]);
+ M.illness='';F.illness='';return {st,M:whyNot(M)||'libre',F:whyNot(F)||'libre',txt:window.whyTxt?whyTxt(F,'descansa'):''}})]);
 /* 5) guardar / cargar */
 scenarios.push(['Guardar y cargar','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{await __run(20);const IGN=new Set(['php','fl','inside','mv','path','pk','pg','pv','pT','dx','tx','ty','x','y','thru','nopath','vtx','vty','vw','_px','_py','_dx']);
  const norm=o=>{const c=JSON.parse(JSON.stringify(o));c.obs=(c.obs||[]).map(q=>q.x+','+q.y+','+q.t).sort();return c};const a=norm(S);save(true);load();const b=norm(S);let d=0,ex='';
@@ -83,7 +85,7 @@ scenarios.push(['Expediciones','partida_larga_dia248.json',async pg=>pg.evaluate
  for(const [name,sv,fn] of scenarios){const {pg,pe}=await open(b,SV(sv));let r=null;try{r=await fn(pg)}catch(e){r={crash:String(e).slice(0,200)}}
   const V=r&&r.V||{};const tag=name;
   if(r.crash)ok(tag+': se ejecuta',false,r.crash);
-  if(V.err!==undefined){ok(tag+': sin errores de juego',!V.err,V.em);ok(tag+': embarazadas no pelean',!V.preg,V.preg);ok(tag+': menores no pelean',!V.kid,V.kid);ok(tag+': en hordas los desarmados solo pelean en la puerta del ayuntamiento',!V.unarmed,V.unarmed);ok(tag+': mayores de 65 sin arma no pelean',!V.old,V.old);ok(tag+': sin valores rotos',!V.nan,V.nan)}
+  if(V.err!==undefined){ok(tag+': sin errores de juego',!V.err,V.em);ok(tag+': embarazadas no pelean',!V.preg,V.preg);ok(tag+': menores no pelean',!V.kid,V.kid);ok(tag+': en hordas los desarmados solo pelean en la puerta del ayuntamiento',!V.unarmed,V.unarmed);ok(tag+': mayores de 65 sin arma no pelean',!V.old,V.old);ok(tag+': sin valores rotos',!V.nan,V.nan);ok(tag+': soldados sin teletransportes',!V.jump,V.jump+' '+V.jex)}
   if(name==='Zombis sueltos'){ok(tag+': aparecen',r.out.every(o=>o.seen),JSON.stringify(r.out));ok(tag+': no matan al pueblo (≤1 muerto)',r.out.every(o=>o.dead<=1),JSON.stringify(r.out.map(o=>o.dead)));ok(tag+': soldados no salen al campo (≤4,5 casillas del pueblo)',r.out.every(o=>o.far<=4.5),JSON.stringify(r.out.map(o=>o.far)))}
   if(name==='Pueblo desarmado'){ok(tag+': los zombis sueltos no matan al pueblo (≤1 muerto cada uno)',r.out.every(o=>o.seen&&o.dead<=1),JSON.stringify(r.out));ok(tag+': el zombi acaba muerto',r.out.every(o=>!o.left),JSON.stringify(r.out))}
   if(name==='Horda en la puerta'){ok(tag+': salen a pelear a puñetazos',r.fought,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r));ok(tag+': no muere todo el pueblo',r.dead<=4,JSON.stringify(r))}

@@ -65,7 +65,9 @@ function patrol(u,dt,g){arcs(g);const L=g.ring.length;
  const d=Math.hypot(u.ptg[0]-u.x,u.ptg[1]-u.y);if(d<.35){u.ptg=null;u.pw=.4+Math.random()*1.2;return}
  walk(u,u.ptg[0],u.ptg[1],u.ptg&&d>6?2.2:1.5,dt)}
 /* conserva el agarre del Zombi cazador (zombis2.js): un soldado agarrado no se mueve hasta que muere el cazador */
-window.uUpd=function(u,dt){if(u.pin>T){if(u.pinBy&&u.pinBy.hp<=0)u.pin=0;else{const x=u.x,y=u.y;core(u,dt);u.x=x;u.y=y;return}}return core(u,dt)};
+window.uUpd=function(u,dt){let r;if(u.pin>T){if(u.pinBy&&u.pinBy.hp<=0)u.pin=0;else{const x=u.x,y=u.y;core(u,dt);u.x=x;u.y=y;sync(u);return}}r=core(u,dt);sync(u);return r};
+/* la persona sigue al soldado de combate: al acabar el ataque no salta a donde estaba antes */
+function sync(u){const p=u.p;if(!p||typeof p.id!=='number'||!isFinite(u.x)||!isFinite(u.y))return;p.x=u.x;p.y=u.y;p.tx=u.x;p.ty=u.y;p.dx=u.dx||p.dx;p.path=null;p.pk=null;p.vtx=undefined;p.vw=0}
 function core(u,dt){const c=CL[u.p.arm];u.cd-=dt;u.mv=0;
  if(!u.vInit){u.vInit=1;if(u.p&&!u.p.away&&isFinite(u.p.x)&&isFinite(u.p.y)&&u.p.x>0){u.x=u.p.x;u.y=u.p.y}}
  const g=geo();

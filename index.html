@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v122</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v125</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -6081,7 +6081,7 @@ window.pstep=function(p,tx,ty,s){
   s*=terrMul(p.x,p.y);let sx=Math.floor(p.x),sy=Math.floor(p.y);const gx=Math.floor(tx),gy=Math.floor(ty);
   /* si se ha quedado dentro de un edificio (p. ej. construido encima), sale a la casilla libre más cercana */
   /* (no si está cruzando un edificio a propósito porque no hay camino: si no, lo devolvía al hueco del que intentaba salir y se quedaba atrapado para siempre) */
-  if(blocked(sx,sy)&&!(sx===gx&&sy===gy)&&!(p.thru&&T-p.thru<1.5)){const nb=[[1,0],[-1,0],[0,1],[0,-1]].some(([a,c])=>!blocked(sx+a,sy+c));if(!nb){const f=nearFree(sx,sy);if(f){p.x=f[0]+.5;p.y=f[1]+.5;sx=f[0];sy=f[1];p.path=null;p.pk=null}}}
+  if(blocked(sx,sy)&&!(sx===gx&&sy===gy)&&!(p.thru&&T-p.thru<1.5)){const nb=[[1,0],[-1,0],[0,1],[0,-1]].some(([a,c])=>!blocked(sx+a,sy+c));if(!nb){const f=nearFree(sx,sy);if(f){/* sale andando hasta la casilla libre más cercana (antes aparecía allí de golpe) */const ex=f[0]+.5,ey=f[1]+.5,d=Math.hypot(ex-p.x,ey-p.y);if(d>.05){const k=Math.min(1,s/d);p.x+=(ex-p.x)*k;p.y+=(ey-p.y)*k;p.dx=ex-p.x;p.path=null;p.pk=null;return true}p.path=null;p.pk=null}}}
   let wx=tx,wy=ty;
   if(!clear(p.x,p.y,tx,ty)){
     const key=gx+','+gy+'|'+PV;
@@ -11186,7 +11186,9 @@ function patrol(u,dt,g){arcs(g);const L=g.ring.length;
  const d=Math.hypot(u.ptg[0]-u.x,u.ptg[1]-u.y);if(d<.35){u.ptg=null;u.pw=.4+Math.random()*1.2;return}
  walk(u,u.ptg[0],u.ptg[1],u.ptg&&d>6?2.2:1.5,dt)}
 /* conserva el agarre del Zombi cazador (zombis2.js): un soldado agarrado no se mueve hasta que muere el cazador */
-window.uUpd=function(u,dt){if(u.pin>T){if(u.pinBy&&u.pinBy.hp<=0)u.pin=0;else{const x=u.x,y=u.y;core(u,dt);u.x=x;u.y=y;return}}return core(u,dt)};
+window.uUpd=function(u,dt){let r;if(u.pin>T){if(u.pinBy&&u.pinBy.hp<=0)u.pin=0;else{const x=u.x,y=u.y;core(u,dt);u.x=x;u.y=y;sync(u);return}}r=core(u,dt);sync(u);return r};
+/* la persona sigue al soldado de combate: al acabar el ataque no salta a donde estaba antes */
+function sync(u){const p=u.p;if(!p||typeof p.id!=='number'||!isFinite(u.x)||!isFinite(u.y))return;p.x=u.x;p.y=u.y;p.tx=u.x;p.ty=u.y;p.dx=u.dx||p.dx;p.path=null;p.pk=null;p.vtx=undefined;p.vw=0}
 function core(u,dt){const c=CL[u.p.arm];u.cd-=dt;u.mv=0;
  if(!u.vInit){u.vInit=1;if(u.p&&!u.p.away&&isFinite(u.p.x)&&isFinite(u.p.y)&&u.p.x>0){u.x=u.p.x;u.y=u.p.y}}
  const g=geo();
@@ -11254,7 +11256,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'122';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'125';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';

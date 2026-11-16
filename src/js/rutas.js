@@ -26,7 +26,7 @@ window.pstep=function(p,tx,ty,s){
   s*=terrMul(p.x,p.y);let sx=Math.floor(p.x),sy=Math.floor(p.y);const gx=Math.floor(tx),gy=Math.floor(ty);
   /* si se ha quedado dentro de un edificio (p. ej. construido encima), sale a la casilla libre más cercana */
   /* (no si está cruzando un edificio a propósito porque no hay camino: si no, lo devolvía al hueco del que intentaba salir y se quedaba atrapado para siempre) */
-  if(blocked(sx,sy)&&!(sx===gx&&sy===gy)&&!(p.thru&&T-p.thru<1.5)){const nb=[[1,0],[-1,0],[0,1],[0,-1]].some(([a,c])=>!blocked(sx+a,sy+c));if(!nb){const f=nearFree(sx,sy);if(f){p.x=f[0]+.5;p.y=f[1]+.5;sx=f[0];sy=f[1];p.path=null;p.pk=null}}}
+  if(blocked(sx,sy)&&!(sx===gx&&sy===gy)&&!(p.thru&&T-p.thru<1.5)){const nb=[[1,0],[-1,0],[0,1],[0,-1]].some(([a,c])=>!blocked(sx+a,sy+c));if(!nb){const f=nearFree(sx,sy);if(f){/* sale andando hasta la casilla libre más cercana (antes aparecía allí de golpe) */const ex=f[0]+.5,ey=f[1]+.5,d=Math.hypot(ex-p.x,ey-p.y);if(d>.05){const k=Math.min(1,s/d);p.x+=(ex-p.x)*k;p.y+=(ey-p.y)*k;p.dx=ex-p.x;p.path=null;p.pk=null;return true}p.path=null;p.pk=null}}}
   let wx=tx,wy=ty;
   if(!clear(p.x,p.y,tx,ty)){
     const key=gx+','+gy+'|'+PV;
