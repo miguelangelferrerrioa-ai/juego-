@@ -755,6 +755,8 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 #titleContent .title-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 #titleContent .title-actions button{min-width:0;padding:11px 10px;font-size:13px}
 }
+/* aviso importante en la cola de avisos */
+#log>div.urg{border-left-color:#e0442e!important;background:linear-gradient(90deg,#3a1410f0,#1c0c0af0)!important;color:#ffd9cf}
 </style>
 
 <meta name="theme-color" content="#172318">
@@ -764,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v114</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v116</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -878,7 +880,12 @@ const gunners=b=>wk(b).filter(p=>p.wp&&p.hp>20&&!p.preg&&p.age>=18).slice(0,2),w
 const skFor=(p,d)=>Math.max(0,...d.job.map(j=>((p.ps&&p.ps[j])||0)+(window.eqB?eqB(p,j):0))),eff=(p,d)=>{const s=skFor(p,d);return .35*(s>0?1.6*(1+.2*s):.7*(1+.2*p.sk))};
 const upow=p=>{const c=CL[p.arm||'soldado'];return Math.round((c.dmg+(p.wp?p.wp.v:0)+p.lvl*2+p.sk)*1.5+mhp(p)/10+c.def*3+(window.eqPow?eqPow(p):0))};
 const armyPow=()=>S.ppl.filter(p=>p.arm&&!p.away&&p.hp>20).reduce((a,p)=>a+upow(p),0)+S.bld.reduce((a,b)=>a+(BT[b.type].fire?(BT[b.type].gun?gunners(b).length:1)*15:0),0);
-function toast(m){const L=$('log');[...L.children].forEach(c=>{if(c.textContent===m)c.remove()});while(L.children.length>=2)L.firstChild.remove();const d=document.createElement('div');d.textContent=m;L.appendChild(d);setTimeout(()=>d.remove(),4500)}
+/* Avisos en cola: como mucho 2 a la vez, cada uno al menos 4,5 s; los nuevos esperan su turno en vez de borrar a los anteriores. Los importantes (hordas, zombis, muertes) se adelantan y salen en rojo. */
+const TQ=[];const TURG=/horda|vigías|asaltará|zombi|infectad|murió|muerto|ha muerto|fallec|no lo ha logrado|desapareci|ataque/i;
+function toastPump(){const L=$('log');if(!L)return;while(L.children.length<2&&TQ.length){const m=TQ.shift(),d=document.createElement('div');d.textContent=m;if(TURG.test(m))d.className='urg';L.appendChild(d);setTimeout(()=>{d.remove();toastPump()},4500)}}
+function toast(m){m=String(m==null?'':m);if(!m)return;const L=$('log');if(L&&[...L.children].some(c=>c.textContent===m))return;if(TQ.includes(m))return;
+ if(TURG.test(m)){let i=0;while(i<TQ.length&&TURG.test(TQ[i]))i++;TQ.splice(i,0,m)}else TQ.push(m);
+ while(TQ.length>12){const k=TQ.findIndex(x=>!TURG.test(x));TQ.splice(k>=0?k:0,1)}toastPump()}
 const btn=(l,f,d)=>`<button ${d?'disabled':''} onclick="${f}">${l}</button>`;
 const bar=(l,v,c)=>`<div>${l} ${Math.round(v)}</div><div class="bar"><i style="width:${cl(v,0,100)}%;background:${c}"></i></div>`;
 function show(t,h){$('pan').innerHTML='<h3 class="panel-title"><span>'+t+'</span><button class="panel-x" onclick="hide()" aria-label="Cerrar">✕</button></h3><div class="panel-body">'+h+'</div><div class="panel-footer"><button onclick="hide()">Cerrar</button></div>';$('pan').style.display='block';$('pan').scrollTop=0}function hide(){$('pan').style.display='none'}
@@ -11229,7 +11236,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'114';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'116';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';

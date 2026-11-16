@@ -66,7 +66,12 @@ const gunners=b=>wk(b).filter(p=>p.wp&&p.hp>20&&!p.preg&&p.age>=18).slice(0,2),w
 const skFor=(p,d)=>Math.max(0,...d.job.map(j=>((p.ps&&p.ps[j])||0)+(window.eqB?eqB(p,j):0))),eff=(p,d)=>{const s=skFor(p,d);return .35*(s>0?1.6*(1+.2*s):.7*(1+.2*p.sk))};
 const upow=p=>{const c=CL[p.arm||'soldado'];return Math.round((c.dmg+(p.wp?p.wp.v:0)+p.lvl*2+p.sk)*1.5+mhp(p)/10+c.def*3+(window.eqPow?eqPow(p):0))};
 const armyPow=()=>S.ppl.filter(p=>p.arm&&!p.away&&p.hp>20).reduce((a,p)=>a+upow(p),0)+S.bld.reduce((a,b)=>a+(BT[b.type].fire?(BT[b.type].gun?gunners(b).length:1)*15:0),0);
-function toast(m){const L=$('log');[...L.children].forEach(c=>{if(c.textContent===m)c.remove()});while(L.children.length>=2)L.firstChild.remove();const d=document.createElement('div');d.textContent=m;L.appendChild(d);setTimeout(()=>d.remove(),4500)}
+/* Avisos en cola: como mucho 2 a la vez, cada uno al menos 4,5 s; los nuevos esperan su turno en vez de borrar a los anteriores. Los importantes (hordas, zombis, muertes) se adelantan y salen en rojo. */
+const TQ=[];const TURG=/horda|vigías|asaltará|zombi|infectad|murió|muerto|ha muerto|fallec|no lo ha logrado|desapareci|ataque/i;
+function toastPump(){const L=$('log');if(!L)return;while(L.children.length<2&&TQ.length){const m=TQ.shift(),d=document.createElement('div');d.textContent=m;if(TURG.test(m))d.className='urg';L.appendChild(d);setTimeout(()=>{d.remove();toastPump()},4500)}}
+function toast(m){m=String(m==null?'':m);if(!m)return;const L=$('log');if(L&&[...L.children].some(c=>c.textContent===m))return;if(TQ.includes(m))return;
+ if(TURG.test(m)){let i=0;while(i<TQ.length&&TURG.test(TQ[i]))i++;TQ.splice(i,0,m)}else TQ.push(m);
+ while(TQ.length>12){const k=TQ.findIndex(x=>!TURG.test(x));TQ.splice(k>=0?k:0,1)}toastPump()}
 const btn=(l,f,d)=>`<button ${d?'disabled':''} onclick="${f}">${l}</button>`;
 const bar=(l,v,c)=>`<div>${l} ${Math.round(v)}</div><div class="bar"><i style="width:${cl(v,0,100)}%;background:${c}"></i></div>`;
 function show(t,h){$('pan').innerHTML='<h3 class="panel-title"><span>'+t+'</span><button class="panel-x" onclick="hide()" aria-label="Cerrar">✕</button></h3><div class="panel-body">'+h+'</div><div class="panel-footer"><button onclick="hide()">Cerrar</button></div>';$('pan').style.display='block';$('pan').scrollTop=0}function hide(){$('pan').style.display='none'}
