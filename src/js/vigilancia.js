@@ -78,7 +78,7 @@ function core(u,dt){const c=CL[u.p.arm];/* alistado sin arma: solo cuerpo a cuer
  if(!t){patrol(u,dt,g);return}
  if(td<=1.4){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.7;sfxAt('punch',u.x,u.y);t.hp-=(bare?(4+u.p.lvl*.6):(c.dmg*.8+(u.p.wp?u.p.wp.v*.5:0)+u.p.lvl))*(.9+Math.random()*.2);burst(t.x,t.y,2,'#b22',1,6)}}
  else if(bare)walk(u,t.x,t.y,2.2,dt)
- else if(td<=c.rng){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.8;const m=S.res.ammo>=.05;if(m)S.res.ammo-=.05;{const k=({franco:'sniper',pesado:'rifle',esp:'blaster',expl:'pistol',medico:'pistol',ing:'pistol'})[u.p.arm]||'rifle';sfxAt(k,u.x,u.y);if(Math.random()<.3)setTimeout(()=>sfxAt('casing',u.x,u.y),330)}
+ else if(td<=c.rng){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.8;const m=true;/* disparar no gasta munición */{const k=({franco:'sniper',pesado:'rifle',esp:'blaster',expl:'pistol',medico:'pistol',ing:'pistol'})[u.p.arm]||'rifle';sfxAt(k,u.x,u.y);if(Math.random()<.3)setTimeout(()=>sfxAt('casing',u.x,u.y),330)}
   t.hp-=(c.dmg+(u.p.wp?u.p.wp.v:0)+u.p.lvl)*(th('arms1')?1.2:1)*(th('arms3')?1.2:1)*(th('arms4')?1.2:1)*(m?1:.6);FX.push({a:[u.x,u.y],b:[t.x,t.y],t:.1,col:'#fff'});burst(t.x,t.y,2,'#ffd24a',1,8)}}
  else walk(u,t.x,t.y,2.2,dt)}
 try{uUpd=window.uUpd}catch(e){}
