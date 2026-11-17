@@ -2,14 +2,14 @@
 (function(){
 'use strict';
 function info(){const a=S.ppl.filter(p=>p.arm),ok=a.filter(p=>p.td!==S.day&&!p.away),food=ok.reduce((s,p)=>s+10+5*p.lvl,0);
- let n=0,f=0,m=0;ok.forEach(p=>{const c=10+5*p.lvl;if(S.res.food>=f+c&&S.res.ammo>=m+10){n++;f+=c;m+=10}});return {total:a.length,hoy:ok.length,food,ammo:ok.length*10,n,f,m}}
+ let n=0,f=0,m=0;ok.forEach(p=>{const c=10+5*p.lvl;if(S.res.metal>=f+c&&S.res.ammo>=m+10){n++;f+=c;m+=10}});return {total:a.length,hoy:ok.length,food,ammo:ok.length*10,n,f,m}}
 function card(id){const i=info(),auto=!!S.autoTrain;
- const btn=i.hoy?(i.n?`<button class="bup tr-go" onclick="trainArmy();setTimeout(()=>bPanel(${id}),50)">Entrenar a ${i.n} soldado${i.n>1?'s':''} · ${i.f} comida · ${i.m} munición</button>`:`<button class="tr-go" disabled>Faltan comida o munición para entrenar</button>`):`<button class="tr-go" disabled>${i.total?'Todos han entrenado hoy':'Aún no tienes soldados'}</button>`;
+ const btn=i.hoy?(i.n?`<button class="bup tr-go" onclick="trainArmy();setTimeout(()=>bPanel(${id}),50)">Entrenar a ${i.n} soldado${i.n>1?'s':''} · ${i.f} metal · ${i.m} munición</button>`:`<button class="tr-go" disabled>Falta metal o munición para entrenar</button>`):`<button class="tr-go" disabled>${i.total?'Todos han entrenado hoy':'Aún no tienes soldados'}</button>`;
  return `<div class="tr-card"><div class="tr-h">🎯 Entrenamiento del ejército</div>
  <p>Cada soldado puede entrenar <b>una vez al día</b> y gana <b>40 de experiencia</b>. Al subir de nivel gana <b>más daño, más vida máxima y más habilidad</b> (subir del nivel N al siguiente pide N×50 de experiencia).</p>
- <div class="tr-cost"><span>Coste por soldado: <b>10 comida + 5 por nivel</b> · <b>10 munición</b></span><span>Hoy pueden entrenar: <b>${i.hoy}/${i.total}</b>${i.hoy?` · total ${i.food} comida y ${i.ammo} munición`:''}</span></div>
+ <div class="tr-cost"><span>Coste por soldado: <b>10 metal + 5 por nivel</b> · <b>10 munición</b></span><span>Hoy pueden entrenar: <b>${i.hoy}/${i.total}</b>${i.hoy?` · total ${i.food} metal y ${i.ammo} munición`:''}</span></div>
  ${btn}
- <label class="tr-auto"><button class="cps${auto?' on':''}" onclick="toggleAutoTrain();setTimeout(()=>bPanel(${id}),50)">${auto?'✓ ':''}Entrenamiento automático</button><small>Cada amanecer entrena a quien pueda, siempre que sobre comida (3 por habitante) y queden 20 de munición para poder alistar.</small></label></div>`}
+ <label class="tr-auto"><button class="cps${auto?' on':''}" onclick="toggleAutoTrain();setTimeout(()=>bPanel(${id}),50)">${auto?'✓ ':''}Entrenamiento automático</button><small>Cada amanecer entrena a quien pueda, dejando siempre 30 de metal y 20 de munición de reserva para poder alistar.</small></label></div>`}
 const oB=window.bPanel;
 window.bPanel=function(id){const r=oB.apply(this,arguments);try{const b=bm[id];if(!b||b.type!=='barr')return r;const pan=document.getElementById('pan');if(!pan||pan.querySelector('.tr-card'))return r;
  const bs=[...pan.querySelectorAll('button')],t=bs.find(x=>/trainArmy\(\)/.test(x.getAttribute('onclick')||'')),a=bs.find(x=>/toggleAutoTrain\(\)/.test(x.getAttribute('onclick')||''));
