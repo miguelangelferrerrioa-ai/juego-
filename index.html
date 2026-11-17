@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v177</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v179</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -6127,20 +6127,20 @@ function paint(e,sc,i,j){GP++;const W=PW/sc,H=PH/sc,x0=i*W,y0=j*H,x1=x0+W+MG/sc,
  return {cv,dirty:false}}
 const key=(sc,i,j)=>sc.toFixed(4)+':'+i+':'+j;
 function put(k,e){C.delete(k);C.set(k,e);while(C.size>MAXC){const fk=C.keys().next().value;C.delete(fk)}}
-window.groundDraw=function(c){if(T!==lastT){lastT=T;budget=2}ready=new Set();check();
+window.groundDraw=function(c){if(T!==lastT){lastT=T;budget=1}ready=new Set();check();
  /* la escala de los trozos no depende del ajuste automático de calidad (QS): si no, cada ajuste los rehacía todos */const s=cam.z*dpr,sc=q3(cam.z*Math.min(1.5,devicePixelRatio||1));if(Math.abs(sc-ZS)>1e-6){ZS=sc;ZT=T}
  /* mientras cambia el zoom se usan los trozos del zoom anterior; los nuevos se pintan al parar 0,3 s */
- if(!USE)USE=sc;if(USE!==sc&&T-ZT>=.3)USE=sc;
+ /* margen de zoom: los trozos se reutilizan escalados mientras el zoom no cambie más de un ~40 % */if(!USE)USE=sc;if(USE!==sc&&T-ZT>=.3&&(sc/USE>1.42||sc/USE<.7))USE=sc;
  const W=PW/USE,H=PH/USE,vx0=cam.x-8,vy0=cam.y-8,vx1=cam.x+vw()/cam.z+8,vy1=cam.y+vh()/cam.z+8;
  const i0=Math.floor(vx0/W),i1=Math.floor(vx1/W),j0=Math.floor(vy0/H),j1=Math.floor(vy1/H),ov=1.2/s;
  for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){const k=key(USE,i,j);let e=C.get(k);
-  if((!e||e.dirty)&&budget>0&&USE===sc){budget--;e=paint(e,USE,i,j);put(k,e)}
+  if((!e||e.dirty)&&budget>0){budget--;e=paint(e,USE,i,j);put(k,e)}
   const x0=i*W,y0=j*H;
   /* un píxel de solape para que no se vean las juntas entre trozos */
   if(e){c.drawImage(e.cv,0,0,PW+MG,PH+MG,x0,y0,W+MG/USE,H+MG/USE);if(!e.dirty)ready.add(i+':'+j)}
   else{if(window.outerRegion)outerRegion(c,x0,y0,x0+W+ov,y0+H+ov,s);const tx0=Math.max(x0,-N*32),ty0=Math.max(y0,0),tx1=Math.min(x0+W+ov,N*32),ty1=Math.min(y0+H+ov,TC?TC.height:0);if(TC&&tx1>tx0&&ty1>ty0)drawTiled(c,TC,window.TCV|0,N*32,0,1,tx0,ty0,tx1,ty1,s)}}
  /* con cupo libre, se adelantan los trozos de alrededor */
- if(budget>0&&USE===sc)for(let j=j0-1;j<=j1+1&&budget>0;j++)for(let i=i0-1;i<=i1+1&&budget>0;i++){const k=key(USE,i,j),e=C.get(k);if(!e||e.dirty){budget--;put(k,paint(e,USE,i,j))}}
+ if(budget>0)for(let j=j0-1;j<=j1+1&&budget>0;j++)for(let i=i0-1;i<=i1+1&&budget>0;i++){const k=key(USE,i,j),e=C.get(k);if(!e||e.dirty){budget--;put(k,paint(e,USE,i,j))}}
  G.W=W;G.H=H};
 const G={W:1,H:1};
 /* ¿este árbol ya está pintado en el suelo? (suelto y todos los trozos que toca están al día) */
@@ -10971,7 +10971,7 @@ function box(b){const d=BT[b.type],z=d.z||20,m=Math.max(b.w,b.h),q=P(b.x+b.w/2,b
 /* re: lienzo anterior del mismo edificio; si mide lo mismo se reutiliza (antes se creaba uno nuevo en cada refresco: ~300 lienzos/s en pueblos grandes) */
 /* ATLAS: las imágenes de los edificios van en unos pocos lienzos grandes de 2048 px (texturas de la GPU) en vez de un lienzo pequeño por edificio.
    En Chrome de Android los lienzos pequeños no están en la GPU y cada fotograma se subían ~100 texturas: medido en el móvil, apagar los edificios bajaba la GPU de 30 a 17 ms. */
-const AS=2048,MAXPG=4,PG=[];let ZS=0,ZT=-9;let ATL_ON=true;
+const AS=2048,MAXPG=4,PG=[];let ZS=0,ZT=-9,BSQ=0;let ATL_ON=true;
 function newPage(){const cv=document.createElement('canvas');cv.width=AS;cv.height=AS;const pg={cv,x:[],sh:[],y:0};PG.push(pg);return pg}
 /* estantes: cada estante tiene una altura fija; se busca uno con sitio y altura parecida */
 function alloc(w,h){w+=2;h+=2;if(w>AS||h>AS)return null;const hh=Math.ceil(h/16)*16;
@@ -10993,9 +10993,9 @@ function animated(b,bx){const k=b.type+'|'+b.lvl+'|'+b.w+'|'+b.h+'|'+(b.rot||0)+
  const r=Math.random;let i=0;Math.random=()=>((i++*0.6180339)%1);const a=paint(b,.5,bx);i=0;T+=.43;const c2=paint(b,.5,bx);T-=.43;Math.random=r;const an=!same(a,c2);ANIM.set(k,an);const t1=trimOf(a,bx,.5),t2=trimOf(c2,bx,.5);if(t1&&t2)TRIM.set(k,[Math.min(t1[0],t2[0])-(an?10:0),Math.min(t1[1],t2[1])-(an?14:0),Math.max(t1[2],t2[2])+(an?10:0),Math.max(t1[3],t2[3])+(an?6:0)]);return an}
 function tbox(b,bx){const t=TRIM.get(b.type+'|'+b.lvl+'|'+b.w+'|'+b.h+'|'+(b.rot||0)+'|'+(window.NBK&&NBK.stagePaint?1:0));if(!t)return bx;return[bx[0]+Math.max(0,t[0]),bx[1]+Math.max(0,t[1]),Math.min(bx[2],bx[0]+t[2]),Math.min(bx[3],bx[0]*0+bx[1]+t[3])]}
 function blit(c,e){if(e.sl)c.drawImage(PG[e.sl.pg].cv,e.sl.x,e.sl.y,e.W,e.H,e.tb[0],e.tb[1],e.W/e.sq,e.H/e.sq);else c.drawImage(e.cv,e.tb[0],e.tb[1],e.cv.width/e.sq,e.cv.height/e.sq)}
-window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){lastT=T;budget=14}
+window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){lastT=T;budget=4}
  const th=TH.get(b.id);if(th&&th.off>T)return false;
- const tf=c.getTransform(),s=Math.hypot(tf.a,tf.b)/((typeof QS==='number'&&QS>0)?QS:1);/* sin el ajuste automático de calidad: si no, cada ajuste repintaba todos los edificios */const sq=Math.min(3,Math.pow(2,Math.ceil(Math.log2(Math.max(.25,s))*3)/3));
+ const tf=c.getTransform(),s=Math.hypot(tf.a,tf.b)/((typeof QS==='number'&&QS>0)?QS:1);/* sin el ajuste automático de calidad: si no, cada ajuste repintaba todos los edificios */if(Math.abs(s-ZS)>1e-4){ZS=s;ZT=T}/* margen de zoom: se reutiliza la escala mientras el zoom no se aleje más de un ~40 %; solo se cambia con la cámara parada 0,3 s */const want=Math.min(3,Math.pow(2,Math.ceil(Math.log2(Math.max(.25,s))*3)/3));if(!BSQ||((want/BSQ>1.42||want/BSQ<.7)&&T-ZT>=.3))BSQ=want;const sq=BSQ;
  const bx=box(b),k=sig(b,sq),kb=sig(b,0);let e=C.get(b.id);
  /* solo cuenta claves NUEVAS: antes contaba cada fotograma de espera (sin presupuesto) y tras cambiar la calidad marcaba todo el pueblo como 'inestable' y lo dibujaba sin caché 12 s */
  /* el zoom (sq) no cuenta: antes, al pellizcar, casi todo el pueblo quedaba 12 s sin caché */if(e&&e.kb!==kb&&!(th&&th.lk===kb)){const t=th||{n:0,t:T,off:0};t.lk=kb;if(T-t.t>4){t.n=0;t.t=T}if(++t.n>6){t.off=T+12;TH.set(b.id,t);return false}TH.set(b.id,t)}
@@ -11435,7 +11435,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'177';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'179';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';

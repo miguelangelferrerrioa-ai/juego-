@@ -38,20 +38,20 @@ function paint(e,sc,i,j){GP++;const W=PW/sc,H=PH/sc,x0=i*W,y0=j*H,x1=x0+W+MG/sc,
  return {cv,dirty:false}}
 const key=(sc,i,j)=>sc.toFixed(4)+':'+i+':'+j;
 function put(k,e){C.delete(k);C.set(k,e);while(C.size>MAXC){const fk=C.keys().next().value;C.delete(fk)}}
-window.groundDraw=function(c){if(T!==lastT){lastT=T;budget=2}ready=new Set();check();
+window.groundDraw=function(c){if(T!==lastT){lastT=T;budget=1}ready=new Set();check();
  /* la escala de los trozos no depende del ajuste automático de calidad (QS): si no, cada ajuste los rehacía todos */const s=cam.z*dpr,sc=q3(cam.z*Math.min(1.5,devicePixelRatio||1));if(Math.abs(sc-ZS)>1e-6){ZS=sc;ZT=T}
  /* mientras cambia el zoom se usan los trozos del zoom anterior; los nuevos se pintan al parar 0,3 s */
- if(!USE)USE=sc;if(USE!==sc&&T-ZT>=.3)USE=sc;
+ /* margen de zoom: los trozos se reutilizan escalados mientras el zoom no cambie más de un ~40 % */if(!USE)USE=sc;if(USE!==sc&&T-ZT>=.3&&(sc/USE>1.42||sc/USE<.7))USE=sc;
  const W=PW/USE,H=PH/USE,vx0=cam.x-8,vy0=cam.y-8,vx1=cam.x+vw()/cam.z+8,vy1=cam.y+vh()/cam.z+8;
  const i0=Math.floor(vx0/W),i1=Math.floor(vx1/W),j0=Math.floor(vy0/H),j1=Math.floor(vy1/H),ov=1.2/s;
  for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){const k=key(USE,i,j);let e=C.get(k);
-  if((!e||e.dirty)&&budget>0&&USE===sc){budget--;e=paint(e,USE,i,j);put(k,e)}
+  if((!e||e.dirty)&&budget>0){budget--;e=paint(e,USE,i,j);put(k,e)}
   const x0=i*W,y0=j*H;
   /* un píxel de solape para que no se vean las juntas entre trozos */
   if(e){c.drawImage(e.cv,0,0,PW+MG,PH+MG,x0,y0,W+MG/USE,H+MG/USE);if(!e.dirty)ready.add(i+':'+j)}
   else{if(window.outerRegion)outerRegion(c,x0,y0,x0+W+ov,y0+H+ov,s);const tx0=Math.max(x0,-N*32),ty0=Math.max(y0,0),tx1=Math.min(x0+W+ov,N*32),ty1=Math.min(y0+H+ov,TC?TC.height:0);if(TC&&tx1>tx0&&ty1>ty0)drawTiled(c,TC,window.TCV|0,N*32,0,1,tx0,ty0,tx1,ty1,s)}}
  /* con cupo libre, se adelantan los trozos de alrededor */
- if(budget>0&&USE===sc)for(let j=j0-1;j<=j1+1&&budget>0;j++)for(let i=i0-1;i<=i1+1&&budget>0;i++){const k=key(USE,i,j),e=C.get(k);if(!e||e.dirty){budget--;put(k,paint(e,USE,i,j))}}
+ if(budget>0)for(let j=j0-1;j<=j1+1&&budget>0;j++)for(let i=i0-1;i<=i1+1&&budget>0;i++){const k=key(USE,i,j),e=C.get(k);if(!e||e.dirty){budget--;put(k,paint(e,USE,i,j))}}
  G.W=W;G.H=H};
 const G={W:1,H:1};
 /* ¿este árbol ya está pintado en el suelo? (suelto y todos los trozos que toca están al día) */

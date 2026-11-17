@@ -11,7 +11,7 @@ function box(b){const d=BT[b.type],z=d.z||20,m=Math.max(b.w,b.h),q=P(b.x+b.w/2,b
 /* re: lienzo anterior del mismo edificio; si mide lo mismo se reutiliza (antes se creaba uno nuevo en cada refresco: ~300 lienzos/s en pueblos grandes) */
 /* ATLAS: las imágenes de los edificios van en unos pocos lienzos grandes de 2048 px (texturas de la GPU) en vez de un lienzo pequeño por edificio.
    En Chrome de Android los lienzos pequeños no están en la GPU y cada fotograma se subían ~100 texturas: medido en el móvil, apagar los edificios bajaba la GPU de 30 a 17 ms. */
-const AS=2048,MAXPG=4,PG=[];let ZS=0,ZT=-9;let ATL_ON=true;
+const AS=2048,MAXPG=4,PG=[];let ZS=0,ZT=-9,BSQ=0;let ATL_ON=true;
 function newPage(){const cv=document.createElement('canvas');cv.width=AS;cv.height=AS;const pg={cv,x:[],sh:[],y:0};PG.push(pg);return pg}
 /* estantes: cada estante tiene una altura fija; se busca uno con sitio y altura parecida */
 function alloc(w,h){w+=2;h+=2;if(w>AS||h>AS)return null;const hh=Math.ceil(h/16)*16;
@@ -33,9 +33,9 @@ function animated(b,bx){const k=b.type+'|'+b.lvl+'|'+b.w+'|'+b.h+'|'+(b.rot||0)+
  const r=Math.random;let i=0;Math.random=()=>((i++*0.6180339)%1);const a=paint(b,.5,bx);i=0;T+=.43;const c2=paint(b,.5,bx);T-=.43;Math.random=r;const an=!same(a,c2);ANIM.set(k,an);const t1=trimOf(a,bx,.5),t2=trimOf(c2,bx,.5);if(t1&&t2)TRIM.set(k,[Math.min(t1[0],t2[0])-(an?10:0),Math.min(t1[1],t2[1])-(an?14:0),Math.max(t1[2],t2[2])+(an?10:0),Math.max(t1[3],t2[3])+(an?6:0)]);return an}
 function tbox(b,bx){const t=TRIM.get(b.type+'|'+b.lvl+'|'+b.w+'|'+b.h+'|'+(b.rot||0)+'|'+(window.NBK&&NBK.stagePaint?1:0));if(!t)return bx;return[bx[0]+Math.max(0,t[0]),bx[1]+Math.max(0,t[1]),Math.min(bx[2],bx[0]+t[2]),Math.min(bx[3],bx[0]*0+bx[1]+t[3])]}
 function blit(c,e){if(e.sl)c.drawImage(PG[e.sl.pg].cv,e.sl.x,e.sl.y,e.W,e.H,e.tb[0],e.tb[1],e.W/e.sq,e.H/e.sq);else c.drawImage(e.cv,e.tb[0],e.tb[1],e.cv.width/e.sq,e.cv.height/e.sq)}
-window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){lastT=T;budget=14}
+window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){lastT=T;budget=4}
  const th=TH.get(b.id);if(th&&th.off>T)return false;
- const tf=c.getTransform(),s=Math.hypot(tf.a,tf.b)/((typeof QS==='number'&&QS>0)?QS:1);/* sin el ajuste automático de calidad: si no, cada ajuste repintaba todos los edificios */const sq=Math.min(3,Math.pow(2,Math.ceil(Math.log2(Math.max(.25,s))*3)/3));
+ const tf=c.getTransform(),s=Math.hypot(tf.a,tf.b)/((typeof QS==='number'&&QS>0)?QS:1);/* sin el ajuste automático de calidad: si no, cada ajuste repintaba todos los edificios */if(Math.abs(s-ZS)>1e-4){ZS=s;ZT=T}/* margen de zoom: se reutiliza la escala mientras el zoom no se aleje más de un ~40 %; solo se cambia con la cámara parada 0,3 s */const want=Math.min(3,Math.pow(2,Math.ceil(Math.log2(Math.max(.25,s))*3)/3));if(!BSQ||((want/BSQ>1.42||want/BSQ<.7)&&T-ZT>=.3))BSQ=want;const sq=BSQ;
  const bx=box(b),k=sig(b,sq),kb=sig(b,0);let e=C.get(b.id);
  /* solo cuenta claves NUEVAS: antes contaba cada fotograma de espera (sin presupuesto) y tras cambiar la calidad marcaba todo el pueblo como 'inestable' y lo dibujaba sin caché 12 s */
  /* el zoom (sq) no cuenta: antes, al pellizcar, casi todo el pueblo quedaba 12 s sin caché */if(e&&e.kb!==kb&&!(th&&th.lk===kb)){const t=th||{n:0,t:T,off:0};t.lk=kb;if(T-t.t>4){t.n=0;t.t=T}if(++t.n>6){t.off=T+12;TH.set(b.id,t);return false}TH.set(b.id,t)}
