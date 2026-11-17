@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v136</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v137</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -9825,7 +9825,7 @@ const oR=window.render;if(typeof oR==='function')window.render=function(){const 
 const SKIP=['elec','rp'];
 function baseCost(b){const d=BT[b.type]||{};let c=Object.assign({},d.cost||{});if(!Object.keys(c).length)c={wood:40,metal:15};
  const L=b.lvl||1,o={};for(const k in c)o[k]=c[k]*(1+(L-1)*.5);
- try{const mx=(b.type==='wall'||b.type==='gate')?5:15;if(L<mx&&typeof ucost==='function'&&b.type!=='wall'&&b.type!=='gate'){const u=ucost(b);for(const k in u)o[k]=(o[k]||0)+u[k]*.18}}catch(e){}
+ /* materiales del nivel que YA tiene (antes cobraba los de la mejora siguiente, que aún no se pueden tener) */try{if(L>1&&typeof ucost==='function'&&b.type!=='wall'&&b.type!=='gate'){const u=ucost(Object.assign({},b,{lvl:L-1}));for(const k in u)o[k]=(o[k]||0)+u[k]*.18}}catch(e){}
  return o}
 window.repairCost=function(b){const m=mxhp(b),f=Math.max(0,Math.min(1,(m-b.hp)/m));if(f<=.001)return{};const base=baseCost(b),o={};
  for(const k in base){if(SKIP.includes(k)||!(base[k]>0))continue;const v=Math.ceil(base[k]*f*.35*(typeof disc==='function'?disc():1));o[k]=Math.max(1,v)}
@@ -11057,7 +11057,7 @@ W('Interfaz',h=>h+P('<b>Avisos:</b> salen como mucho 2 a la vez y cada uno dura 
  +P('<b>Menú → Edificios</b> agrupa los edificios del mismo tipo con su miniatura («Arma automática ×24») y avisa de los dañados o parados. Toca un grupo para ver cada uno y toca uno para ir a él.'));
 W('Supervivientes',h=>h+P('<b>Enfermedades</b> (gripe, fiebre, infección): el enfermo trabaja un 25 % menos, pero no muere ni contagia. Se curan solas: gripe en 3 días, fiebre en 4 e infección en 6; con un <b>Médico</b> trabajando en el hospital, el doble de rápido. Los antibióticos las curan al momento. Pasar hambre o sed hace enfermar mucho más.'));
 W('Ejército',h=>h+P('<b>Ronda:</b> fuera de las hordas, los soldados sin puesto patrullan por el pueblo; si hay muros, por el lado de dentro del muro.')
- +P('<b>En las hordas</b> se reparten por todo el contorno del pueblo: junto al muro por dentro donde lo hay, y en el borde de los edificios donde no. Cada uno vigila su tramo y se coloca en la parte más cercana a los enemigos. Disparan a lo que llega a tiro (un muro delante les tapa el disparo). Si un zombi se cuela, ataca un edificio o a alguien, va a por él el soldado más cercano y luego vuelve a su tramo. No salen a campo abierto a perseguirlos.')
+ +P('<b>En las hordas</b> se reparten por todo el contorno del pueblo: junto al muro por dentro donde lo hay, y en el borde de los edificios donde no. Cada uno vigila su tramo y se coloca en la parte más cercana a los enemigos. Disparan a lo que llega a tiro (un muro delante les tapa el disparo). Si un zombi se cuela, ataca un edificio o a alguien, va a por él el soldado más cercano y luego vuelve a su tramo. Si un zombi se acerca a la vista (sin muro de por medio), van a por él aunque no haya entrado; pero no salen a campo abierto a perseguir a los que siguen lejos.')
  +P('Los alistados que son tiradores de una <b>torre</b> (2 por torre) se quedan en ella durante la horda. Las embarazadas y los menores alistados no pelean.')
  +P('<b>Plazas:</b> 3 + 4 por cada nivel de cada barracón. <b>Alistar</b> cuesta 20 de munición.')
  +P('<b>Entrenamiento</b> (en los Barracones): cada soldado puede entrenar una vez al día y gana 40 de experiencia; al subir de nivel gana más daño, más vida máxima y más habilidad (del nivel N al siguiente hacen falta N×50). Cuesta 10 de metal + 5 por nivel y 10 de munición por soldado. Con el <b>entrenamiento automático</b> se entrena a quien se pueda cada amanecer, dejando 30 de metal y 20 de munición de reserva.'));
@@ -11175,7 +11175,8 @@ setInterval(hook,1000);hook();
 <script>/* Vigilancia del ejército:
    - Fuera de las hordas, los alistados patrullan: por dentro de los muros si los hay; si no, por el pueblo.
    - En una horda se reparten por el contorno: por dentro de los muros donde los hay y por el borde de los edificios donde no. Cada uno recorre su tramo y dispara a lo que le llega a tiro (los muros tapan el disparo).
-   - Si un zombi se cuela dentro del pueblo, va a por él el soldado más cercano y luego vuelve a su tramo. */
+   - Si un zombi se cuela dentro del pueblo, va a por él el soldado más cercano y luego vuelve a su tramo.
+   - Si un zombi está cerca y a la vista (hasta 4 casillas más allá de su alcance), se acerca y lo ataca. */
 (function(){
 'use strict';
 const NB4=[[1,0],[-1,0],[0,1],[0,-1]],NB8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]],BINS=48;
@@ -11247,6 +11248,8 @@ function core(u,dt){const c=CL[u.p.arm];/* alistado sin arma: solo cuerpo a cuer
  const g=geo();
  let t=null,td=1e9;Z.forEach(z=>{if(!z.act)return;const dd=Math.hypot(z.x-u.x,z.y-u.y);if(dd<=RNG&&dd<td&&!wallBetween(u.x,u.y,z.x,z.y)){td=dd;t=z}});
  if(!t){const z=assign(g).get(u);/* con un muro de por medio no se persigue (saldría por un hueco): se espera dentro */if(z&&!wallBetween(u.x,u.y,z.x,z.y)){t=z;td=Math.hypot(z.x-u.x,z.y-u.y);u.ptg=null}}
+ /* zombi a la vista y cerca (hasta 4 casillas más allá de su alcance, sin muro de por medio): se acerca y lo ataca, aunque aún no haya entrado en el pueblo (antes se quedaba quieto mirándolo) */
+ if(!t){let nd=RNG+4;Z.forEach(z=>{if(!z.act||z.hp<=0)return;const dd=Math.hypot(z.x-u.x,z.y-u.y);if(dd<nd&&!wallBetween(u.x,u.y,z.x,z.y)){nd=dd;t=z;td=dd}});if(t)u.ptg=null}
  if(u.p.arm=='medico'){let a=null;U.forEach(q=>{if(q!==u&&q.hp<mhp(q.p)-5&&Math.hypot(q.x-u.x,q.y-u.y)<3.5)a=q});if(a){a.hp+=10*dt;u.hl=T;return}}
  if(u.p.arm=='ing'){const b=S.bld.find(b=>b.hp<mxhp(b)&&Math.hypot(b.x+b.w/2-u.x,b.y+b.h/2-u.y)<b.w+3);if(b){b.hp=Math.min(mxhp(b),b.hp+15*dt);u.rp=T;return}}
  if(!t){patrol(u,dt,g);return}
@@ -11310,7 +11313,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'136';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'137';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';

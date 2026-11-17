@@ -4,7 +4,7 @@
 const SKIP=['elec','rp'];
 function baseCost(b){const d=BT[b.type]||{};let c=Object.assign({},d.cost||{});if(!Object.keys(c).length)c={wood:40,metal:15};
  const L=b.lvl||1,o={};for(const k in c)o[k]=c[k]*(1+(L-1)*.5);
- try{const mx=(b.type==='wall'||b.type==='gate')?5:15;if(L<mx&&typeof ucost==='function'&&b.type!=='wall'&&b.type!=='gate'){const u=ucost(b);for(const k in u)o[k]=(o[k]||0)+u[k]*.18}}catch(e){}
+ /* materiales del nivel que YA tiene (antes cobraba los de la mejora siguiente, que aún no se pueden tener) */try{if(L>1&&typeof ucost==='function'&&b.type!=='wall'&&b.type!=='gate'){const u=ucost(Object.assign({},b,{lvl:L-1}));for(const k in u)o[k]=(o[k]||0)+u[k]*.18}}catch(e){}
  return o}
 window.repairCost=function(b){const m=mxhp(b),f=Math.max(0,Math.min(1,(m-b.hp)/m));if(f<=.001)return{};const base=baseCost(b),o={};
  for(const k in base){if(SKIP.includes(k)||!(base[k]>0))continue;const v=Math.ceil(base[k]*f*.35*(typeof disc==='function'?disc():1));o[k]=Math.max(1,v)}

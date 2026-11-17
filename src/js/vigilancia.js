@@ -1,7 +1,8 @@
 /* Vigilancia del ejército:
    - Fuera de las hordas, los alistados patrullan: por dentro de los muros si los hay; si no, por el pueblo.
    - En una horda se reparten por el contorno: por dentro de los muros donde los hay y por el borde de los edificios donde no. Cada uno recorre su tramo y dispara a lo que le llega a tiro (los muros tapan el disparo).
-   - Si un zombi se cuela dentro del pueblo, va a por él el soldado más cercano y luego vuelve a su tramo. */
+   - Si un zombi se cuela dentro del pueblo, va a por él el soldado más cercano y luego vuelve a su tramo.
+   - Si un zombi está cerca y a la vista (hasta 4 casillas más allá de su alcance), se acerca y lo ataca. */
 (function(){
 'use strict';
 const NB4=[[1,0],[-1,0],[0,1],[0,-1]],NB8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]],BINS=48;
@@ -73,6 +74,8 @@ function core(u,dt){const c=CL[u.p.arm];/* alistado sin arma: solo cuerpo a cuer
  const g=geo();
  let t=null,td=1e9;Z.forEach(z=>{if(!z.act)return;const dd=Math.hypot(z.x-u.x,z.y-u.y);if(dd<=RNG&&dd<td&&!wallBetween(u.x,u.y,z.x,z.y)){td=dd;t=z}});
  if(!t){const z=assign(g).get(u);/* con un muro de por medio no se persigue (saldría por un hueco): se espera dentro */if(z&&!wallBetween(u.x,u.y,z.x,z.y)){t=z;td=Math.hypot(z.x-u.x,z.y-u.y);u.ptg=null}}
+ /* zombi a la vista y cerca (hasta 4 casillas más allá de su alcance, sin muro de por medio): se acerca y lo ataca, aunque aún no haya entrado en el pueblo (antes se quedaba quieto mirándolo) */
+ if(!t){let nd=RNG+4;Z.forEach(z=>{if(!z.act||z.hp<=0)return;const dd=Math.hypot(z.x-u.x,z.y-u.y);if(dd<nd&&!wallBetween(u.x,u.y,z.x,z.y)){nd=dd;t=z;td=dd}});if(t)u.ptg=null}
  if(u.p.arm=='medico'){let a=null;U.forEach(q=>{if(q!==u&&q.hp<mhp(q.p)-5&&Math.hypot(q.x-u.x,q.y-u.y)<3.5)a=q});if(a){a.hp+=10*dt;u.hl=T;return}}
  if(u.p.arm=='ing'){const b=S.bld.find(b=>b.hp<mxhp(b)&&Math.hypot(b.x+b.w/2-u.x,b.y+b.h/2-u.y)<b.w+3);if(b){b.hp=Math.min(mxhp(b),b.hp+15*dt);u.rp=T;return}}
  if(!t){patrol(u,dt,g);return}

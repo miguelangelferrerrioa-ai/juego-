@@ -85,6 +85,14 @@ scenarios.push(['Expediciones','partida_larga_dia248.json',async pg=>pg.evaluate
  const p=S.ppl.filter(q=>!q.away&&q.age>=18&&!q.preg).sort((a,b)=>upow(b)-upow(a))[0];const f0=S.res.food,w0=S.res.water,g0=S.res.gas||0;soloGo(p.id);const started=!!S.solo;const cost=(f0-S.res.food)+(w0-S.res.water)+(g0-(S.res.gas||0));
  for(let i=0;i<6;i++){if(!S.solo)break;if(S.solo.pend)soloPick(0);else soloStep()}const away=p.away;if(S.solo){S.solo.step=0;soloRequestReturn()}
  return {started,cost,away,back:!S.solo&&!p.away}})]);
+/* 5c) soldado armado con un zombi cerca y a la vista: no se queda quieto (ni con sueltos ni en hordas) */
+for(const sv of ['dia3.json','partida_larga_dia248.json'])scenarios.push(['Soldado no se queda quieto '+sv,sv,async pg=>pg.evaluate(async()=>{S.ppl.filter(p=>p.arm).forEach(p=>{if(!p.wp)p.wp={n:'Pistola',v:5}});const st=new Map(),Q=[];
+ const chk=()=>{S.ppl.forEach(p=>{if(!p.arm||p.away||!p.wp||p.preg||p.age<18||p.hp<=0)return;const u=U.find(u=>u.p===p),x=u?u.x:p.x,y=u?u.y:p.y;let zd=1e9;Z.forEach(z=>{if(!z.act||z.hp<=0)return;const d=Math.hypot(z.x-x,z.y-y);if(d<zd&&!wallBetween(x,y,z.x,z.y))zd=d});
+  const s=st.get(p)||{x,y,t:0,cd:0},mv=Math.hypot(x-s.x,y-s.y)>.02,sh=u&&u.cd>s.cd+.1;if(zd<7&&!mv&&!sh){s.t+=.05;if(s.t>3&&!s.r){s.r=1;Q.push(p.n+' a '+zd.toFixed(1))}}else{s.t=0;s.r=0}s.x=x;s.y=y;s.cd=u?u.cd:0;st.set(p,s)})};
+ for(let k=0;k<3;k++){S.raidT=.01;let seen=0;await __run(200,()=>{chk();if(window.raidOn)seen=1;return seen&&!window.raidOn&&!Z.some(z=>z.act)})}
+ startHorde();await __run(400,()=>{chk();return !horde});return {Q,V:__V}})]);
+/* 5d) reparar: con el ayuntamiento justo, un edificio mejorado se puede reparar con los materiales de su nivel */
+scenarios.push(['Reparar','dia3.json',async pg=>pg.evaluate(async()=>{const bad=[];S.bld.filter(b=>BT[b.type]&&!['road','bridge'].includes(b.type)).forEach(b=>{const L0=b.lvl;for(let L=1;L<=15;L++){b.lvl=L;const c=repairCost(Object.assign({},b,{hp:1,lvl:L}));const up=L>1?ucost(Object.assign({},b,{lvl:L-1})):{};const used=new Set([...Object.keys(BT[b.type].cost||{}),...Object.keys(up),'wood','metal']);for(let j=1;j<L-1;j++)Object.keys(ucost(Object.assign({},b,{lvl:j}))).forEach(k=>used.add(k));Object.keys(c).forEach(k=>{if(!used.has(k))bad.push(b.type+' nv'+L+' pide '+k)})}b.lvl=L0});return {bad:[...new Set(bad)].slice(0,8),V:__V}})]);
 (async()=>{const b=await chromium.launch();const t0=Date.now();
  for(const [name,sv,fn] of scenarios){const {pg,pe}=await open(b,SV(sv));let r=null;try{r=await fn(pg)}catch(e){r={crash:String(e).slice(0,200)}}
   const V=r&&r.V||{};const tag=name;
@@ -101,6 +109,8 @@ scenarios.push(['Expediciones','partida_larga_dia248.json',async pg=>pg.evaluate
   if(name.startsWith('Secuencia')){ok(tag+': todo termina',!r.log.some(l=>/NO ACABA|no sale/.test(l)),r.log.join(' '));ok(tag+': sin matanzas (≤25 % de bajas en total)',r.dead<=Math.max(3,Math.ceil(.25*r.pop0)),r.dead+'/'+r.pop0+' · '+r.log.join(' '))}
   if(name==='Enfermedades'){ok(tag+': se curan solas sin antibióticos (cada una se cura en algún momento)',[0,1,2].every(i=>r.days.some(d=>d[i]==='0')),r.days.join(' '));ok(tag+': la gripe no se cura el primer día',r.days[0][0]==='1',r.days.join(' '))}
   if(name==='Parejas'){ok(tag+': se forma la pareja',r.st,JSON.stringify(r));ok(tag+': tras parto y descanso vuelven a estar disponibles',r.M==='libre'&&r.F==='libre',JSON.stringify(r))}
+  if(name.startsWith('Soldado no se queda quieto'))ok(tag+': con un zombi cerca y a la vista va a por él o dispara',r.Q.length===0,r.Q.slice(0,5).join(', '));
+  if(name==='Reparar')ok(tag+': solo pide materiales que el edificio ya usó para llegar a su nivel',r.bad.length===0,r.bad.join(', '));
   if(name==='Soldado sin arma'){ok(tag+': no dispara',r.shots===0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Guardar y cargar')ok(tag+': partida idéntica',r.diffs===0,r.ex);
   if(name==='Expediciones'){ok(tag+': solitaria arranca sin coste (comida, agua ni gasolina)',r.started&&r.cost<=0,JSON.stringify(r));ok(tag+': vuelve y queda en casa',r.back,JSON.stringify(r))}
