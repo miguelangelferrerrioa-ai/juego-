@@ -15,7 +15,7 @@ async function open(b,save){const pg=await b.newPage({viewport:{width:932,height
   window.__step=dt=>{T+=dt;try{__U0(dt)}catch(e){__V.err++;__V.em=String(e).slice(0,120)}
    U.forEach(u=>{const p=u.p;if(p&&p.id!==undefined&&typeof p.id==='number'){if(p.preg)__V.preg++;if(p.age<18)__V.kid++}if(!isFinite(u.x)||!isFinite(u.y)||!isFinite(u.hp))__V.nan++});
    /* saltos: la posición visible de cada soldado (su unidad de combate o él mismo) no puede moverse más de 1,2 casillas de un paso a otro */
-   S.ppl.forEach(p=>{if(!p.arm||p.away)return;const u=U.find(u=>u.p===p),x=u?u.x:p.x,y=u?u.y:p.y,l=__LP.get(p);if(l&&Math.hypot(x-l[0],y-l[1])>1.2){__V.jump++;__V.jex=__V.jex||(p.n+' '+Math.hypot(x-l[0],y-l[1]).toFixed(1))}__LP.set(p,[x,y])});
+   S.ppl.forEach(p=>{if(!p.arm||p.away)return;if(p.tw){__LP.delete(p);return}/* dentro de una torre no se ve: entrar o salir no es un salto */const u=U.find(u=>u.p===p),x=u?u.x:p.x,y=u?u.y:p.y,l=__LP.get(p);if(l&&Math.hypot(x-l[0],y-l[1])>1.2){__V.jump++;__V.jex=__V.jex||(p.n+' '+Math.hypot(x-l[0],y-l[1]).toFixed(1))}__LP.set(p,[x,y])});
    S.ppl.forEach(p=>{if(p.fg===T){if(p.preg)__V.preg++;if(p.age<18)__V.kid++;if(!p.wp&&horde){const h=S.bld.find(b=>b.type==='hall');if(!h||Math.hypot(p.x-(h.x+h.w/2),p.y-(h.y+h.h+.8))>7)__V.unarmed++}if(!p.wp&&p.age>=65)__V.old++}if(!isFinite(p.x)||!isFinite(p.y)||!isFinite(p.hp))__V.nan++})};
   window.__run=async(s,stop)=>{let t=0;while(t<s){__step(.05);t+=.05;if(Math.round(t/.05)%40===0)await new Promise(r=>setTimeout(r,25));if(stop&&stop())break}return t}});
  return {pg,pe}}
@@ -97,8 +97,10 @@ scenarios.push(['Reparar','dia3.json',async pg=>pg.evaluate(async()=>{const bad=
 scenarios.push(['Soldado en torre','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{window.show=window.show||(()=>{});const t=S.bld.find(b=>b.type==='tower');if(!t)return {err:'sin torre',V:__V};
  S.ppl.forEach(p=>{if(p.job===t.id)p.job=0});const sol=S.ppl.find(p=>p.arm&&!p.away&&!p.preg&&p.age>=18&&p.job!==t.id);sol.wp=sol.wp||{n:'Fusil',v:8};sol.job=0;
  let html='';const os=window.show;window.show=(a,h)=>{html=h};try{asgList(t.id)}finally{window.show=os}const listed=html.includes('asg('+sol.id+','+t.id+')');
- asg(sol.id,t.id);const assigned=sol.job===t.id;startHorde();await __run(6);const inU=U.some(u=>u.p===sol);await __run(400,()=>!horde);
- return {listed,assigned,inU,V:__V}})]);
+ asg(sol.id,t.id);const assigned=sol.job===t.id;await __run(1);const hidden=!!sol.tw;
+ /* cupo: con la torre llena no se puede meter a otro */const ws=S.ppl.filter(p=>p.arm&&!p.away&&!p.preg&&p.age>=18&&p.wp&&p.job!==t.id);if(ws[0])asg(ws[0].id,t.id);if(ws[1])asg(ws[1].id,t.id);const full=S.ppl.filter(p=>p.job===t.id).length<=slots(t);
+ /* protegido: zombis pegados a la torre no le quitan vida */const h0=sol.hp;startHorde();await __run(6);const inU=U.some(u=>u.p===sol);Z.filter(z=>z.act).slice(0,6).forEach((z,i)=>{z.x=t.x+t.w/2+(i%3)-1;z.y=t.y+t.h+.8});let minHp=sol.hp,far=0;await __run(400,()=>{minHp=Math.min(minHp,sol.hp);if(Math.hypot(sol.x-t.x-t.w/2,sol.y-t.y-t.h/2)>.6)far++;return !horde});
+ const alive=S.ppl.includes(sol),standing=!!bm[t.id];return {listed,assigned,hidden,full,inU,lost:+(h0-minHp).toFixed(1),far,alive,standing,V:__V}})]);
 (async()=>{const b=await chromium.launch();const t0=Date.now();
  for(const [name,sv,fn] of scenarios){if(ONLY&&!name.includes(ONLY))continue;const {pg,pe}=await open(b,SV(sv));let r=null;try{r=await fn(pg)}catch(e){r={crash:String(e).slice(0,200)}}
   const V=r&&r.V||{};const tag=name;
@@ -117,7 +119,7 @@ scenarios.push(['Soldado en torre','partida_larga_dia248.json',async pg=>pg.eval
   if(name==='Parejas'){ok(tag+': se forma la pareja',r.st,JSON.stringify(r));ok(tag+': tras parto y descanso vuelven a estar disponibles',r.M==='libre'&&r.F==='libre',JSON.stringify(r))}
   if(name.startsWith('Soldado no se queda quieto'))ok(tag+': con un zombi cerca y a la vista va a por él o dispara',r.Q.length===0,r.Q.slice(0,5).join(', '));
   if(name==='Reparar')ok(tag+': solo pide materiales que el edificio ya usó para llegar a su nivel',r.bad.length===0,r.bad.join(', '));
-  if(name==='Soldado en torre'){ok(tag+': el soldado sale en la lista de la torre',r.listed,JSON.stringify(r));ok(tag+': se le puede asignar',r.assigned,JSON.stringify(r));ok(tag+': en la horda se queda en la torre (no patrulla)',r.assigned&&!r.inU,JSON.stringify(r))}
+  if(name==='Soldado en torre'){ok(tag+': el soldado sale en la lista de la torre',r.listed,JSON.stringify(r));ok(tag+': se le puede asignar',r.assigned,JSON.stringify(r));ok(tag+': en la horda se queda en la torre (no patrulla)',r.assigned&&!r.inU,JSON.stringify(r));ok(tag+': está dentro (no se ve ni merodea)',r.hidden&&r.far===0,JSON.stringify(r));ok(tag+': no se pasa del cupo',r.full,JSON.stringify(r));ok(tag+': protegido mientras la torre está en pie',!r.standing||(r.alive&&r.lost<=0.01),JSON.stringify(r))}
   if(name==='Soldado sin arma'){ok(tag+': no dispara',r.shots===0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Guardar y cargar')ok(tag+': partida idéntica',r.diffs===0,r.ex);
   if(name==='Expediciones'){ok(tag+': solitaria arranca sin coste (comida, agua ni gasolina)',r.started&&r.cost<=0,JSON.stringify(r));ok(tag+': vuelve y queda en casa',r.back,JSON.stringify(r))}

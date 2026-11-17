@@ -27,7 +27,7 @@ function draw(){
  try{if(titleOpen()||horde||S.over)return}catch(e){}
  const pan=document.getElementById('pan');if(pan&&pan.offsetHeight>0)return;
  const now=performance.now()/1000,W=vw()/cam.z,H=vh()/cam.z,cx=cam.x+W/2,cy=cam.y+H/2,inU=new Set(U.map(u=>u.p));
- const vp=S.ppl.filter(p=>!p.away&&!p.inside&&!(p.age<6)&&!inU.has(p)&&p.hp>0&&vis(p.x,p.y,-10));
+ const vp=S.ppl.filter(p=>!p.away&&!p.inside&&!p.tw&&!(p.age<6)&&!inU.has(p)&&p.hp>0&&vis(p.x,p.y,-10));
  // nuevos globos
  if(B.size<MAXB&&now-lastS>1.4){const c2=vp.filter(p=>!B.has(p.id)&&now>(p._bn||0)).sort((a,b)=>{const qa=P(a.x,a.y),qb=P(b.x,b.y);return Math.hypot(qa[0]-cx,qa[1]-cy)-Math.hypot(qb[0]-cx,qb[1]-cy)}).slice(0,6);
   if(c2.length&&Math.random()<.12){const p=pick(c2),s=say(p);B.set(p.id,{p,t:s.t,col:s.c,t0:now,d:2.6+s.t.length*.055});p._bn=now+9+Math.random()*14;lastS=now;mur(p,s.t)}}
