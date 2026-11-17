@@ -1,7 +1,7 @@
 /* ===== Población: el embarazo es la vía principal. Límite según casas y herencia de roles ===== */
 (function(){
 'use strict';
-window.pregMax=function(){try{const h=S.bld.filter(b=>b.type==='house'&&!b.cons).length;return Math.max(2,Math.min(6,Math.floor(h/2)))}catch(e){return 2}};
+window.pregMax=function(){try{const hs=S.bld.filter(b=>b.type==='house'&&!b.cons),h=hs.length;/* +1 embarazo por cada 2 niveles de cada casa */return Math.max(2,Math.min(6,Math.floor(h/2)))+hs.reduce((s,b)=>s+Math.floor((b.lvl||1)/2),0)}catch(e){return 2}};
 const best=p=>{if(!p||!p.ps)return null;let k=null,v=0;for(const r in p.ps)if((p.ps[r]||0)>v){v=p.ps[r];k=r}return k?[k,v]:null};
 window.inheritRoles=function(b,mo,fa){try{b.ps={};const xm=best(mo),xf=best(fa);
   if(xm&&xf&&xm[0]===xf[0]){const v=Math.min(7,Math.floor(xm[1]/2)+Math.floor(xf[1]/2));if(v>0)b.ps[xm[0]]=v}/* mismo rol: se suman las dos mitades (tope 7) */
