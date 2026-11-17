@@ -22,9 +22,21 @@ function tick(n){requestAnimationFrame(tick);if(!on){if(el)el.style.display='non
 const KILL={},LAY=[['atlas','Sin atlas',null],['trozos','Sin trozos',null],['mezclas','Mezclas',null],['ambiente','Ambiente',['apoFX']],['luz','Luz día/noche',['lightFX']],['clima','Clima',['advWeatherFX','advDamageFX']],['terreno','Terreno',['drawTiled','drawOuter']],['arboles','Árboles',['obsSpr']],['edif','Edificios',['bCache']],['pers','Personas',['fig']],['part','Partículas',['drawPT','ambientFX']]];
 LAY.forEach(([id,,fs])=>{if(!fs)return;fs.forEach(k=>{const o=window[k];if(typeof o!=='function')return;const w=function(){if(KILL[id])return k==='bCache'?true:undefined;return o.apply(this,arguments)};window[k]=w;try{(0,eval)(k+'=window.'+k)}catch(e){}})});
 let kp=null;
+function setK(id,v){KILL[id]=v;if(id==='mezclas')window.PERF_NOBLEND=v;if(id==='trozos')window.GROUND_ON=!v;if(id==='atlas'){window.ATLAS_OFF=v;if(window.atlasToggle)atlasToggle(!v)}const b=kp&&kp.querySelector('[data-k="'+id+'"]');if(b){b.style.background=v?'#7a2a22':'#1d2618';b.style.textDecoration=v?'line-through':'none'}F.length=0;lastShow=0}
+/* diagnóstico automático: con la cámara quieta, apaga cada capa por separado 4 s (1,5 de espera + 2,5 midiendo) y muestra una tabla */
+let DG=null;
+function diag(){if(DG)return;const out=[],ids=[['','Normal']].concat(LAY.map(l=>[l[0],l[1]])),res=document.createElement('div');DG=res;
+ LAY.forEach(l=>{if(KILL[l[0]])setK(l[0],false)});
+ res.style.cssText='position:fixed;right:8px;top:70px;z-index:100000;background:rgba(0,0,0,.85);color:#e8e8e8;font:600 12px/1.45 ui-monospace,Menlo,monospace;padding:8px 10px;border-radius:8px;white-space:pre;border:1px solid #6a7a4a';document.body.appendChild(res);
+ let i=0;const step=()=>{if(i>=ids.length){res.innerHTML='<b>Diagnóstico</b> (fps · GPU ms · dibujo ms)\n'+out.join('\n')+'\n<span style="opacity:.6">toca para cerrar</span>';res.onclick=()=>{res.remove();DG=null};return}
+  const [id,n]=ids[i];if(id)setK(id,true);res.textContent='Diagnóstico: no muevas la cámara\n'+(i+1)+'/'+ids.length+' · '+(id?'sin '+n.replace(/^Sin /i,''):n);
+  setTimeout(()=>{const fs=[],rs=[];let l=0;const t0=performance.now();const rr=window.render;const R=[];window.render=function(){const a=performance.now();const x=rr.apply(this,arguments);R.push(performance.now()-a);return x};try{(0,eval)('render=window.render')}catch(e){}
+   const f=n2=>{if(l)fs.push(n2-l);l=n2;if(n2-t0<2500)requestAnimationFrame(f);else{window.render=rr;try{(0,eval)('render=window.render')}catch(e){}const fr=avg(fs),dr=avg(R);out.push((id?'sin '+n.replace(/^Sin /i,''):n).padEnd(16)+String(Math.round(1000/fr)).padStart(3)+' fps · '+Math.max(0,fr-dr-1).toFixed(1).padStart(5)+' · '+dr.toFixed(1).padStart(4));if(id)setK(id,false);i++;setTimeout(step,300)}};requestAnimationFrame(f)},1500)};
+ step()}
+
 function killPanel(){if(!on){if(kp)kp.style.display='none';return}if(!kp){kp=document.createElement('div');kp.id='fpsK';kp.style.cssText='position:fixed;left:8px;bottom:118px;z-index:99999;display:flex;flex-wrap:wrap;gap:4px;max-width:330px';document.body.appendChild(kp);
-  kp.innerHTML=LAY.map(([id,n])=>`<button data-k="${id}" style="font:700 11px system-ui;padding:5px 8px;border-radius:7px;border:1px solid #6a7a4a;background:#1d2618;color:#d8dfcc">${n}</button>`).join('');
-  kp.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.stopPropagation();const id=b.dataset.k;KILL[id]=!KILL[id];if(id==='mezclas')window.PERF_NOBLEND=KILL[id];if(id==='trozos')window.GROUND_ON=!KILL[id];if(id==='atlas'){window.ATLAS_OFF=KILL[id];if(window.atlasToggle)atlasToggle(!KILL[id])}b.style.background=KILL[id]?'#7a2a22':'#1d2618';b.style.textDecoration=KILL[id]?'line-through':'none';F.length=0;lastShow=0})}
+  kp.innerHTML='<button data-diag="1" style="font:800 11px system-ui;padding:5px 8px;border-radius:7px;border:1px solid #c9a23a;background:#5a4a12;color:#ffe9a8">▶ Diagnóstico</button>'+LAY.map(([id,n])=>`<button data-k="${id}" style="font:700 11px system-ui;padding:5px 8px;border-radius:7px;border:1px solid #6a7a4a;background:#1d2618;color:#d8dfcc">${n}</button>`).join('');
+  kp.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.stopPropagation();if(b.dataset.diag){diag();return}const id=b.dataset.k;setK(id,!KILL[id]);return;KILL[id]=!KILL[id];if(id==='mezclas')window.PERF_NOBLEND=KILL[id];if(id==='trozos')window.GROUND_ON=!KILL[id];if(id==='atlas'){window.ATLAS_OFF=KILL[id];if(window.atlasToggle)atlasToggle(!KILL[id])}b.style.background=KILL[id]?'#7a2a22':'#1d2618';b.style.textDecoration=KILL[id]?'line-through':'none';F.length=0;lastShow=0})}
  kp.style.display='flex'}
 setInterval(killPanel,500);
 requestAnimationFrame(tick);
