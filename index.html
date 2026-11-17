@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v208</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v212</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -6109,7 +6109,7 @@ window.outerBounds={x0:-W0,x1:W0,y0:-TY,y1:((N+2*OM)*32+40)-TY};
    (antes se rehacían todos y daba tirones). El terreno entero solo se rehace si cambia el propio terreno (comprar parcelas…). */
 (function(){
 'use strict';
-const PW=1024,PH=512,MAXC=36,C=new Map();let TS='',BS='',chkT=-1,ZS=0,ZT=-9,USE=0,budget=0,lastT=-1,ready=new Set(),GP=0;
+const PW=1024,PH=512,MAXC=22,C=new Map();let TS='',BS='',chkT=-1,ZS=0,ZT=-9,USE=0,budget=0,lastT=-1,ready=new Set(),GP=0;
 const LZ=new WeakMap();let BK=new Map();
 window.GROUND_ON=true;
 /* huella del terreno: copia a 256×128 y suma de píxeles (lectura pequeña, solo cuando se repinta el terreno) */
@@ -6146,7 +6146,7 @@ function work(J,t0){const c=J.cv.getContext('2d');
  c.setTransform(J.sc,0,0,J.sc,-J.x0*J.sc,-J.y0*J.sc);while(J.n<J.os.length){obsSpr(c,J.os[J.n++]);if((J.n&7)===0&&performance.now()-t0>BUDGET)return false}
  return true}
 const key=(sc,i,j)=>sc.toFixed(4)+':'+i+':'+j;
-function put(k,cv){const o=C.get(k);if(o&&o.cv&&o.cv!==cv&&POOL.length<6)POOL.push(o.cv);C.delete(k);C.set(k,{cv,dirty:false});while(C.size>MAXC){const fk=C.keys().next().value;const fv=C.get(fk);C.delete(fk);if(fv.cv&&POOL.length<6)POOL.push(fv.cv)}}
+function put(k,cv){const o=C.get(k);if(o&&o.cv&&o.cv!==cv&&POOL.length<2)POOL.push(o.cv);C.delete(k);C.set(k,{cv,dirty:false});while(C.size>MAXC){const fk=C.keys().next().value;const fv=C.get(fk);C.delete(fk);if(fv.cv&&POOL.length<2)POOL.push(fv.cv)}}
 const need=e=>!e||e.dirty;
 /* lista de trozos visibles a una escala */
 function vis(sc,pad){const W=PW/sc,H=PH/sc,vx0=cam.x-8,vy0=cam.y-8,vx1=cam.x+vw()/cam.z+8,vy1=cam.y+vh()/cam.z+8,L=[];
@@ -6159,7 +6159,7 @@ function pump(){const t0=performance.now();let guard=0;
   JOB=null;let pick=null;
   for(const [i,j] of vis(USE,0)){const k=key(USE,i,j);if(need(C.get(k))){pick=[k,USE,i,j];break}}
   if(!pick&&PEND){let all=true;for(const [i,j] of vis(PEND,0)){const k=key(PEND,i,j);if(need(C.get(k))){pick=[k,PEND,i,j];all=false;break}}if(all){USE=PEND;PEND=0;continue}}
-  if(!pick)for(const [i,j] of vis(USE,1)){const k=key(USE,i,j);if(need(C.get(k))){pick=[k,USE,i,j];break}}
+  /* los de alrededor solo si caben sin tirar trozos visibles (antes, con poca memoria, se pisaban unos a otros) */if(!pick&&C.size<MAXC-2)for(const [i,j] of vis(USE,1)){const k=key(USE,i,j);if(need(C.get(k))){pick=[k,USE,i,j];break}}
   if(!pick)return;const [k,sc,i,j]=pick;const J=newJob(k,sc,i,j);const sg=BS+'|'+TS;J.ok=()=>BS+'|'+TS===sg&&(J.sc===USE||J.sc===PEND);JOB=J}}
 window.groundDraw=function(c){ready=new Set();check();
  /* la escala de los trozos no depende del ajuste automático de calidad (QS) */const s=cam.z*dpr,sc=q3(cam.z*Math.min(1.5,devicePixelRatio||1));if(Math.abs(sc-ZS)>1e-6){ZS=sc;ZT=T}
@@ -10996,7 +10996,7 @@ setInterval(()=>{ov.style.visibility=open&&ttv()?'hidden':'';scan()},600);
 <script>/* ===== Rendimiento: los edificios se dibujan una vez en una imagen y se reutilizan (se refrescan solos cada pocos segundos) ===== */
 (function(){
 'use strict';
-const C=new Map();let px=0;const MAXPX=18e6;
+const C=new Map();let px=0;const MAXPX=6e6;
 const ANIM=new Map();      /* firma de tipo -> true si su dibujo cambia con el tiempo */
 const TH=new Map();        /* id -> {n,t,off} para edificios cuya clave cambia sin parar */
 let budget=0,lastT=-1;
@@ -11006,11 +11006,11 @@ function box(b){const d=BT[b.type],z=d.z||20,m=Math.max(b.w,b.h),q=P(b.x+b.w/2,b
 /* re: lienzo anterior del mismo edificio; si mide lo mismo se reutiliza (antes se creaba uno nuevo en cada refresco: ~300 lienzos/s en pueblos grandes) */
 /* ATLAS: las imágenes de los edificios van en unos pocos lienzos grandes de 2048 px (texturas de la GPU) en vez de un lienzo pequeño por edificio.
    En Chrome de Android los lienzos pequeños no están en la GPU y cada fotograma se subían ~100 texturas: medido en el móvil, apagar los edificios bajaba la GPU de 30 a 17 ms. */
-const AS=2048,MAXPG=3,PG=[];let ZS=0,ZT=-9,BSQ=0;let ATL_ON=true;
+const AS=2048,MAXPG=3,PG=[];let ZS=0,ZT=-9,BSQ=0,GEN=0,SWT=0;let ATL_ON=true;
 function newPage(){const cv=document.createElement('canvas');cv.width=AS;cv.height=AS;const pg={cv,x:[],sh:[],y:0};PG.push(pg);return pg}
 /* estantes: cada estante tiene una altura fija; se busca uno con sitio y altura parecida */
 function alloc(w,h){w+=2;h+=2;if(w>AS||h>AS)return null;const hh=Math.ceil(h/16)*16;
- for(let i=0;i<PG.length;i++){const pg=PG[i];for(const sh of pg.sh){if(sh.h===hh&&sh.x+w<=AS){const r={pg:i,cv:pg.cv,x:sh.x+1,y:sh.y+1};sh.x+=w;return r}}if(pg.y+hh<=AS){const sh={y:pg.y,h:hh,x:w};pg.sh.push(sh);pg.y+=hh;return {pg:i,cv:pg.cv,x:1,y:sh.y+1}}}
+ for(let i=0;i<PG.length;i++){const pg=PG[i];for(const sh of pg.sh){if(sh.h===hh&&sh.x+w<=AS){const r={pg:i,gen:GEN,cv:pg.cv,x:sh.x+1,y:sh.y+1};sh.x+=w;return r}}if(pg.y+hh<=AS){const sh={y:pg.y,h:hh,x:w};pg.sh.push(sh);pg.y+=hh;return {pg:i,gen:GEN,cv:pg.cv,x:1,y:sh.y+1}}}
  if(PG.length<MAXPG){newPage();return alloc(w-2,h-2)}return null}
 /* compactar: copia solo las imágenes vivas a páginas nuevas (copia de GPU a GPU, sin redibujar); los huecos viejos de otros zooms se liberan */
 function compact(){if(window.PERFC)PERFC.cp++;const old=PG.splice(0);const live=[...C.entries()].filter(([,e])=>e.sl).sort((a,b)=>b[1].H-a[1].H);
@@ -11035,9 +11035,11 @@ window.bcFlush=function(){if(!Q.size)return;let n=0;const t0=performance.now();f
  else{const cv=paint(b,sq,tb,e&&e.cv);if(e&&e.cv)px-=e.cv.width*e.cv.height;C.set(id,{k,kb,sq,bx,tb,cv,W:cv.width,H:cv.height,t:T,an});px+=cv.width*cv.height}
  /* tope de tiempo: ~3 ms por fotograma (como mínimo 1 edificio) */if(++n>=6||performance.now()-t0>3)break}};
 function blit(c,e){if(e.sl)c.drawImage(e.sl.cv,e.sl.x,e.sl.y,e.W,e.H,e.tb[0],e.tb[1],e.W/e.sq,e.H/e.sq);else c.drawImage(e.cv,e.tb[0],e.tb[1],e.cv.width/e.sq,e.cv.height/e.sq)}
-window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){lastT=T;budget=4}
+/* limpieza: las imágenes de páginas de una escala anterior se sueltan cuando el zoom lleva 2 s quieto (antes los edificios fuera de pantalla las retenían: cada página son 16 MB de memoria gráfica y el móvil iba cada vez más lento) */
+function sweep(){if(T-SWT<2||T-ZT<2)return;SWT=T;for(const [id,e] of C){if(e.sl&&e.sl.gen!==GEN)C.delete(id)}let n=0;for(const e of C.values())if(e.cv)n+=e.cv.width*e.cv.height;px=n}
+window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){lastT=T;budget=4;sweep()}
  const th=TH.get(b.id);if(th&&th.off>T)return false;
- const tf=c.getTransform(),s=Math.hypot(tf.a,tf.b)/((typeof QS==='number'&&QS>0)?QS:1);/* sin el ajuste automático de calidad: si no, cada ajuste repintaba todos los edificios */if(Math.abs(s-ZS)>1e-4){ZS=s;ZT=T}/* margen de zoom: se reutiliza la escala mientras el zoom no se aleje más de un ~40 %; solo se cambia con la cámara parada 0,3 s *//* escalas ×0,25/0,5/1/2 (redondeando hacia arriba: nunca se ve borroso). Al cambiar, se empieza un atlas nuevo: el viejo se suelta cuando ya no se usa (antes se acumulaban imágenes viejas hasta 4 páginas y el móvil iba a ~18 fps) */const want=Math.min(2,Math.pow(2,Math.ceil(Math.log2(Math.max(.25,s)-1e-6))));if(!BSQ)BSQ=want;else if(want!==BSQ&&T-ZT>=.3){BSQ=want;PG.length=0;Q.clear()}const sq=BSQ;
+ const tf=c.getTransform(),s=Math.hypot(tf.a,tf.b)/((typeof QS==='number'&&QS>0)?QS:1);/* sin el ajuste automático de calidad: si no, cada ajuste repintaba todos los edificios */if(Math.abs(s-ZS)>1e-4){ZS=s;ZT=T}/* margen de zoom: se reutiliza la escala mientras el zoom no se aleje más de un ~40 %; solo se cambia con la cámara parada 0,3 s *//* escalas ×0,25/0,5/1/2 (redondeando hacia arriba: nunca se ve borroso). Al cambiar, se empieza un atlas nuevo: el viejo se suelta cuando ya no se usa (antes se acumulaban imágenes viejas hasta 4 páginas y el móvil iba a ~18 fps) */const want=Math.min(2,Math.pow(2,Math.ceil(Math.log2(Math.max(.25,s)-1e-6))));if(!BSQ)BSQ=want;else if(want!==BSQ&&T-ZT>=.3){BSQ=want;PG.length=0;Q.clear();GEN++}const sq=BSQ;
  const bx=box(b),k=sig(b,sq),kb=sig(b,0);let e=C.get(b.id);
  /* solo cuenta claves NUEVAS: antes contaba cada fotograma de espera (sin presupuesto) y tras cambiar la calidad marcaba todo el pueblo como 'inestable' y lo dibujaba sin caché 12 s */
  /* el zoom (sq) no cuenta: antes, al pellizcar, casi todo el pueblo quedaba 12 s sin caché */if(e&&e.kb!==kb&&!(th&&th.lk===kb)){const t=th||{n:0,t:T,off:0};t.lk=kb;if(T-t.t>4){t.n=0;t.t=T}if(++t.n>6){t.off=T+12;TH.set(b.id,t);return false}TH.set(b.id,t)}
@@ -11056,7 +11058,7 @@ window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){last
  else if(!e.sl){C.delete(b.id);C.set(b.id,e)}
  blit(c,e);return true}catch(er){return false}};
 window.bCacheClear=()=>{atlasReset();C.clear();px=0;ANIM.clear();TH.clear()};
-window.atlasToggle=v=>{ATL_ON=v===undefined?!ATL_ON:!!v;atlasReset();return ATL_ON};window.bCacheStats=()=>({n:C.size,propios:[...C.values()].filter(e=>e.cv).length,usado:+(PG.reduce((s,p)=>s+p.y,0)/2048).toFixed(2),mpx:+(px/1e6).toFixed(1),anim:[...ANIM].filter(x=>x[1]).map(x=>x[0].split('|')[0]),pages:PG.length,atlas:ATL_ON,pintadosAtlas:PA,thrash:[...TH.keys()].length,off:[...TH.values()].filter(t=>t.off>T).length});
+window.atlasToggle=v=>{ATL_ON=v===undefined?!ATL_ON:!!v;atlasReset();return ATL_ON};window.bCacheStats=()=>({n:C.size,paginasVivas:new Set([...C.values()].filter(e=>e.sl).map(e=>e.sl.cv)).size,propios:[...C.values()].filter(e=>e.cv).length,usado:+(PG.reduce((s,p)=>s+p.y,0)/2048).toFixed(2),mpx:+(px/1e6).toFixed(1),anim:[...ANIM].filter(x=>x[1]).map(x=>x[0].split('|')[0]),pages:PG.length,atlas:ATL_ON,pintadosAtlas:PA,thrash:[...TH.keys()].length,off:[...TH.values()].filter(t=>t.off>T).length});
 })();
 </script>
 <script>/* ===== Comida y agua: no se compran, no se venden y no salen como recompensa: solo se producen ===== */
@@ -11477,7 +11479,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'208';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'212';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';

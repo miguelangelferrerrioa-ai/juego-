@@ -6,7 +6,7 @@
    (antes se rehacían todos y daba tirones). El terreno entero solo se rehace si cambia el propio terreno (comprar parcelas…). */
 (function(){
 'use strict';
-const PW=1024,PH=512,MAXC=36,C=new Map();let TS='',BS='',chkT=-1,ZS=0,ZT=-9,USE=0,budget=0,lastT=-1,ready=new Set(),GP=0;
+const PW=1024,PH=512,MAXC=22,C=new Map();let TS='',BS='',chkT=-1,ZS=0,ZT=-9,USE=0,budget=0,lastT=-1,ready=new Set(),GP=0;
 const LZ=new WeakMap();let BK=new Map();
 window.GROUND_ON=true;
 /* huella del terreno: copia a 256×128 y suma de píxeles (lectura pequeña, solo cuando se repinta el terreno) */
@@ -43,7 +43,7 @@ function work(J,t0){const c=J.cv.getContext('2d');
  c.setTransform(J.sc,0,0,J.sc,-J.x0*J.sc,-J.y0*J.sc);while(J.n<J.os.length){obsSpr(c,J.os[J.n++]);if((J.n&7)===0&&performance.now()-t0>BUDGET)return false}
  return true}
 const key=(sc,i,j)=>sc.toFixed(4)+':'+i+':'+j;
-function put(k,cv){const o=C.get(k);if(o&&o.cv&&o.cv!==cv&&POOL.length<6)POOL.push(o.cv);C.delete(k);C.set(k,{cv,dirty:false});while(C.size>MAXC){const fk=C.keys().next().value;const fv=C.get(fk);C.delete(fk);if(fv.cv&&POOL.length<6)POOL.push(fv.cv)}}
+function put(k,cv){const o=C.get(k);if(o&&o.cv&&o.cv!==cv&&POOL.length<2)POOL.push(o.cv);C.delete(k);C.set(k,{cv,dirty:false});while(C.size>MAXC){const fk=C.keys().next().value;const fv=C.get(fk);C.delete(fk);if(fv.cv&&POOL.length<2)POOL.push(fv.cv)}}
 const need=e=>!e||e.dirty;
 /* lista de trozos visibles a una escala */
 function vis(sc,pad){const W=PW/sc,H=PH/sc,vx0=cam.x-8,vy0=cam.y-8,vx1=cam.x+vw()/cam.z+8,vy1=cam.y+vh()/cam.z+8,L=[];
@@ -56,7 +56,7 @@ function pump(){const t0=performance.now();let guard=0;
   JOB=null;let pick=null;
   for(const [i,j] of vis(USE,0)){const k=key(USE,i,j);if(need(C.get(k))){pick=[k,USE,i,j];break}}
   if(!pick&&PEND){let all=true;for(const [i,j] of vis(PEND,0)){const k=key(PEND,i,j);if(need(C.get(k))){pick=[k,PEND,i,j];all=false;break}}if(all){USE=PEND;PEND=0;continue}}
-  if(!pick)for(const [i,j] of vis(USE,1)){const k=key(USE,i,j);if(need(C.get(k))){pick=[k,USE,i,j];break}}
+  /* los de alrededor solo si caben sin tirar trozos visibles (antes, con poca memoria, se pisaban unos a otros) */if(!pick&&C.size<MAXC-2)for(const [i,j] of vis(USE,1)){const k=key(USE,i,j);if(need(C.get(k))){pick=[k,USE,i,j];break}}
   if(!pick)return;const [k,sc,i,j]=pick;const J=newJob(k,sc,i,j);const sg=BS+'|'+TS;J.ok=()=>BS+'|'+TS===sg&&(J.sc===USE||J.sc===PEND);JOB=J}}
 window.groundDraw=function(c){ready=new Set();check();
  /* la escala de los trozos no depende del ajuste automático de calidad (QS) */const s=cam.z*dpr,sc=q3(cam.z*Math.min(1.5,devicePixelRatio||1));if(Math.abs(sc-ZS)>1e-6){ZS=sc;ZT=T}

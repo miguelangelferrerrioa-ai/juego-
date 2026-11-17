@@ -1,7 +1,7 @@
 /* ===== Rendimiento: los edificios se dibujan una vez en una imagen y se reutilizan (se refrescan solos cada pocos segundos) ===== */
 (function(){
 'use strict';
-const C=new Map();let px=0;const MAXPX=18e6;
+const C=new Map();let px=0;const MAXPX=6e6;
 const ANIM=new Map();      /* firma de tipo -> true si su dibujo cambia con el tiempo */
 const TH=new Map();        /* id -> {n,t,off} para edificios cuya clave cambia sin parar */
 let budget=0,lastT=-1;
@@ -11,11 +11,11 @@ function box(b){const d=BT[b.type],z=d.z||20,m=Math.max(b.w,b.h),q=P(b.x+b.w/2,b
 /* re: lienzo anterior del mismo edificio; si mide lo mismo se reutiliza (antes se creaba uno nuevo en cada refresco: ~300 lienzos/s en pueblos grandes) */
 /* ATLAS: las imágenes de los edificios van en unos pocos lienzos grandes de 2048 px (texturas de la GPU) en vez de un lienzo pequeño por edificio.
    En Chrome de Android los lienzos pequeños no están en la GPU y cada fotograma se subían ~100 texturas: medido en el móvil, apagar los edificios bajaba la GPU de 30 a 17 ms. */
-const AS=2048,MAXPG=3,PG=[];let ZS=0,ZT=-9,BSQ=0;let ATL_ON=true;
+const AS=2048,MAXPG=3,PG=[];let ZS=0,ZT=-9,BSQ=0,GEN=0,SWT=0;let ATL_ON=true;
 function newPage(){const cv=document.createElement('canvas');cv.width=AS;cv.height=AS;const pg={cv,x:[],sh:[],y:0};PG.push(pg);return pg}
 /* estantes: cada estante tiene una altura fija; se busca uno con sitio y altura parecida */
 function alloc(w,h){w+=2;h+=2;if(w>AS||h>AS)return null;const hh=Math.ceil(h/16)*16;
- for(let i=0;i<PG.length;i++){const pg=PG[i];for(const sh of pg.sh){if(sh.h===hh&&sh.x+w<=AS){const r={pg:i,cv:pg.cv,x:sh.x+1,y:sh.y+1};sh.x+=w;return r}}if(pg.y+hh<=AS){const sh={y:pg.y,h:hh,x:w};pg.sh.push(sh);pg.y+=hh;return {pg:i,cv:pg.cv,x:1,y:sh.y+1}}}
+ for(let i=0;i<PG.length;i++){const pg=PG[i];for(const sh of pg.sh){if(sh.h===hh&&sh.x+w<=AS){const r={pg:i,gen:GEN,cv:pg.cv,x:sh.x+1,y:sh.y+1};sh.x+=w;return r}}if(pg.y+hh<=AS){const sh={y:pg.y,h:hh,x:w};pg.sh.push(sh);pg.y+=hh;return {pg:i,gen:GEN,cv:pg.cv,x:1,y:sh.y+1}}}
  if(PG.length<MAXPG){newPage();return alloc(w-2,h-2)}return null}
 /* compactar: copia solo las imágenes vivas a páginas nuevas (copia de GPU a GPU, sin redibujar); los huecos viejos de otros zooms se liberan */
 function compact(){if(window.PERFC)PERFC.cp++;const old=PG.splice(0);const live=[...C.entries()].filter(([,e])=>e.sl).sort((a,b)=>b[1].H-a[1].H);
@@ -40,9 +40,11 @@ window.bcFlush=function(){if(!Q.size)return;let n=0;const t0=performance.now();f
  else{const cv=paint(b,sq,tb,e&&e.cv);if(e&&e.cv)px-=e.cv.width*e.cv.height;C.set(id,{k,kb,sq,bx,tb,cv,W:cv.width,H:cv.height,t:T,an});px+=cv.width*cv.height}
  /* tope de tiempo: ~3 ms por fotograma (como mínimo 1 edificio) */if(++n>=6||performance.now()-t0>3)break}};
 function blit(c,e){if(e.sl)c.drawImage(e.sl.cv,e.sl.x,e.sl.y,e.W,e.H,e.tb[0],e.tb[1],e.W/e.sq,e.H/e.sq);else c.drawImage(e.cv,e.tb[0],e.tb[1],e.cv.width/e.sq,e.cv.height/e.sq)}
-window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){lastT=T;budget=4}
+/* limpieza: las imágenes de páginas de una escala anterior se sueltan cuando el zoom lleva 2 s quieto (antes los edificios fuera de pantalla las retenían: cada página son 16 MB de memoria gráfica y el móvil iba cada vez más lento) */
+function sweep(){if(T-SWT<2||T-ZT<2)return;SWT=T;for(const [id,e] of C){if(e.sl&&e.sl.gen!==GEN)C.delete(id)}let n=0;for(const e of C.values())if(e.cv)n+=e.cv.width*e.cv.height;px=n}
+window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){lastT=T;budget=4;sweep()}
  const th=TH.get(b.id);if(th&&th.off>T)return false;
- const tf=c.getTransform(),s=Math.hypot(tf.a,tf.b)/((typeof QS==='number'&&QS>0)?QS:1);/* sin el ajuste automático de calidad: si no, cada ajuste repintaba todos los edificios */if(Math.abs(s-ZS)>1e-4){ZS=s;ZT=T}/* margen de zoom: se reutiliza la escala mientras el zoom no se aleje más de un ~40 %; solo se cambia con la cámara parada 0,3 s *//* escalas ×0,25/0,5/1/2 (redondeando hacia arriba: nunca se ve borroso). Al cambiar, se empieza un atlas nuevo: el viejo se suelta cuando ya no se usa (antes se acumulaban imágenes viejas hasta 4 páginas y el móvil iba a ~18 fps) */const want=Math.min(2,Math.pow(2,Math.ceil(Math.log2(Math.max(.25,s)-1e-6))));if(!BSQ)BSQ=want;else if(want!==BSQ&&T-ZT>=.3){BSQ=want;PG.length=0;Q.clear()}const sq=BSQ;
+ const tf=c.getTransform(),s=Math.hypot(tf.a,tf.b)/((typeof QS==='number'&&QS>0)?QS:1);/* sin el ajuste automático de calidad: si no, cada ajuste repintaba todos los edificios */if(Math.abs(s-ZS)>1e-4){ZS=s;ZT=T}/* margen de zoom: se reutiliza la escala mientras el zoom no se aleje más de un ~40 %; solo se cambia con la cámara parada 0,3 s *//* escalas ×0,25/0,5/1/2 (redondeando hacia arriba: nunca se ve borroso). Al cambiar, se empieza un atlas nuevo: el viejo se suelta cuando ya no se usa (antes se acumulaban imágenes viejas hasta 4 páginas y el móvil iba a ~18 fps) */const want=Math.min(2,Math.pow(2,Math.ceil(Math.log2(Math.max(.25,s)-1e-6))));if(!BSQ)BSQ=want;else if(want!==BSQ&&T-ZT>=.3){BSQ=want;PG.length=0;Q.clear();GEN++}const sq=BSQ;
  const bx=box(b),k=sig(b,sq),kb=sig(b,0);let e=C.get(b.id);
  /* solo cuenta claves NUEVAS: antes contaba cada fotograma de espera (sin presupuesto) y tras cambiar la calidad marcaba todo el pueblo como 'inestable' y lo dibujaba sin caché 12 s */
  /* el zoom (sq) no cuenta: antes, al pellizcar, casi todo el pueblo quedaba 12 s sin caché */if(e&&e.kb!==kb&&!(th&&th.lk===kb)){const t=th||{n:0,t:T,off:0};t.lk=kb;if(T-t.t>4){t.n=0;t.t=T}if(++t.n>6){t.off=T+12;TH.set(b.id,t);return false}TH.set(b.id,t)}
@@ -61,5 +63,5 @@ window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){last
  else if(!e.sl){C.delete(b.id);C.set(b.id,e)}
  blit(c,e);return true}catch(er){return false}};
 window.bCacheClear=()=>{atlasReset();C.clear();px=0;ANIM.clear();TH.clear()};
-window.atlasToggle=v=>{ATL_ON=v===undefined?!ATL_ON:!!v;atlasReset();return ATL_ON};window.bCacheStats=()=>({n:C.size,propios:[...C.values()].filter(e=>e.cv).length,usado:+(PG.reduce((s,p)=>s+p.y,0)/2048).toFixed(2),mpx:+(px/1e6).toFixed(1),anim:[...ANIM].filter(x=>x[1]).map(x=>x[0].split('|')[0]),pages:PG.length,atlas:ATL_ON,pintadosAtlas:PA,thrash:[...TH.keys()].length,off:[...TH.values()].filter(t=>t.off>T).length});
+window.atlasToggle=v=>{ATL_ON=v===undefined?!ATL_ON:!!v;atlasReset();return ATL_ON};window.bCacheStats=()=>({n:C.size,paginasVivas:new Set([...C.values()].filter(e=>e.sl).map(e=>e.sl.cv)).size,propios:[...C.values()].filter(e=>e.cv).length,usado:+(PG.reduce((s,p)=>s+p.y,0)/2048).toFixed(2),mpx:+(px/1e6).toFixed(1),anim:[...ANIM].filter(x=>x[1]).map(x=>x[0].split('|')[0]),pages:PG.length,atlas:ATL_ON,pintadosAtlas:PA,thrash:[...TH.keys()].length,off:[...TH.values()].filter(t=>t.off>T).length});
 })();
