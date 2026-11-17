@@ -4,7 +4,7 @@
 (function(){
 'use strict';
 const C=new Map();let RP=0,px=0,budget=0,lastT=-1;const MAXPX=12e6,TAU=Math.PI*2,BX0=-29,BY0=-48,BW=58,BH=54;
-window.FIGC_ON=true;
+/* desactivado: en el móvil iba peor (cientos de lienzos pequeños); se deja para probar con FIGC_ON=true */window.FIGC_ON=false;
 const orig=window.fig;
 function look(id){if(!id||typeof byId!=='function')return '';const p=byId(id);if(!p)return '';
  return (p.outfit||'')+'|'+(p.arm||'')+'|'+(p.wp?p.wp.n:'')+'|'+(p.prof||'')+'|'+(p.gear?JSON.stringify(p.gear):'')+'|'+(p.look?JSON.stringify(p.look):'')+'|'+(p.age>=55?2:p.age<18?1:0)+(p.sex||'')}

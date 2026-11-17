@@ -1441,7 +1441,8 @@ function ambientFX(c){
 }
 /* ambiente apocalíptico: la desaturación y el tinte van como filtro CSS del lienzo (la GPU lo aplica en una pasada; antes eran dos fusiones 'saturation'/'multiply' a pantalla completa en cada fotograma) y la bruma + viñeta se pintan una vez */
 const APOF='saturate(.8) brightness(.955) sepia(.04)';let APOV=null;
-function apoFX(c,cv){const W=cv.width,H=cv.height;if(cv.style.filter!==APOF)cv.style.filter=APOF;c.save();c.setTransform(1,0,0,1,0,0);
+function apoFX(c,cv){const W=cv.width,H=cv.height;if(cv.style.filter)cv.style.filter='';c.save();c.setTransform(1,0,0,1,0,0);
+ c.globalCompositeOperation='saturation';c.globalAlpha=.2;c.fillStyle='#7a7a7a';c.fillRect(0,0,W,H);c.globalCompositeOperation='multiply';c.globalAlpha=1;c.fillStyle='rgba(190,180,152,.15)';c.fillRect(0,0,W,H);c.globalCompositeOperation='source-over';
  if(!APOV||APOV.width!==W||APOV.height!==H){APOV=APOV||document.createElement('canvas');APOV.width=W;APOV.height=H;const o=APOV.getContext('2d');o.clearRect(0,0,W,H);
   const hz=o.createLinearGradient(0,0,0,H*.55);hz.addColorStop(0,'rgba(104,96,76,.30)');hz.addColorStop(1,'rgba(104,96,76,0)');o.fillStyle=hz;o.fillRect(0,0,W,H*.55);
   const vg=o.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(8,8,4,.5)');o.fillStyle=vg;o.fillRect(0,0,W,H)}
