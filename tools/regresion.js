@@ -93,6 +93,12 @@ for(const sv of ['dia3.json','partida_larga_dia248.json'])scenarios.push(['Solda
  startHorde();await __run(400,()=>{chk();return !horde});return {Q,V:__V}})]);
 /* 5d) reparar: con el ayuntamiento justo, un edificio mejorado se puede reparar con los materiales de su nivel */
 scenarios.push(['Reparar','dia3.json',async pg=>pg.evaluate(async()=>{const bad=[];S.bld.filter(b=>BT[b.type]&&!['road','bridge'].includes(b.type)).forEach(b=>{const L0=b.lvl;for(let L=1;L<=15;L++){b.lvl=L;const c=repairCost(Object.assign({},b,{hp:1,lvl:L}));const up=L>1?ucost(Object.assign({},b,{lvl:L-1})):{};const used=new Set([...Object.keys(BT[b.type].cost||{}),...Object.keys(up),'wood','metal']);for(let j=1;j<L-1;j++)Object.keys(ucost(Object.assign({},b,{lvl:j}))).forEach(k=>used.add(k));Object.keys(c).forEach(k=>{if(!used.has(k))bad.push(b.type+' nv'+L+' pide '+k)})}b.lvl=L0});return {bad:[...new Set(bad)].slice(0,8),V:__V}})]);
+/* 5e) un soldado alistado se puede asignar a una torre de vigilancia y en la horda se queda en ella */
+scenarios.push(['Soldado en torre','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{window.show=window.show||(()=>{});const t=S.bld.find(b=>b.type==='tower');if(!t)return {err:'sin torre',V:__V};
+ S.ppl.forEach(p=>{if(p.job===t.id)p.job=0});const sol=S.ppl.find(p=>p.arm&&!p.away&&!p.preg&&p.age>=18&&p.job!==t.id);sol.wp=sol.wp||{n:'Fusil',v:8};sol.job=0;
+ let html='';const os=window.show;window.show=(a,h)=>{html=h};try{asgList(t.id)}finally{window.show=os}const listed=html.includes('asg('+sol.id+','+t.id+')');
+ asg(sol.id,t.id);const assigned=sol.job===t.id;startHorde();await __run(6);const inU=U.some(u=>u.p===sol);await __run(400,()=>!horde);
+ return {listed,assigned,inU,V:__V}})]);
 (async()=>{const b=await chromium.launch();const t0=Date.now();
  for(const [name,sv,fn] of scenarios){if(ONLY&&!name.includes(ONLY))continue;const {pg,pe}=await open(b,SV(sv));let r=null;try{r=await fn(pg)}catch(e){r={crash:String(e).slice(0,200)}}
   const V=r&&r.V||{};const tag=name;
@@ -111,6 +117,7 @@ scenarios.push(['Reparar','dia3.json',async pg=>pg.evaluate(async()=>{const bad=
   if(name==='Parejas'){ok(tag+': se forma la pareja',r.st,JSON.stringify(r));ok(tag+': tras parto y descanso vuelven a estar disponibles',r.M==='libre'&&r.F==='libre',JSON.stringify(r))}
   if(name.startsWith('Soldado no se queda quieto'))ok(tag+': con un zombi cerca y a la vista va a por él o dispara',r.Q.length===0,r.Q.slice(0,5).join(', '));
   if(name==='Reparar')ok(tag+': solo pide materiales que el edificio ya usó para llegar a su nivel',r.bad.length===0,r.bad.join(', '));
+  if(name==='Soldado en torre'){ok(tag+': el soldado sale en la lista de la torre',r.listed,JSON.stringify(r));ok(tag+': se le puede asignar',r.assigned,JSON.stringify(r));ok(tag+': en la horda se queda en la torre (no patrulla)',r.assigned&&!r.inU,JSON.stringify(r))}
   if(name==='Soldado sin arma'){ok(tag+': no dispara',r.shots===0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Guardar y cargar')ok(tag+': partida idéntica',r.diffs===0,r.ex);
   if(name==='Expediciones'){ok(tag+': solitaria arranca sin coste (comida, agua ni gasolina)',r.started&&r.cost<=0,JSON.stringify(r));ok(tag+': vuelve y queda en casa',r.back,JSON.stringify(r))}

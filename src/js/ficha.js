@@ -52,7 +52,7 @@ function tabSt0(p){const tr=window.trInfo&&trInfo(p),sel=window.pRole&&PF.includ
   return `<div class="stg">`+PF.map(k=>{const v=Math.min(10,p.ps[k]||0),e=window.eqB?eqB(p,k):0,c=SI[k][1],seg=[];
    for(let i=1;i<=10;i++)seg.push(`<i style="${i<=v?'background:'+c:i<=v+e?'background:#ffd877':''}"></i>`);
    return `<div class="sti${tr&&tr.pf===k?' on':''}${k===sel?' sel':''}" style="cursor:pointer${k===sel?';outline:1px solid #e0b020':''}" onclick="pRole='${k}';pSheet(${p.id})"><b style="background:${c}">${SI[k][0]}</b><span>${k}</span><div class="sts">${seg.join('')}</div><em>${v}${e?'<small>+'+e+'</small>':''}</em></div>`}).join('')+`</div><div class="invb" style="background:#141c20;border:1px solid #263238;border-radius:4px;padding:6px 8px;margin:4px 0;line-height:1.35"><b style="color:${SI[sel][1]}">${sel}</b> · ${roleTxt(sel)}</div><p class="invb">Toca un rol para ver qué hace. Cada rol sube de 0 a 10 en los edificios de formación. <span style="color:#ffd877">Amarillo</span> = bono del equipo.</p>`}
-function tabTr(p){const id=p.id,b=bm[p.job],opts=S.bld.filter(q=>BT[q.type].slots&&wk(q).length<slots(q)&&!p.arm);
+function tabTr(p){const id=p.id,b=bm[p.job],opts=S.bld.filter(q=>BT[q.type].slots&&wk(q).length<slots(q)&&(!p.arm||BT[q.type].gun));
   const cl_=S.inv.filter(w=>w.kind==='clothing'),op=window.pOpen;
   const tg=k=>`pOpen=${op===k?'null':`'${k}'`};pSheet(${id})`;
   let h=`<div class="prow"><span>Trabajo: <b class="pv">${b?BT[b.type].n:'sin asignar'}</b></span>${btn(op==='job'?'▲ Cerrar':'Cambiar',tg('job'))}${p.job?btn('Quitar',`byId(${id}).job=0;pSheet(${id})`):''}</div>`;

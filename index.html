@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v188</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v189</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -4931,7 +4931,7 @@ function tabSt0(p){const tr=window.trInfo&&trInfo(p),sel=window.pRole&&PF.includ
   return `<div class="stg">`+PF.map(k=>{const v=Math.min(10,p.ps[k]||0),e=window.eqB?eqB(p,k):0,c=SI[k][1],seg=[];
    for(let i=1;i<=10;i++)seg.push(`<i style="${i<=v?'background:'+c:i<=v+e?'background:#ffd877':''}"></i>`);
    return `<div class="sti${tr&&tr.pf===k?' on':''}${k===sel?' sel':''}" style="cursor:pointer${k===sel?';outline:1px solid #e0b020':''}" onclick="pRole='${k}';pSheet(${p.id})"><b style="background:${c}">${SI[k][0]}</b><span>${k}</span><div class="sts">${seg.join('')}</div><em>${v}${e?'<small>+'+e+'</small>':''}</em></div>`}).join('')+`</div><div class="invb" style="background:#141c20;border:1px solid #263238;border-radius:4px;padding:6px 8px;margin:4px 0;line-height:1.35"><b style="color:${SI[sel][1]}">${sel}</b> · ${roleTxt(sel)}</div><p class="invb">Toca un rol para ver qué hace. Cada rol sube de 0 a 10 en los edificios de formación. <span style="color:#ffd877">Amarillo</span> = bono del equipo.</p>`}
-function tabTr(p){const id=p.id,b=bm[p.job],opts=S.bld.filter(q=>BT[q.type].slots&&wk(q).length<slots(q)&&!p.arm);
+function tabTr(p){const id=p.id,b=bm[p.job],opts=S.bld.filter(q=>BT[q.type].slots&&wk(q).length<slots(q)&&(!p.arm||BT[q.type].gun));
   const cl_=S.inv.filter(w=>w.kind==='clothing'),op=window.pOpen;
   const tg=k=>`pOpen=${op===k?'null':`'${k}'`};pSheet(${id})`;
   let h=`<div class="prow"><span>Trabajo: <b class="pv">${b?BT[b.type].n:'sin asignar'}</b></span>${btn(op==='job'?'▲ Cerrar':'Cambiar',tg('job'))}${p.job?btn('Quitar',`byId(${id}).job=0;pSheet(${id})`):''}</div>`;
@@ -6220,7 +6220,7 @@ const oB=window.bPanel,realShow=()=>window.show;
 const strip=(h,re)=>h.replace(re,'');
 const bar=(v,c)=>`<div class="bbar"><i style="width:${Math.max(0,Math.min(100,v))}%;background:${c}"></i></div>`;
 window.asgList=function(id){const b=bm[id];if(!b)return;const d=BT[b.type];
-  const L=S.ppl.filter(p=>!p.arm&&p.age>=18&&!p.away&&p.job!=id).map(p=>({p,k:skFor(p,d)||0})).sort((a,c)=>c.k-a.k||(a.p.job?1:0)-(c.p.job?1:0));
+  /* en las torres (puestos de tirador) también salen los alistados: antes no se podía poner a un soldado en una torre */const L=S.ppl.filter(p=>(!p.arm||d.gun)&&p.age>=18&&!p.away&&p.job!=id).map(p=>({p,k:skFor(p,d)||0})).sort((a,c)=>c.k-a.k||(a.p.job?1:0)-(c.p.job?1:0));
   const h=`<p class="bsub">Elige a quién asignar a <b>${d.n}</b>. Los de tu rol ideal (${(d.job||[]).join(', ')||'cualquiera'}) trabajan mejor. Las ★ indican lo bien que encaja cada uno, aunque ahora esté ocupado: si tocas a alguien ocupado, se cambia a este puesto${d.tr?' · aquí se formarán y no podrán trabajar en otro sitio':''}.</p>`+
    (L.length?`<div class="pg sm asgl">${L.map(({p,k})=>(()=>{const jb=p.job&&bm[p.job]?BT[bm[p.job].type].n:'';let h=pcard(p,`asg(${p.id},${id})`,'',p.job?'ocupado':'');if(k>0)h=h.replace('<span class="tg">','<span class="tg tgl">★'+k+'</span><span class="tg">');if(jb)h=h.replace(/<\/div>$/,`<small style="color:#d9a441">Ocupado en: ${jb}</small></div>`);return h})()).join('')}</div>`:'<p>No hay supervivientes libres.</p>')+`<div class="bact">${btn('← Volver',`bPanel(${id})`)}</div>`;
   window.show(d.n,h);paintCards()};
@@ -11464,7 +11464,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'188';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'189';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';

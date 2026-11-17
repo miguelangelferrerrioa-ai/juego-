@@ -6,7 +6,7 @@ const oB=window.bPanel,realShow=()=>window.show;
 const strip=(h,re)=>h.replace(re,'');
 const bar=(v,c)=>`<div class="bbar"><i style="width:${Math.max(0,Math.min(100,v))}%;background:${c}"></i></div>`;
 window.asgList=function(id){const b=bm[id];if(!b)return;const d=BT[b.type];
-  const L=S.ppl.filter(p=>!p.arm&&p.age>=18&&!p.away&&p.job!=id).map(p=>({p,k:skFor(p,d)||0})).sort((a,c)=>c.k-a.k||(a.p.job?1:0)-(c.p.job?1:0));
+  /* en las torres (puestos de tirador) también salen los alistados: antes no se podía poner a un soldado en una torre */const L=S.ppl.filter(p=>(!p.arm||d.gun)&&p.age>=18&&!p.away&&p.job!=id).map(p=>({p,k:skFor(p,d)||0})).sort((a,c)=>c.k-a.k||(a.p.job?1:0)-(c.p.job?1:0));
   const h=`<p class="bsub">Elige a quién asignar a <b>${d.n}</b>. Los de tu rol ideal (${(d.job||[]).join(', ')||'cualquiera'}) trabajan mejor. Las ★ indican lo bien que encaja cada uno, aunque ahora esté ocupado: si tocas a alguien ocupado, se cambia a este puesto${d.tr?' · aquí se formarán y no podrán trabajar en otro sitio':''}.</p>`+
    (L.length?`<div class="pg sm asgl">${L.map(({p,k})=>(()=>{const jb=p.job&&bm[p.job]?BT[bm[p.job].type].n:'';let h=pcard(p,`asg(${p.id},${id})`,'',p.job?'ocupado':'');if(k>0)h=h.replace('<span class="tg">','<span class="tg tgl">★'+k+'</span><span class="tg">');if(jb)h=h.replace(/<\/div>$/,`<small style="color:#d9a441">Ocupado en: ${jb}</small></div>`);return h})()).join('')}</div>`:'<p>No hay supervivientes libres.</p>')+`<div class="bact">${btn('← Volver',`bPanel(${id})`)}</div>`;
   window.show(d.n,h);paintCards()};
