@@ -34,11 +34,11 @@ function animated(b,bx){const k=b.type+'|'+b.lvl+'|'+b.w+'|'+b.h+'|'+(b.rot||0)+
 function tbox(b,bx){const t=TRIM.get(b.type+'|'+b.lvl+'|'+b.w+'|'+b.h+'|'+(b.rot||0)+'|'+(window.NBK&&NBK.stagePaint?1:0));if(!t)return bx;return[bx[0]+Math.max(0,t[0]),bx[1]+Math.max(0,t[1]),Math.min(bx[2],bx[0]+t[2]),Math.min(bx[3],bx[0]*0+bx[1]+t[3])]}
 /* cola de repintados del atlas: se vacía al empezar a dibujar cada fotograma (como mucho 4) */
 const Q=new Map();
-window.bcFlush=function(){if(!Q.size)return;let n=0;for(const [id,j] of Q){Q.delete(id);let e=C.get(id);const {b,k,kb,sq,bx,tb,W,H,an}=j;if(!bm[id])continue;if(e&&e.k===k&&e.bx[0]===bx[0]&&e.bx[1]===bx[1])continue;
+window.bcFlush=function(){if(!Q.size)return;let n=0;const t0=performance.now();for(const [id,j] of Q){Q.delete(id);let e=C.get(id);const {b,k,kb,sq,bx,tb,W,H,an}=j;if(!bm[id])continue;if(e&&e.k===k&&e.bx[0]===bx[0]&&e.bx[1]===bx[1])continue;
  if(window.PERFC)PERFC.ed++;let sl=e&&e.sl&&e.W===W&&e.H===H?e.sl:null;if(!sl){if(e&&e.sl)e.sl=null;sl=alloc(W,H);if(!sl&&T-(window.__cmpT||-9)>1){window.__cmpT=T;compact();sl=alloc(W,H)}}
  if(sl){paintAtlas(b,sq,tb,sl);if(e&&e.cv)px-=e.cv.width*e.cv.height;C.set(id,{k,kb,sq,bx,tb,sl,W,H,t:T,an})}
  else{const cv=paint(b,sq,tb,e&&e.cv);if(e&&e.cv)px-=e.cv.width*e.cv.height;C.set(id,{k,kb,sq,bx,tb,cv,W:cv.width,H:cv.height,t:T,an});px+=cv.width*cv.height}
- if(++n>=4)break}};
+ /* tope de tiempo: ~3 ms por fotograma (como mínimo 1 edificio) */if(++n>=6||performance.now()-t0>3)break}};
 function blit(c,e){if(e.sl)c.drawImage(PG[e.sl.pg].cv,e.sl.x,e.sl.y,e.W,e.H,e.tb[0],e.tb[1],e.W/e.sq,e.H/e.sq);else c.drawImage(e.cv,e.tb[0],e.tb[1],e.cv.width/e.sq,e.cv.height/e.sq)}
 window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){lastT=T;budget=4}
  const th=TH.get(b.id);if(th&&th.off>T)return false;
