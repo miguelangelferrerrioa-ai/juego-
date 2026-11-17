@@ -22,7 +22,7 @@ LAY.forEach(([id,,fs])=>{if(!fs)return;fs.forEach(k=>{const o=window[k];if(typeo
 let kp=null;
 function killPanel(){if(!on){if(kp)kp.style.display='none';return}if(!kp){kp=document.createElement('div');kp.id='fpsK';kp.style.cssText='position:fixed;left:8px;bottom:118px;z-index:99999;display:flex;flex-wrap:wrap;gap:4px;max-width:330px';document.body.appendChild(kp);
   kp.innerHTML=LAY.map(([id,n])=>`<button data-k="${id}" style="font:700 11px system-ui;padding:5px 8px;border-radius:7px;border:1px solid #6a7a4a;background:#1d2618;color:#d8dfcc">${n}</button>`).join('');
-  kp.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.stopPropagation();const id=b.dataset.k;KILL[id]=!KILL[id];if(id==='mezclas')window.PERF_NOBLEND=KILL[id];if(id==='atlas'&&window.atlasToggle)atlasToggle(!KILL[id]);b.style.background=KILL[id]?'#7a2a22':'#1d2618';b.style.textDecoration=KILL[id]?'line-through':'none';F.length=0;lastShow=0})}
+  kp.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.stopPropagation();const id=b.dataset.k;KILL[id]=!KILL[id];if(id==='mezclas')window.PERF_NOBLEND=KILL[id];if(id==='atlas'){window.ATLAS_OFF=KILL[id];if(window.atlasToggle)atlasToggle(!KILL[id])}b.style.background=KILL[id]?'#7a2a22':'#1d2618';b.style.textDecoration=KILL[id]?'line-through':'none';F.length=0;lastShow=0})}
  kp.style.display='flex'}
 setInterval(killPanel,500);
 requestAnimationFrame(tick);

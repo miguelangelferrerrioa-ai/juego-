@@ -1327,9 +1327,13 @@ window.lootWreck=function(ob){
  if(n<2)got.scrap=(got.scrap||0)+ri(4,10);
  for(const k in got)S.res[k]=Math.min(k=='rp'&&window.rpCap?rpCap():cap(),(S.res[k]||0)+got[k]);
  ob.l=1;return Object.keys(got).map(k=>'+'+got[k]+' '+(RK.find(r=>r[0]==k)||[0,k])[1].toLowerCase()).join(', ')};
-function obsSpr(c,ob){const sc=(dpr*cam.z)>1.2?2:1,bk=ob.t+(ob.l?'L':'')+biomeAt(ob.x,ob.y)+Math.floor(hh(ob.x,ob.y)*8)+'@'+sc;let s=OSP[bk];const p=P(ob.x+.5,ob.y+.5);
- if(!s){const cv=document.createElement('canvas');cv.width=100*sc;cv.height=110*sc;const x=cv.getContext('2d');x.scale(sc,sc);x.translate(50-p[0],90-p[1]);obsD(x,ob);s=OSP[bk]={cv}}
- c.drawImage(s.cv,p[0]-50,p[1]-90,100,110)}
+/* árboles y rocas: cada variante se pinta una vez en un atlas (lienzos grandes que viven en la GPU) en vez de un lienzo pequeño por variante */
+const OAT={1:[],2:[]},OAS={};
+function obsSlot(sc){const w=100*sc,h=110*sc,cols=Math.floor(2048/w),rows=Math.floor(2048/h),L=OAT[sc];let pg=L[L.length-1];if(!pg||pg.n>=cols*rows){const cv=document.createElement('canvas');cv.width=cols*w;cv.height=rows*h;pg={cv,n:0};L.push(pg)}const i=pg.n++;return {cv:pg.cv,x:(i%cols)*w,y:Math.floor(i/cols)*h}}
+function obsSpr(c,ob){const sc=(dpr*cam.z)>1.2?2:1,bk=ob.t+(ob.l?'L':'')+biomeAt(ob.x,ob.y)+Math.floor(hh(ob.x,ob.y)*8)+'@'+sc;const p=P(ob.x+.5,ob.y+.5);
+ if(window.ATLAS_OFF){let s=OSP[bk];if(!s){const cv=document.createElement('canvas');cv.width=100*sc;cv.height=110*sc;const x=cv.getContext('2d');x.scale(sc,sc);x.translate(50-p[0],90-p[1]);obsD(x,ob);s=OSP[bk]={cv}}c.drawImage(s.cv,p[0]-50,p[1]-90,100,110);return}
+ let s=OAS[bk];if(!s){s=OAS[bk]=obsSlot(sc);const x=s.cv.getContext('2d');x.save();x.beginPath();x.rect(s.x,s.y,100*sc,110*sc);x.clip();x.setTransform(sc,0,0,sc,s.x,s.y);x.translate(50-p[0],90-p[1]);obsD(x,ob);x.restore()}
+ c.drawImage(s.cv,s.x,s.y,100*sc,110*sc,p[0]-50,p[1]-90,100,110)}
 /* orden de dibujo de árboles/rocas: en caché mientras no cambien los edificios (antes recorría todos los edificios por cada árbol en cada fotograma) */const OKC=new WeakMap();let OKS='',OKT=-1;function obsKey(o){{const nw=performance.now();if(nw-OKT>12){OKT=nw;let h=S.bld.length;for(const b of S.bld)h=(h*31+b.x*7+b.y*13+b.w*3+b.h)%1e9;const ns=h+'';if(ns!==OKS){OKS=ns}}}const e=OKC.get(o);if(e&&e[0]===OKS&&e[2]===o.x&&e[3]===o.y)return e[1];const k=obsKey0(o);OKC.set(o,[OKS,k,o.x,o.y]);return k}
 let GLW=null;function glowSpr(){if(GLW)return GLW;GLW=document.createElement('canvas');GLW.width=GLW.height=128;const x=GLW.getContext('2d'),g=x.createRadialGradient(64,64,64*2/34,64,64,64);g.addColorStop(0,'rgba(255,190,90,1)');g.addColorStop(1,'rgba(255,150,50,0)');x.fillStyle=g;x.fillRect(0,0,128,128);return GLW}
 function obsKey0(o){let k=o.x+o.y+.5;for(const b of S.bld){if(b.type=='road'||Math.abs(o.x-b.x-b.w/2)>b.w/2+4||Math.abs(o.y-b.y-b.h/2)>b.h/2+4)continue;const bk=b.x+b.w-1+b.y+b.h-1+.5;
