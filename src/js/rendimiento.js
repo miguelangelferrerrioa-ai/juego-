@@ -32,6 +32,13 @@ function trimOf(cv,bx,sc){try{const W=cv.width,H=cv.height,d=cv.getContext('2d')
 function animated(b,bx){const k=b.type+'|'+b.lvl+'|'+b.w+'|'+b.h+'|'+(b.rot||0)+'|'+(window.NBK&&NBK.stagePaint?1:0);if(ANIM.has(k))return ANIM.get(k);
  const r=Math.random;let i=0;Math.random=()=>((i++*0.6180339)%1);const a=paint(b,.5,bx);i=0;T+=.43;const c2=paint(b,.5,bx);T-=.43;Math.random=r;const an=!same(a,c2);ANIM.set(k,an);const t1=trimOf(a,bx,.5),t2=trimOf(c2,bx,.5);if(t1&&t2)TRIM.set(k,[Math.min(t1[0],t2[0])-(an?10:0),Math.min(t1[1],t2[1])-(an?14:0),Math.max(t1[2],t2[2])+(an?10:0),Math.max(t1[3],t2[3])+(an?6:0)]);return an}
 function tbox(b,bx){const t=TRIM.get(b.type+'|'+b.lvl+'|'+b.w+'|'+b.h+'|'+(b.rot||0)+'|'+(window.NBK&&NBK.stagePaint?1:0));if(!t)return bx;return[bx[0]+Math.max(0,t[0]),bx[1]+Math.max(0,t[1]),Math.min(bx[2],bx[0]+t[2]),Math.min(bx[3],bx[0]*0+bx[1]+t[3])]}
+/* cola de repintados del atlas: se vacía al empezar a dibujar cada fotograma (como mucho 4) */
+const Q=new Map();
+window.bcFlush=function(){if(!Q.size)return;let n=0;for(const [id,j] of Q){Q.delete(id);let e=C.get(id);const {b,k,kb,sq,bx,tb,W,H,an}=j;if(!bm[id])continue;if(e&&e.k===k&&e.bx[0]===bx[0]&&e.bx[1]===bx[1])continue;
+ if(window.PERFC)PERFC.ed++;let sl=e&&e.sl&&e.W===W&&e.H===H?e.sl:null;if(!sl){if(e&&e.sl)e.sl=null;sl=alloc(W,H);if(!sl&&T-(window.__cmpT||-9)>1){window.__cmpT=T;compact();sl=alloc(W,H)}}
+ if(sl){paintAtlas(b,sq,tb,sl);if(e&&e.cv)px-=e.cv.width*e.cv.height;C.set(id,{k,kb,sq,bx,tb,sl,W,H,t:T,an})}
+ else{const cv=paint(b,sq,tb,e&&e.cv);if(e&&e.cv)px-=e.cv.width*e.cv.height;C.set(id,{k,kb,sq,bx,tb,cv,W:cv.width,H:cv.height,t:T,an});px+=cv.width*cv.height}
+ if(++n>=4)break}};
 function blit(c,e){if(e.sl)c.drawImage(PG[e.sl.pg].cv,e.sl.x,e.sl.y,e.W,e.H,e.tb[0],e.tb[1],e.W/e.sq,e.H/e.sq);else c.drawImage(e.cv,e.tb[0],e.tb[1],e.cv.width/e.sq,e.cv.height/e.sq)}
 window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){lastT=T;budget=4}
  const th=TH.get(b.id);if(th&&th.off>T)return false;
@@ -43,13 +50,13 @@ window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){last
  /* mientras el zoom cambia (pellizco) se reutiliza la imagen anterior escalada; se repinta al parar 0,3 s */if(Math.abs(s-ZS)>1e-4){ZS=s;ZT=T}if(e&&e.sq!==sq&&T-ZT<.3&&e.kb===kb&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]){blit(c,e);return true}
  const fresh=e&&e.k===k&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]&&(T-e.t<per||budget<=0);
  if(!fresh&&budget<=0&&e&&e.kb===kb&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]){/* sin cupo de repintado este fotograma: se usa la imagen anterior (otro zoom o fotograma de animación) en vez de dibujarlo entero */blit(c,e);return true}
- if(!fresh){if(budget<=0)return false;budget--;if(window.PERFC)PERFC.ed++;const an=animated(b,bx),tb=tbox(b,bx);
+ if(!fresh){const an=animated(b,bx),tb=tbox(b,bx);
   const W=Math.ceil((tb[2]-tb[0])*sq),H=Math.ceil((tb[3]-tb[1])*sq);
-  if(ATL_ON&&!an){/* solo los edificios quietos van al atlas: repintar a menudo una página ya dibujada obliga al navegador a copiarla entera *//* mismo tamaño que antes: se repinta en su hueco; si no, hueco nuevo (y si el atlas se llena, se vacía y se rehace poco a poco) */
-   let sl=e&&e.sl&&e.W===W&&e.H===H?e.sl:null;if(!sl){if(e&&e.sl)e.sl=null;sl=alloc(W,H);if(!sl&&T-(window.__cmpT||-9)>1){window.__cmpT=T;compact();sl=alloc(W,H)}}
-   if(sl){paintAtlas(b,sq,tb,sl);if(e&&e.cv)px-=e.cv.width*e.cv.height;e={k,kb,sq,bx,tb,sl,W,H,t:T,an};C.set(b.id,e)}
-   else{/* el atlas está lleno: este edificio usa su propio lienzo, como antes */const cv=paint(b,sq,tb,e&&e.cv);if(e&&e.cv)px-=e.cv.width*e.cv.height;e={k,kb,sq,bx,tb,cv,W:cv.width,H:cv.height,t:T,an};C.set(b.id,e);px+=cv.width*cv.height}}
-  else{const cv=paint(b,sq,tb,e&&e.cv);if(e&&e.cv)px-=e.cv.width*e.cv.height;e={k,kb,sq,bx,tb,cv,W:cv.width,H:cv.height,t:T,an};C.delete(b.id);C.set(b.id,e);px+=cv.width*cv.height;
+  /* edificios quietos: el repintado en el atlas se apunta y se hace al principio del fotograma siguiente, antes de dibujar nada
+     (pintar en una página que ya se ha dibujado en el fotograma obliga a Chrome a copiarla entera: medido en el móvil, bajones a ~30 fps tras el zoom) */
+  if(ATL_ON&&!an){Q.set(b.id,{b,k,kb,sq,bx,tb,W,H,an});if(e&&(e.sl||e.cv)&&e.kb===kb&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]){blit(c,e);return true}return false}
+  if(budget<=0)return false;budget--;if(window.PERFC)PERFC.ed++;
+  {const cv=paint(b,sq,tb,e&&e.cv);if(e&&e.cv)px-=e.cv.width*e.cv.height;e={k,kb,sq,bx,tb,cv,W:cv.width,H:cv.height,t:T,an};C.delete(b.id);C.set(b.id,e);px+=cv.width*cv.height;
    while(px>MAXPX&&C.size>1){const[fk,fv]=C.entries().next().value;if(fk===b.id)break;C.delete(fk);if(fv.cv)px-=fv.cv.width*fv.cv.height}}}
  else if(!e.sl){C.delete(b.id);C.set(b.id,e)}
  blit(c,e);return true}catch(er){return false}};
