@@ -359,7 +359,7 @@ window.exEnd=function(){const e=S.exp;
   shown=false;if(ov)ov.style.display='none';cancelAnimationFrame(raf);M=null;return oEnd.apply(this,arguments)};
 /* ---------- dibujo ---------- */
 const hs=(x,y)=>{let h=(x*374761393+y*668265263)^0x5bd1e995;h=(h^(h>>>13))*1274126177;return((h^(h>>>16))>>>0)/4294967296};
-let dark=null;
+let dark=null,FL=null;
 function drawFig(c,x,y,o){ // figura vista desde arriba: sombra, torso, cabeza, brazos/arma
   const r=o.r,fa=o.fa||0,cs=Math.cos(fa),sn=Math.sin(fa);
   c.fillStyle='#0006';c.beginPath();c.ellipse(x,y+r*.55,r*1.05,r*.55,0,0,7);c.fill();
@@ -413,12 +413,15 @@ function drawProp(c,ch,px,py,ts,x,y){
   default:c.fillStyle='#777';c.fillRect(px+ts*.1,py+ts*.1,ts*.8,ts*.8)}
 }
 function draw(){
-  const W=cv.clientWidth,H=cv.clientHeight,dpr=window.devicePixelRatio||1;if(cv.width!==W*dpr||cv.height!==H*dpr){cv.width=W*dpr;cv.height=H*dpr}
+  const W=cv.clientWidth,H=cv.clientHeight,dpr=Math.min(1.5,window.devicePixelRatio||1);/* tope de resolución como en el pueblo: a 2,6× el móvil pintaba 2,7 veces más píxeles */if(cv.width!==W*dpr||cv.height!==H*dpr){cv.width=W*dpr;cv.height=H*dpr}
   cx.setTransform(dpr,0,0,dpr,0,0);ts=Math.floor(Math.min(W/COLS,H/ROWS));ox=Math.floor((W-ts*COLS)/2);oy=Math.floor((H-ts*ROWS)/2);if(!(ts>0))return;
   cx.fillStyle='#050607';cx.fillRect(0,0,W,H);cx.save();cx.translate(ox,oy);const shk=M.shake>0?(Math.random()-.5)*M.shake*12:0;cx.translate(shk,shk);M.shake=Math.max(0,(M.shake||0)-.03);
   const g=M.g,T=M.t,al=M.units.filter(isAl);
   const seen=(x,y)=>M.vis[Math.floor(y)*COLS+Math.floor(x)];
   const pal=M.pal;
+  /* suelo, paredes y objetos fijos: se pintan una vez en una capa y solo se rehacen al descubrir casillas nuevas (antes, cientos de casillas a mano en cada fotograma) */
+  let vc=0;for(let i=0;i<M.vis.length;i++)if(M.vis[i])vc++;const fk=vc+'|'+ts+'|'+dpr+'|'+COLS+'|'+ROWS+'|'+(M.gv||0);
+  if(!FL||FL.k!==fk||FL.M!==M){if(!FL)FL={cv:document.createElement('canvas')};FL.k=fk;FL.M=M;FL.cv.width=Math.ceil(ts*COLS*dpr);FL.cv.height=Math.ceil(ts*ROWS*dpr);const oc=cx;cx=FL.cv.getContext('2d');cx.setTransform(dpr,0,0,dpr,0,0);cx.clearRect(0,0,ts*COLS,ts*ROWS);
   for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){if(!M.vis[y*COLS+x])continue;const px=x*ts,py=y*ts;
     if(g[y][x]==1){const w=pal?pal.w:['#34434b','#4a5c66'];cx.fillStyle='#1d262b';cx.fillRect(px,py,ts,ts);cx.fillStyle=w[0];cx.fillRect(px,py,ts,ts*.62);cx.fillStyle=w[1];cx.fillRect(px,py,ts,ts*.14);cx.fillStyle='#0005';cx.fillRect(px,py+ts*.62,ts,ts*.1);
       cx.strokeStyle='#00000030';cx.lineWidth=1;cx.beginPath();cx.moveTo(px,py+ts*.34);cx.lineTo(px+ts,py+ts*.34);cx.moveTo(px+ts*(hs(x,y)>.5?.35:.65),py+ts*.14);cx.lineTo(px+ts*(hs(x,y)>.5?.35:.65),py+ts*.34);cx.stroke()}
@@ -434,6 +437,8 @@ function draw(){
       if(dcc=='b'){cx.strokeStyle='#9aa0a4';cx.lineWidth=2;for(let k=0;k<4;k++){cx.beginPath();cx.moveTo(px+ts*(.15+k*.23),py+2);cx.lineTo(px+ts*(.15+k*.23),py+ts-2);cx.stroke()}}
       if(g[y][x]==2){cx.fillStyle='#0006';cx.beginPath();cx.ellipse(px+ts*.5,py+ts*.7,ts*.42,ts*.2,0,0,7);cx.fill();cx.fillStyle='#5b5750';cx.beginPath();cx.moveTo(px+ts*.12,py+ts*.72);cx.lineTo(px+ts*.25,py+ts*.3);cx.lineTo(px+ts*.55,py+ts*.18);cx.lineTo(px+ts*.88,py+ts*.5);cx.lineTo(px+ts*.82,py+ts*.74);cx.closePath();cx.fill();cx.strokeStyle='#000a';cx.stroke();cx.fillStyle='#7a766c';cx.fillRect(px+ts*.3,py+ts*.34,ts*.2,ts*.14);cx.fillRect(px+ts*.55,py+ts*.5,ts*.18,ts*.12)}
       if(g[y][x]==3)drawProp(cx,M.pr[y][x],px,py,ts,x,y)}}
+  cx=oc}
+  cx.drawImage(FL.cv,0,0,ts*COLS,ts*ROWS);
   (M.blood||[]).forEach(b=>{if(!seen(b.x,b.y))return;cx.fillStyle='#5a1210aa';cx.beginPath();cx.ellipse(b.x*ts,b.y*ts,ts*.3,ts*.18,b.a,0,7);cx.fill()});
   // salida
   cx.fillStyle='#e0a12433';cx.fillRect(1*ts,4*ts,3*ts,3*ts);cx.save();cx.beginPath();cx.rect(1*ts,4*ts,3*ts,3*ts);cx.clip();cx.strokeStyle='#e0a12440';cx.lineWidth=5;for(let i=-4;i<8;i++){cx.beginPath();cx.moveTo(1*ts+i*ts*.5,4*ts);cx.lineTo(1*ts+i*ts*.5+3*ts,7*ts);cx.stroke()}cx.restore();
@@ -471,12 +476,13 @@ function draw(){
     const f=Math.max(0,Math.min(1,p.hp/mhp(p)));cx.fillStyle='#000a';cx.fillRect(u.x*ts-r,u.y*ts-r-9,r*2,4);cx.fillStyle=f<.35?'#d8493a':f<.7?'#e0a124':'#8dbb69';cx.fillRect(u.x*ts-r,u.y*ts-r-9,r*2*f,4)});
   M.fl.forEach(f=>{cx.globalAlpha=Math.max(0,Math.min(1,f.l*1.4));cx.fillStyle=f.c;cx.strokeStyle='#000';cx.lineWidth=3;cx.font='bold '+Math.round(ts*.4)+'px sans-serif';cx.textAlign='center';const yy=(f.y-.55-(1-f.l)*.9)*ts;cx.strokeText(f.t,f.x*ts,yy);cx.fillText(f.t,f.x*ts,yy);cx.globalAlpha=1});
   // iluminación: oscuridad con huecos de luz alrededor del equipo
-  if(!M.pv){if(!dark||dark.width!==ts*COLS||dark.height!==ts*ROWS){dark=document.createElement('canvas');dark.width=ts*COLS;dark.height=ts*ROWS}
-  const dc=dark.getContext('2d');dc.globalCompositeOperation='source-over';dc.clearRect(0,0,dark.width,dark.height);dc.fillStyle='rgba(2,4,6,.62)';dc.fillRect(0,0,dark.width,dark.height);
+  /* oscuridad a media resolución (es un degradado suave: no se nota) */
+  if(!M.pv){const DS=.5;if(!dark||dark.width!==Math.ceil(ts*COLS*DS)||dark.height!==Math.ceil(ts*ROWS*DS)){dark=document.createElement('canvas');dark.width=Math.ceil(ts*COLS*DS);dark.height=Math.ceil(ts*ROWS*DS)}
+  const dc=dark.getContext('2d');dc.setTransform(1,0,0,1,0,0);dc.globalCompositeOperation='source-over';dc.clearRect(0,0,dark.width,dark.height);dc.setTransform(DS,0,0,DS,0,0);dc.fillStyle='rgba(2,4,6,.62)';dc.fillRect(0,0,ts*COLS,ts*ROWS);
   dc.globalCompositeOperation='destination-out';al.forEach(u=>{const gr=dc.createRadialGradient(u.x*ts,u.y*ts,ts*1.2,u.x*ts,u.y*ts,ts*6.3);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(1,'rgba(0,0,0,0)');dc.fillStyle=gr;dc.beginPath();dc.arc(u.x*ts,u.y*ts,ts*6.4,0,7);dc.fill()});
   // la salida siempre algo iluminada
   const gr2=dc.createRadialGradient(2.5*ts,5.5*ts,ts,2.5*ts,5.5*ts,ts*4);gr2.addColorStop(0,'rgba(0,0,0,.8)');gr2.addColorStop(1,'rgba(0,0,0,0)');dc.fillStyle=gr2;dc.beginPath();dc.arc(2.5*ts,5.5*ts,ts*4,0,7);dc.fill();
-  cx.drawImage(dark,0,0)}
+  cx.drawImage(dark,0,0,ts*COLS,ts*ROWS)}
   cx.restore();
   const e=S.exp;if(e){$('qm_t').textContent=e.z.n+' · amenaza '+threatOf(lvlOf(e.z));$('qm_o').textContent=e.complete?'Objetivo cumplido · vuelve a la salida':(M.mo&&!M.mo.done)?moTxt():'Eventos '+Math.min(e.step,nR(e))+'/'+nR(e)+' · botín '+(Object.keys(e.loot).map(k=>k+' '+Math.round(e.loot[k])).join(', ')||'—');
     const ex=atExit();$('qm_ret').textContent=ex?(e.complete?'Salir ✓':'Salir (abandonar)'):'Ir a la salida';$('qm_ret').className=ex&&e.complete?'good':'';
@@ -522,5 +528,5 @@ window.exEvent=function(){const e=S.exp;if(!e)return;
   open()};
 function briefing(e){const l=lvlOf(e.z),mb=M&&M.mo?'<p><small><b>'+M.mo.brief+'</b></small></p>':'',names=[...new Set(M.en.map(z=>ZT[z.t].n))];return'<p><small>Amenaza <b>'+threatOf(l)+'</b> · enemigos: '+(names.join(', ')||'—')+(e.bandId&&window.BANDS&&BANDS[e.bandId]?' · banda: <b>'+BANDS[e.bandId].n+'</b>':'')+'<br>Mejor botín posible: <b style="color:'+RAR[maxRar(l)][1]+'">'+RAR[maxRar(l)][0]+'</b></small></p>'+mb}
 window._qmGo=()=>{evOpen=false};
-window._qmShown=()=>shown;window._qm={vtpl,rngS,rollRar,lvlOf,rollGear,RW,giveGear,tpl,buildTheme,M:()=>M,tap,step,leave,gen,themeOf,PAL,preview(th){const ci=CHK.indexOf(Object.keys(K2T).find(k=>K2T[k]==th&&CHK.includes(k)));const e={z:{n:'Prueba '+th,l:{},evs:[1,2,3]},dist:1,step:0,team:[]};if(ci>=0)e.z.chap=ci;else e.z.id=th;M=gen(e);M.vis.fill(2);M.pv=1;if(!ov)build();ov.style.display='flex';shown=true;cv.width=cv.width;draw();return M.theme}};
+window._qmShown=()=>shown;/* mientras la misión ocupa la pantalla, el pueblo de debajo no se dibuja (antes se dibujaban los dos a la vez) */{const oR=window.render;window.render=function(){if(shown)return;return oR.apply(this,arguments)};try{render=window.render}catch(e){}}window._qm={draw:()=>draw(),vtpl,rngS,rollRar,lvlOf,rollGear,RW,giveGear,tpl,buildTheme,M:()=>M,tap,step,leave,gen,themeOf,PAL,preview(th){const ci=CHK.indexOf(Object.keys(K2T).find(k=>K2T[k]==th&&CHK.includes(k)));const e={z:{n:'Prueba '+th,l:{},evs:[1,2,3]},dist:1,step:0,team:[]};if(ci>=0)e.z.chap=ci;else e.z.id=th;M=gen(e);M.vis.fill(2);M.pv=1;if(!ov)build();ov.style.display='flex';shown=true;cv.width=cv.width;draw();return M.theme}};
 })();

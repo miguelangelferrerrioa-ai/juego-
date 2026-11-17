@@ -18,14 +18,14 @@ const oz=window.zUpd;if(typeof oz==='function')window.zUpd=function(z,dt){const 
 /* ---------- música dinámica ---------- */
 window.NEWMUS=1;window.startMusic=function(){};
 let AC2=null,cur=null,curName='',amb=null,tickT=0;
-const TR={menu:'m_menu',calma:'m_calma',noche:'m_noche',horda:'m_horda'};
+const TR={menu:'m_menu',calma:'m_calma',noche:'m_noche',horda:'m_horda',mision:'m_horda'};
 const mv=()=>{try{return (typeof musicVol==='number'?musicVol:.34)*(MUSIC?1:0)}catch(e){return .3}};
 const sv=()=>{try{return typeof sfxVol==='number'?sfxVol:.68}catch(e){return .6}};
 const ALL=new Set();
 function loop(ac,k,gain){const s=ac.createBufferSource(),gn=ac.createGain();s.buffer=BUF[k];s.loop=true;gn.gain.value=0;s.connect(gn);gn.connect(ac.destination);s.start();gn.gain.setTargetAtTime(gain,ac.currentTime,1.1);const o={s,gn,k,ac};ALL.add(o);return o}
 function kill(o){if(!o)return;const ac=o.ac||AC;try{o.gn.gain.cancelScheduledValues(ac.currentTime);o.gn.gain.setTargetAtTime(0,ac.currentTime,.35)}catch(e){}ALL.delete(o);setTimeout(()=>{try{o.gn.gain.value=0}catch(e){}try{o.s.stop()}catch(e){}try{o.s.disconnect();o.gn.disconnect()}catch(e){}},1800)}
 function sweep(){ALL.forEach(o=>{if(o!==cur&&o!==amb)kill(o)})}
-function want(){try{if(MUSIC&&SND&&typeof titleOpen==='function'&&titleOpen())return'menu';if(!MUSIC||!SND)return'';if(window._asIso||window._asOn)return'horda';if(S.over||!S.bld||!S.bld.length)return'';const hz=typeof horde!=='undefined'&&horde;if(hz&&horde.band)return'';if(hz)return'horda';
+function want(){try{if(MUSIC&&SND&&typeof titleOpen==='function'&&titleOpen())return'menu';if(!MUSIC||!SND)return'';if(window._asIso||window._asOn)return'horda';/* misión en curso (mapa táctico abierto): música de combate, no la del pueblo */if(window._qmShown&&_qmShown())return'mision';if(S.over||!S.bld||!S.bld.length)return'';const hz=typeof horde!=='undefined'&&horde;if(hz&&horde.band)return'';if(hz)return'horda';
  let exp=!!(S.exp||S.solo)||(window._qmShown&&_qmShown());if(exp)return'noche';return (S.dayT/600)>=.62?'noche':'calma'}catch(e){return''}}
 function tick(){try{if(typeof AC==='undefined'||!AC)return;const ac=AC;if(!Object.keys(BUF).length)return;
  const w=want(),a=w==='horda'?1:0;
