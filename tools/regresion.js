@@ -101,6 +101,13 @@ scenarios.push(['Soldado en torre','partida_larga_dia248.json',async pg=>pg.eval
  /* cupo: con la torre llena no se puede meter a otro */const ws=S.ppl.filter(p=>p.arm&&!p.away&&!p.preg&&p.age>=18&&p.wp&&p.job!==t.id);if(ws[0])asg(ws[0].id,t.id);if(ws[1])asg(ws[1].id,t.id);const full=S.ppl.filter(p=>p.job===t.id).length<=slots(t);
  /* protegido: zombis pegados a la torre no le quitan vida */const h0=sol.hp;startHorde();await __run(6);const inU=U.some(u=>u.p===sol);Z.filter(z=>z.act).slice(0,6).forEach((z,i)=>{z.x=t.x+t.w/2+(i%3)-1;z.y=t.y+t.h+.8});let minHp=sol.hp,far=0;await __run(400,()=>{minHp=Math.min(minHp,sol.hp);if(Math.hypot(sol.x-t.x-t.w/2,sol.y-t.y-t.h/2)>.6)far++;return !horde});
  const alive=S.ppl.includes(sol),standing=!!bm[t.id];return {listed,assigned,hidden,full,inU,lost:+(h0-minHp).toFixed(1),far,alive,standing,V:__V}})]);
+/* 5f) soldado con arma cuerpo a cuerpo (lanza): no puede ser tirador de torre y en la horda no dispara */
+scenarios.push(['Soldado con lanza','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{window.toast=window.toast||(()=>{});const t=S.bld.find(b=>b.type==='tower');S.ppl.forEach(p=>{if(p.job===t.id)p.job=0});
+ const sol=S.ppl.find(p=>p.arm&&!p.away&&!p.preg&&p.age>=18);sol.wp={n:'Lanza térmica',v:56};sol.job=0;asg(sol.id,t.id);const refused=sol.job!==t.id;
+ sol.job=t.id;await __run(1);const kicked=sol.job!==t.id;
+ S.ppl.filter(p=>p.arm&&p!==sol).forEach(p=>p.away=1);startHorde();await __run(5);const u=U.find(u=>u.p===sol);let shots=0,hits=0;const seen=new Set();
+ await __run(300,()=>{FX.forEach(f=>{if(f.a&&u&&!seen.has(f)&&Math.hypot(f.a[0]-u.x,f.a[1]-u.y)<.05){seen.add(f);shots++}});return !horde});
+ return {refused,kicked,inU:!!u,shots,V:__V}})]);
 (async()=>{const b=await chromium.launch();const t0=Date.now();
  for(const [name,sv,fn] of scenarios){if(ONLY&&!name.includes(ONLY))continue;const {pg,pe}=await open(b,SV(sv));let r=null;try{r=await fn(pg)}catch(e){r={crash:String(e).slice(0,200)}}
   const V=r&&r.V||{};const tag=name;
@@ -120,6 +127,7 @@ scenarios.push(['Soldado en torre','partida_larga_dia248.json',async pg=>pg.eval
   if(name.startsWith('Soldado no se queda quieto'))ok(tag+': con un zombi cerca y a la vista va a por él o dispara',r.Q.length===0,r.Q.slice(0,5).join(', '));
   if(name==='Reparar')ok(tag+': solo pide materiales que el edificio ya usó para llegar a su nivel',r.bad.length===0,r.bad.join(', '));
   if(name==='Soldado en torre'){ok(tag+': el soldado sale en la lista de la torre',r.listed,JSON.stringify(r));ok(tag+': se le puede asignar',r.assigned,JSON.stringify(r));ok(tag+': en la horda se queda en la torre (no patrulla)',r.assigned&&!r.inU,JSON.stringify(r));ok(tag+': está dentro (no se ve ni merodea)',r.hidden&&r.far===0,JSON.stringify(r));ok(tag+': no se pasa del cupo',r.full,JSON.stringify(r));ok(tag+': protegido mientras la torre está en pie',!r.standing||(r.alive&&r.lost<=0.01),JSON.stringify(r))}
+  if(name==='Soldado con lanza'){ok(tag+': no se le puede poner de tirador',r.refused,JSON.stringify(r));ok(tag+': si estaba en una torre, deja el puesto',r.kicked,JSON.stringify(r));ok(tag+': en la horda no dispara (pelea de cerca)',r.inU&&r.shots===0,JSON.stringify(r))}
   if(name==='Soldado sin arma'){ok(tag+': no dispara',r.shots===0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Guardar y cargar')ok(tag+': partida idéntica',r.diffs===0,r.ex);
   if(name==='Expediciones'){ok(tag+': solitaria arranca sin coste (comida, agua ni gasolina)',r.started&&r.cost<=0,JSON.stringify(r));ok(tag+': vuelve y queda en casa',r.back,JSON.stringify(r))}

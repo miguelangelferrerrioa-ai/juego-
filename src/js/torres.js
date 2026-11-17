@@ -16,6 +16,7 @@ const oU=window.upd;
 window.upd=function(dt){
  if(S!==lastS){lastS=S;trim()}
  const HP=new Map(),war=Z.some(z=>z.act&&z.hp>0);
+ /* con un arma cuerpo a cuerpo no se puede estar de tirador: sale de la torre */for(const p of S.ppl)if(inTw(p)&&p.wp&&window.isMelee&&isMelee(p.wp)){try{toast(p.n+' lleva '+p.wp.n+' (cuerpo a cuerpo) y no puede disparar desde la torre: deja el puesto.')}catch(e){}p.job=0}
  for(const p of S.ppl){const t=inTw(p);if(t){if(!p.tw){p.tw=1}if(war)HP.set(p,p.hp)}else if(p.tw){/* sale de la torre: aparece junto a ella */p.tw=0;const x=p.twx,y=p.twy;if(isFinite(x)){p.x=p.tx=x;p.y=p.ty=y+1.2;p.path=null}}}
  const r=oU.apply(this,arguments);
  for(const [p,h] of HP)if(inTw(p)&&p.hp<h)p.hp=h;/* protegido del combate: si un ataque le ha quitado vida estando dentro, se le devuelve (el hambre y la vejez siguen igual) */

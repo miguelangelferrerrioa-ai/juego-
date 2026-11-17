@@ -8,7 +8,7 @@ let curSol=false;
 function pick(p){if(!p||p.outfit)return null;if(p.arm)return [MIL,MILD,1];const c=WORK[p.prof];return c?[c,dark(c,.68),0]:null}
 const of=window.fig;
 window.fig=function(){let a=arguments;const role=a[8],id=a[10];if(role==='ban'||role==='zom'||!id||typeof byId!=='function')return of.apply(this,a);
- const p=byId(id);/* alistado sin arma: sin fusil en la mano */if(p&&p.arm&&!p.wp&&a[6]){a=Array.from(a);a[6]=0}const u=pick(p);if(!u)return of.apply(this,a);const sv=[SUIT,SUITD],sc=curSol;SUIT=u[0];SUITD=u[1];curSol=!!u[2];
+ const p=byId(id);/* alistado sin arma: sin fusil en la mano */if(p&&p.arm&&(!p.wp||(window.isMelee&&isMelee(p.wp)))&&a[6]){a=Array.from(a);a[6]=0}const u=pick(p);if(!u)return of.apply(this,a);const sv=[SUIT,SUITD],sc=curSol;SUIT=u[0];SUITD=u[1];curSol=!!u[2];
  try{const r=of.apply(this,a);if(curSol)helmet(a);return r}finally{SUIT=sv[0];SUITD=sv[1];curSol=sc}};
 try{fig=window.fig}catch(e){}
 /* chaleco táctico: correas cruzadas, cinturón con cartucheras y hombreras (dibujado sobre el torso) */
