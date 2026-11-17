@@ -25,12 +25,15 @@ const hall=()=>{try{return realHall()}catch(e){return 1}};
 const ok=id=>{const m=byId[id];if(!m)return true;return creative()||(stv()>=m.st&&hall()>=m.h)};
 const need=id=>{const m=byId[id];if(!m)return'';const a=[];if(stv()<m.st)a.push('completar el capítulo '+m.st);if(hall()<m.h)a.push('ayuntamiento nivel '+m.h);return a.join(' y ')};
 const hallCap=()=>{const s=stv(),L=typeof STORY!=='undefined'?STORY:[];return s>=L.length?25:(L[s]&&L[s].h)||25};
+/* ¿en qué capítulo se desbloquea el nivel L del ayuntamiento? k = capítulos que hay que tener completados */
+const hallUnlock=L=>{const st=typeof STORY!=='undefined'?STORY:[];for(let k=stv();k<=st.length;k++){const c=k>=st.length?25:(st[k]&&st[k].h)||25;if(c>=L)return {k,n:k>0&&st[k-1]?st[k-1].n:'',falta:k-stv()}}return null};
+window.hallUnlockTxt=L=>{const u=hallUnlock(L);if(!u)return '';return 'El nivel '+L+' del ayuntamiento se desbloquea al completar '+(u.n||('el capítulo '+u.k))+(u.falta>0?' (te '+(u.falta===1?'falta 1 capítulo':'faltan '+u.falta+' capítulos')+').':'.')};
 window.PROG={ok,need,hallCap,MECH,byId};
 /* ---- cada lugar de la villa se abre con la historia ---- */
 const VP={empeno:'villa',mercado:'villa',clinica:'villa',gasolinera:'villa',taberna:'taberna',armeria:'armeria',tablon:'tablon',casino:'casino'};
 (function(){const o=window.villaGo;if(typeof o!=='function')return;window.villaGo=function(k){const id=VP[k];if(id&&!ok(id)){const m=byId[id];try{toast('🔒 '+m.n+': necesitas '+need(id)+'.')}catch(e){}return}return o.apply(this,arguments)}})();
 /* ---- el ayuntamiento avanza a la par que la historia ---- */
-(function(){const o=window.upg;if(typeof o!=='function')return;window.upg=function(id){try{const b=bm[id];if(b&&b.type==='hall'&&!creative()&&b.lvl<25){const c=hallCap();if(b.lvl>=c){const s=stv(),n=(STORY[s]&&STORY[s].n)||'';toast('🔒 El ayuntamiento no puede superar el nivel '+c+' hasta que avances en la historia'+(n?' ('+n+')':'')+'.');return}}}catch(e){}return o.apply(this,arguments)}})();
+(function(){const o=window.upg;if(typeof o!=='function')return;window.upg=function(id){try{const b=bm[id];if(b&&b.type==='hall'&&!creative()&&b.lvl<25){const c=hallCap();if(b.lvl>=c){toast('🔒 '+hallUnlockTxt(b.lvl+1));return}}}catch(e){}return o.apply(this,arguments)}})();
 /* ---- avisos de desbloqueo ---- */
 function check(){try{if(typeof S==='undefined'||!S||!S.bld||!S.bld.length)return;const first=!S.pg;if(first)S.pg={seen:{}};const sn=S.pg.seen;
  MECH.forEach(m=>{if(ok(m.id)&&!sn[m.id]){sn[m.id]=1;if(!first&&!creative()){try{notify('🔓','Nueva mecánica: '+m.n,m.d,'historia');if(window.tutShow)window.tutShow(m.id);else toast('🔓 Nueva mecánica: '+m.n)}catch(e){}}}});
@@ -42,6 +45,7 @@ function panel(){const s=stv(),n=typeof STORY!=='undefined'?STORY.length:28,h=ha
  const open=MECH.filter(m=>ok(m.id)),lock=MECH.filter(m=>!ok(m.id));
  show('Progresión',`<p>La historia y tu ayuntamiento avanzan juntos: cada capítulo exige un nivel de ayuntamiento, y el ayuntamiento no sube más allá de lo que pide el siguiente capítulo.</p>
  <div class="mu-sts"><div class="mu-st"><span>📖</span><b>${s}/${n}</b><small>Capítulos</small></div><div class="mu-st"><span>🏛</span><b>Nv ${h}</b><small>Tope actual ${cap}</small></div></div>
+ ${cap<25&&!creative()?`<p style="margin:4px 0;color:#f2d27a">🔒 ${hallUnlockTxt(cap+1)}</p>`:''}
  <div style="height:6px;background:#0d120c;border-radius:4px;margin:2px 0 8px;overflow:hidden"><i style="display:block;height:100%;width:${pct}%;background:linear-gradient(90deg,#c8921a,#f2c542)"></i></div>
  ${nx?`<div class="vl-q"><div><b>Siguiente: ${esc(nx.n)}</b><small>Requiere ayuntamiento nivel ${nx.h}${h>=nx.h?' · ¡ya puedes empezarlo!':' · te faltan '+(nx.h-h)+' nivel(es)'}</small></div></div>`:''}
  <div class="mu-h">Desbloqueado <small>${open.length}</small></div><div class="vl-list">${open.map(row).join('')}</div>

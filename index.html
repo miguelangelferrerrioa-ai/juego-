@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v196</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v197</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -10063,12 +10063,15 @@ const hall=()=>{try{return realHall()}catch(e){return 1}};
 const ok=id=>{const m=byId[id];if(!m)return true;return creative()||(stv()>=m.st&&hall()>=m.h)};
 const need=id=>{const m=byId[id];if(!m)return'';const a=[];if(stv()<m.st)a.push('completar el capítulo '+m.st);if(hall()<m.h)a.push('ayuntamiento nivel '+m.h);return a.join(' y ')};
 const hallCap=()=>{const s=stv(),L=typeof STORY!=='undefined'?STORY:[];return s>=L.length?25:(L[s]&&L[s].h)||25};
+/* ¿en qué capítulo se desbloquea el nivel L del ayuntamiento? k = capítulos que hay que tener completados */
+const hallUnlock=L=>{const st=typeof STORY!=='undefined'?STORY:[];for(let k=stv();k<=st.length;k++){const c=k>=st.length?25:(st[k]&&st[k].h)||25;if(c>=L)return {k,n:k>0&&st[k-1]?st[k-1].n:'',falta:k-stv()}}return null};
+window.hallUnlockTxt=L=>{const u=hallUnlock(L);if(!u)return '';return 'El nivel '+L+' del ayuntamiento se desbloquea al completar '+(u.n||('el capítulo '+u.k))+(u.falta>0?' (te '+(u.falta===1?'falta 1 capítulo':'faltan '+u.falta+' capítulos')+').':'.')};
 window.PROG={ok,need,hallCap,MECH,byId};
 /* ---- cada lugar de la villa se abre con la historia ---- */
 const VP={empeno:'villa',mercado:'villa',clinica:'villa',gasolinera:'villa',taberna:'taberna',armeria:'armeria',tablon:'tablon',casino:'casino'};
 (function(){const o=window.villaGo;if(typeof o!=='function')return;window.villaGo=function(k){const id=VP[k];if(id&&!ok(id)){const m=byId[id];try{toast('🔒 '+m.n+': necesitas '+need(id)+'.')}catch(e){}return}return o.apply(this,arguments)}})();
 /* ---- el ayuntamiento avanza a la par que la historia ---- */
-(function(){const o=window.upg;if(typeof o!=='function')return;window.upg=function(id){try{const b=bm[id];if(b&&b.type==='hall'&&!creative()&&b.lvl<25){const c=hallCap();if(b.lvl>=c){const s=stv(),n=(STORY[s]&&STORY[s].n)||'';toast('🔒 El ayuntamiento no puede superar el nivel '+c+' hasta que avances en la historia'+(n?' ('+n+')':'')+'.');return}}}catch(e){}return o.apply(this,arguments)}})();
+(function(){const o=window.upg;if(typeof o!=='function')return;window.upg=function(id){try{const b=bm[id];if(b&&b.type==='hall'&&!creative()&&b.lvl<25){const c=hallCap();if(b.lvl>=c){toast('🔒 '+hallUnlockTxt(b.lvl+1));return}}}catch(e){}return o.apply(this,arguments)}})();
 /* ---- avisos de desbloqueo ---- */
 function check(){try{if(typeof S==='undefined'||!S||!S.bld||!S.bld.length)return;const first=!S.pg;if(first)S.pg={seen:{}};const sn=S.pg.seen;
  MECH.forEach(m=>{if(ok(m.id)&&!sn[m.id]){sn[m.id]=1;if(!first&&!creative()){try{notify('🔓','Nueva mecánica: '+m.n,m.d,'historia');if(window.tutShow)window.tutShow(m.id);else toast('🔓 Nueva mecánica: '+m.n)}catch(e){}}}});
@@ -10080,6 +10083,7 @@ function panel(){const s=stv(),n=typeof STORY!=='undefined'?STORY.length:28,h=ha
  const open=MECH.filter(m=>ok(m.id)),lock=MECH.filter(m=>!ok(m.id));
  show('Progresión',`<p>La historia y tu ayuntamiento avanzan juntos: cada capítulo exige un nivel de ayuntamiento, y el ayuntamiento no sube más allá de lo que pide el siguiente capítulo.</p>
  <div class="mu-sts"><div class="mu-st"><span>📖</span><b>${s}/${n}</b><small>Capítulos</small></div><div class="mu-st"><span>🏛</span><b>Nv ${h}</b><small>Tope actual ${cap}</small></div></div>
+ ${cap<25&&!creative()?`<p style="margin:4px 0;color:#f2d27a">🔒 ${hallUnlockTxt(cap+1)}</p>`:''}
  <div style="height:6px;background:#0d120c;border-radius:4px;margin:2px 0 8px;overflow:hidden"><i style="display:block;height:100%;width:${pct}%;background:linear-gradient(90deg,#c8921a,#f2c542)"></i></div>
  ${nx?`<div class="vl-q"><div><b>Siguiente: ${esc(nx.n)}</b><small>Requiere ayuntamiento nivel ${nx.h}${h>=nx.h?' · ¡ya puedes empezarlo!':' · te faltan '+(nx.h-h)+' nivel(es)'}</small></div></div>`:''}
  <div class="mu-h">Desbloqueado <small>${open.length}</small></div><div class="vl-list">${open.map(row).join('')}</div>
@@ -11467,7 +11471,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'196';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'197';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
@@ -11637,6 +11641,17 @@ const st=document.createElement('style');st.textContent=`#wsb{position:fixed;lef
 #wsb .wsb-t{font-weight:900;color:#ffd877;font-size:12px;display:inline}#wsb .wsb-s{display:inline;font-size:10px;color:#b9b39c;margin-left:8px}#wsb .wsb-b{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:4px;margin-top:3px}
 #wsb button{flex:0 0 auto;font:800 11px system-ui;padding:3px 8px;border-radius:7px;border:1px solid #6a7a4a;background:#24301c;color:#e8f0d8;display:flex;flex-direction:column;align-items:flex-start;line-height:1.2}#wsb button small{font-weight:600;font-size:9px;color:#cfc8a8}
 #wsb button.go{background:#2f6a2a;border-color:#7fd06a}#wsb button.del{background:#5a1f1a;border-color:#c0504a}#wsb button:disabled{opacity:.45}`;document.head.appendChild(st);
+})();
+</script>
+<script>/* Ficha del ayuntamiento: si el siguiente nivel está bloqueado por la historia, dice en qué capítulo se desbloquea y cuántos faltan. */
+(function(){
+'use strict';
+const oB=window.bPanel;
+window.bPanel=function(id){const r=oB.apply(this,arguments);try{const b=bm[id];if(!b||b.type!=='hall'||S.mode==='creativo'||b.lvl>=25||!window.PROG||!window.hallUnlockTxt)return r;
+ if(b.lvl<PROG.hallCap())return r;const pan=document.getElementById('pan');if(!pan||pan.querySelector('.hcap'))return r;
+ const d=document.createElement('div');d.className='hcap';d.innerHTML='🔒 '+hallUnlockTxt(b.lvl+1);
+ const h=pan.querySelector('.bp2h');if(h&&h.parentNode)h.parentNode.insertBefore(d,h.nextSibling);else{const c=pan.querySelector('.pc,.body')||pan;c.insertBefore(d,c.firstChild)}}catch(e){}return r};
+const st=document.createElement('style');st.textContent='.hcap{margin:6px 0;padding:7px 10px;border:1px solid #c9a23a;border-radius:9px;background:#2a2412;color:#f2d27a;font-weight:700;font-size:13px}';document.head.appendChild(st);
 })();
 </script>
 <script>/* Medidor de rendimiento (Opciones → 📊 Medidor); con botones para apagar capas (Mezclas, Ambiente, Terreno...) y ver cuánto cuesta cada una: fps reales y ms por fotograma de lógica (upd), dibujo (render) y barra (hud),
