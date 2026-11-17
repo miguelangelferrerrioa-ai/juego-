@@ -19,7 +19,7 @@ async function open(b,save){const pg=await b.newPage({viewport:{width:932,height
    S.ppl.forEach(p=>{if(p.fg===T){if(p.preg)__V.preg++;if(p.age<18)__V.kid++;if(!p.wp&&horde){const h=S.bld.find(b=>b.type==='hall');if(!h||Math.hypot(p.x-(h.x+h.w/2),p.y-(h.y+h.h+.8))>7)__V.unarmed++}if(!p.wp&&p.age>=65)__V.old++}if(!isFinite(p.x)||!isFinite(p.y)||!isFinite(p.hp))__V.nan++})};
   window.__run=async(s,stop)=>{let t=0;while(t<s){__step(.05);t+=.05;if(Math.round(t/.05)%40===0)await new Promise(r=>setTimeout(r,25));if(stop&&stop())break}return t}});
  return {pg,pe}}
-const scenarios=[];
+const scenarios=[];const ONLY=process.env.SOLO||'';
 /* 1) zombis sueltos */
 scenarios.push(['Zombis sueltos','dia3.json',async pg=>pg.evaluate(async()=>{
  const F=S.ppl.find(p=>p.sex==='F'&&p.age>=18&&!p.arm);if(F){F.arm='soldado';F.preg=1;F.wp={n:'Pistola',v:5}}
@@ -87,14 +87,14 @@ scenarios.push(['Expediciones','partida_larga_dia248.json',async pg=>pg.evaluate
  return {started,cost,away,back:!S.solo&&!p.away}})]);
 /* 5c) soldado armado con un zombi cerca y a la vista: no se queda quieto (ni con sueltos ni en hordas) */
 for(const sv of ['dia3.json','partida_larga_dia248.json'])scenarios.push(['Soldado no se queda quieto '+sv,sv,async pg=>pg.evaluate(async()=>{S.ppl.filter(p=>p.arm).forEach(p=>{if(!p.wp)p.wp={n:'Pistola',v:5}});const st=new Map(),Q=[];
- const chk=()=>{S.ppl.forEach(p=>{if(!p.arm||p.away||!p.wp||p.preg||p.age<18||p.hp<=0)return;const u=U.find(u=>u.p===p),x=u?u.x:p.x,y=u?u.y:p.y;let zd=1e9;Z.forEach(z=>{if(!z.act||z.hp<=0)return;const d=Math.hypot(z.x-x,z.y-y);if(d<zd&&!wallBetween(x,y,z.x,z.y))zd=d});
-  const s=st.get(p)||{x,y,t:0,cd:0},mv=Math.hypot(x-s.x,y-s.y)>.02,sh=u&&u.cd>s.cd+.1;if(zd<7&&!mv&&!sh){s.t+=.05;if(s.t>3&&!s.r){s.r=1;Q.push(p.n+' a '+zd.toFixed(1))}}else{s.t=0;s.r=0}s.x=x;s.y=y;s.cd=u?u.cd:0;st.set(p,s)})};
+ const chk=()=>{S.ppl.forEach(p=>{if(!p.arm||p.away||!p.wp||p.preg||p.age<18||p.hp<=0)return;if(horde&&p.job&&bm[p.job]&&BT[bm[p.job].type].gun)return;const u=U.find(u=>u.p===p),x=u?u.x:p.x,y=u?u.y:p.y;let zd=1e9;Z.forEach(z=>{if(!z.act||z.hp<=0)return;const d=Math.hypot(z.x-x,z.y-y);if(d<zd&&!wallBetween(x,y,z.x,z.y))zd=d});
+  const s=st.get(p)||{x,y,t:0,cd:0},mv=Math.hypot(x-s.x,y-s.y)>.02,sh=u&&u.cd>s.cd+.1;if(zd<7&&!mv&&!sh){s.t+=.05;if(s.t>3&&!s.r){s.r=1;Q.push(p.n+' a '+zd.toFixed(1)+' ['+[p.arm,u?'U':'noU',p.job?(bm[p.job]||{}).type:'-',horde?'horda':'suelto',u&&u.pin>T?'agarrado':'',p.inside?'dentro':''].join(',')+']')}}else{s.t=0;s.r=0}s.x=x;s.y=y;s.cd=u?u.cd:0;st.set(p,s)})};
  for(let k=0;k<3;k++){S.raidT=.01;let seen=0;await __run(200,()=>{chk();if(window.raidOn)seen=1;return seen&&!window.raidOn&&!Z.some(z=>z.act)})}
  startHorde();await __run(400,()=>{chk();return !horde});return {Q,V:__V}})]);
 /* 5d) reparar: con el ayuntamiento justo, un edificio mejorado se puede reparar con los materiales de su nivel */
 scenarios.push(['Reparar','dia3.json',async pg=>pg.evaluate(async()=>{const bad=[];S.bld.filter(b=>BT[b.type]&&!['road','bridge'].includes(b.type)).forEach(b=>{const L0=b.lvl;for(let L=1;L<=15;L++){b.lvl=L;const c=repairCost(Object.assign({},b,{hp:1,lvl:L}));const up=L>1?ucost(Object.assign({},b,{lvl:L-1})):{};const used=new Set([...Object.keys(BT[b.type].cost||{}),...Object.keys(up),'wood','metal']);for(let j=1;j<L-1;j++)Object.keys(ucost(Object.assign({},b,{lvl:j}))).forEach(k=>used.add(k));Object.keys(c).forEach(k=>{if(!used.has(k))bad.push(b.type+' nv'+L+' pide '+k)})}b.lvl=L0});return {bad:[...new Set(bad)].slice(0,8),V:__V}})]);
 (async()=>{const b=await chromium.launch();const t0=Date.now();
- for(const [name,sv,fn] of scenarios){const {pg,pe}=await open(b,SV(sv));let r=null;try{r=await fn(pg)}catch(e){r={crash:String(e).slice(0,200)}}
+ for(const [name,sv,fn] of scenarios){if(ONLY&&!name.includes(ONLY))continue;const {pg,pe}=await open(b,SV(sv));let r=null;try{r=await fn(pg)}catch(e){r={crash:String(e).slice(0,200)}}
   const V=r&&r.V||{};const tag=name;
   if(r.crash)ok(tag+': se ejecuta',false,r.crash);
   if(V.err!==undefined){ok(tag+': sin errores de juego',!V.err,V.em);ok(tag+': embarazadas no pelean',!V.preg,V.preg);ok(tag+': menores no pelean',!V.kid,V.kid);ok(tag+': en hordas los desarmados solo pelean en la puerta del ayuntamiento',!V.unarmed,V.unarmed);ok(tag+': mayores de 65 sin arma no pelean',!V.old,V.old);ok(tag+': sin valores rotos',!V.nan,V.nan);ok(tag+': soldados sin teletransportes',!V.jump,V.jump+' '+V.jex)}

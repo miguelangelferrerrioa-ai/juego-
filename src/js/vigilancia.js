@@ -75,9 +75,10 @@ function core(u,dt){const c=CL[u.p.arm];/* alistado sin arma: solo cuerpo a cuer
  let t=null,td=1e9;Z.forEach(z=>{if(!z.act)return;const dd=Math.hypot(z.x-u.x,z.y-u.y);if(dd<=RNG&&dd<td&&!wallBetween(u.x,u.y,z.x,z.y)){td=dd;t=z}});
  if(!t){const z=assign(g).get(u);/* con un muro de por medio no se persigue (saldría por un hueco): se espera dentro */if(z&&!wallBetween(u.x,u.y,z.x,z.y)){t=z;td=Math.hypot(z.x-u.x,z.y-u.y);u.ptg=null}}
  /* zombi a la vista y cerca (hasta 4 casillas más allá de su alcance, sin muro de por medio): se acerca y lo ataca, aunque aún no haya entrado en el pueblo (antes se quedaba quieto mirándolo) */
- if(!t){let nd=RNG+4;Z.forEach(z=>{if(!z.act||z.hp<=0)return;const dd=Math.hypot(z.x-u.x,z.y-u.y);if(dd<nd&&!wallBetween(u.x,u.y,z.x,z.y)){nd=dd;t=z;td=dd}});if(t)u.ptg=null}
- if(u.p.arm=='medico'){let a=null;U.forEach(q=>{if(q!==u&&q.hp<mhp(q.p)-5&&Math.hypot(q.x-u.x,q.y-u.y)<3.5)a=q});if(a){a.hp+=10*dt;u.hl=T;return}}
- if(u.p.arm=='ing'){const b=S.bld.find(b=>b.hp<mxhp(b)&&Math.hypot(b.x+b.w/2-u.x,b.y+b.h/2-u.y)<b.w+3);if(b){b.hp=Math.min(mxhp(b),b.hp+15*dt);u.rp=T;return}}
+ if(!t){let nd=RNG+4;const W=g.wallG.length>0;Z.forEach(z=>{if(!z.act||z.hp<=0)return;const dd=Math.hypot(z.x-u.x,z.y-u.y);if(dd>=nd||wallBetween(u.x,u.y,z.x,z.y))return;/* con muros, a los de fuera no se sale a buscarlos (se les dispara si llegan a tiro) */const ix=Math.floor(z.x),iy=Math.floor(z.y);if(W&&ix>=0&&iy>=0&&ix<N&&iy<N&&g.out[iy*N+ix])return;nd=dd;t=z;td=dd});if(t)u.ptg=null}
+ /* con un enemigo encima, el médico y el ingeniero primero se defienden */const busy=t&&td<=Math.max(RNG,1.4)+.5;
+ if(u.p.arm=='medico'&&!busy){let a=null;U.forEach(q=>{if(q!==u&&q.hp<mhp(q.p)-5&&Math.hypot(q.x-u.x,q.y-u.y)<3.5)a=q});if(a){a.hp+=10*dt;u.hl=T;return}}
+ if(u.p.arm=='ing'&&!busy){const b=S.bld.find(b=>b.hp<mxhp(b)&&Math.hypot(b.x+b.w/2-u.x,b.y+b.h/2-u.y)<b.w+3);if(b){b.hp=Math.min(mxhp(b),b.hp+15*dt);u.rp=T;return}}
  if(!t){patrol(u,dt,g);return}
  if(td<=1.4){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.7;sfxAt('punch',u.x,u.y);t.hp-=(bare?(4+u.p.lvl*.6):(c.dmg*.8+(u.p.wp?u.p.wp.v*.5:0)+u.p.lvl))*(.9+Math.random()*.2);burst(t.x,t.y,2,'#b22',1,6)}}
  else if(bare)walk(u,t.x,t.y,2.2,dt)
