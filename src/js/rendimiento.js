@@ -19,15 +19,16 @@ function tbox(b,bx){const t=TRIM.get(b.type+'|'+b.lvl+'|'+b.w+'|'+b.h+'|'+(b.rot
 window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){lastT=T;budget=14}
  const th=TH.get(b.id);if(th&&th.off>T)return false;
  const tf=c.getTransform(),s=Math.hypot(tf.a,tf.b);const sq=Math.min(3,Math.pow(2,Math.ceil(Math.log2(Math.max(.25,s))*3)/3));
- const bx=box(b),k=sig(b,sq);let e=C.get(b.id);
+ const bx=box(b),k=sig(b,sq),kb=sig(b,0);let e=C.get(b.id);
  /* solo cuenta claves NUEVAS: antes contaba cada fotograma de espera (sin presupuesto) y tras cambiar la calidad marcaba todo el pueblo como 'inestable' y lo dibujaba sin caché 12 s */
- if(e&&e.k!==k&&!(th&&th.lk===k)){const t=th||{n:0,t:T,off:0};t.lk=k;if(T-t.t>4){t.n=0;t.t=T}if(++t.n>6){t.off=T+12;TH.set(b.id,t);return false}TH.set(b.id,t)}
+ /* el zoom (sq) no cuenta: antes, al pellizcar, casi todo el pueblo quedaba 12 s sin caché */if(e&&e.kb!==kb&&!(th&&th.lk===kb)){const t=th||{n:0,t:T,off:0};t.lk=kb;if(T-t.t>4){t.n=0;t.t=T}if(++t.n>6){t.off=T+12;TH.set(b.id,t);return false}TH.set(b.id,t)}
  const per=e&&e.an?.13+(b.id%5)*.02:3+(b.id%7)*.25;const fresh=e&&e.k===k&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]&&(T-e.t<per||budget<=0);
+ if(!fresh&&budget<=0&&e&&e.kb===kb&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]){/* sin cupo de repintado este fotograma: se usa la imagen anterior (otro zoom o fotograma de animación) en vez de dibujarlo entero */c.drawImage(e.cv,e.tb[0],e.tb[1],e.cv.width/e.sq,e.cv.height/e.sq);return true}
  if(!fresh){if(budget<=0)return false;budget--;const an=animated(b,bx),tb=tbox(b,bx);
-  const cv=paint(b,sq,tb,e&&e.cv);if(e)px-=e.cv.width*e.cv.height;e={k,bx,tb,cv,t:T,an};C.delete(b.id);C.set(b.id,e);px+=cv.width*cv.height;
+  const cv=paint(b,sq,tb,e&&e.cv);if(e)px-=e.cv.width*e.cv.height;e={k,kb,sq,bx,tb,cv,t:T,an};C.delete(b.id);C.set(b.id,e);px+=cv.width*cv.height;
   while(px>MAXPX&&C.size>1){const[fk,fv]=C.entries().next().value;if(fk===b.id)break;C.delete(fk);px-=fv.cv.width*fv.cv.height}}
  else{C.delete(b.id);C.set(b.id,e)}
- c.drawImage(e.cv,e.tb[0],e.tb[1],e.cv.width/sq,e.cv.height/sq);return true}catch(er){return false}};
+ c.drawImage(e.cv,e.tb[0],e.tb[1],e.cv.width/e.sq,e.cv.height/e.sq);return true}catch(er){return false}};
 window.bCacheClear=()=>{C.clear();px=0;ANIM.clear();TH.clear()};
-window.bCacheStats=()=>({n:C.size,mpx:+(px/1e6).toFixed(1),anim:[...ANIM].filter(x=>x[1]).map(x=>x[0].split('|')[0]),thrash:[...TH.keys()].length});
+window.bCacheStats=()=>({n:C.size,mpx:+(px/1e6).toFixed(1),anim:[...ANIM].filter(x=>x[1]).map(x=>x[0].split('|')[0]),thrash:[...TH.keys()].length,off:[...TH.values()].filter(t=>t.off>T).length});
 })();
