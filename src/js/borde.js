@@ -61,6 +61,8 @@ window.drawOuter=function(c){
   if(!OC)OC=build();const w=vw()/cam.z,h=vh()/cam.z,ymax=OC.height/SC-TY;
   const x0=Math.max(cam.x-4,-W0),y0=Math.max(cam.y-4,-TY),x1=Math.min(cam.x+w+4,W0),y1=Math.min(cam.y+h+4,ymax);
   if(x1>x0&&y1>y0){if(window.drawTiled)drawTiled(c,OC,1,W0,TY,SC,x0,y0,x1,y1,cam.z*dpr);else c.drawImage(OC,(x0+W0)*SC,(y0+TY)*SC,(x1-x0)*SC,(y1-y0)*SC,x0,y0,x1-x0,y1-y0)}};
+/* zona concreta del borde (para los trozos de suelo de suelo.js) */
+window.outerRegion=function(c,x0,y0,x1,y1,dps){if(!OC)OC=build();const ymax=OC.height/SC-TY;x0=Math.max(x0,-W0);y0=Math.max(y0,-TY);x1=Math.min(x1,W0);y1=Math.min(y1,ymax);if(x1>x0&&y1>y0)drawTiled(c,OC,1,W0,TY,SC,x0,y0,x1,y1,dps)};
 /* la cámara no puede salirse del rombo del borde: así nunca se ve el vacío negro (el final del borde es niebla densa) */
 window.outerClamp=function(){
   const HW=(N+2*OM)*32,HH=(N+2*OM)*16,CY=N*16,LIM=.985,ok=(x,y)=>Math.abs(x)/HW+Math.abs(y-CY)/HH<=LIM;
