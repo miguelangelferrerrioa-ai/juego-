@@ -60,9 +60,9 @@ window.bPanel=function(id){const b=bm[id];if(!b)return;
      h=strip(h,/<button[^>]*onclick="upgWalls\(\d+\)"[^>]*>[\s\S]*?<\/button>/g);
      if(b.lvl>=5)upc=`<div class="bp2u max">★ Nivel máximo alcanzado</div>`;
      else{const sc=window.wScope||'one',I=wInfo(b,sc),sel=k=>sc===k?' on':'';
-       const all=wInfo(b,'all'),seg=wInfo(b,'seg');
+       const all=wInfo(b,'all'),seg=wInfo(b,'seg'),lin=wInfo(b,'line');
        const chipsC=Object.keys(I.cost).filter(k=>I.cost[k]).map(k=>{const ok=(S.res[k]||0)>=I.cost[k];return `<span class="bp2k ${ok?'':'no'}"><img src="${ICO[k]||''}" width=13>${I.cost[k]}<small>${Math.floor(S.res[k]||0)}</small></span>`}).join('');
-       upc=`<div class="bp2u"><div class="bp2ut">⬆ Mejorar muros a nivel ${b.lvl+1}</div><div class="bp2sc"><button class="${sel('one').trim()}" onclick="wScopeSet(${id},'one')">Este muro<small>1</small></button><button class="${sel('seg').trim()}" onclick="wScopeSet(${id},'seg')">Tramo conectado<small>${seg.n}</small></button><button class="${sel('all').trim()}" onclick="wScopeSet(${id},'all')">Todos nivel ${b.lvl}<small>${all.n}</small></button></div><div class="bp2d"><span>♥ Vida por muro</span><span><s>${mxhp(b)}</s> → <b>${I.hp1}</b></span></div><div class="bp2d"><span>🧱 Muros a mejorar</span><span><b>${I.n}</b></span></div><div class="bp2ck">${chipsC||'<small>Sin coste</small>'}</div><button class="bp2b" ${I.why?'disabled':''} onclick="wUpg(${id})">⬆ Mejorar ${I.n>1?I.n+' muros':'muro'}</button>${I.why?`<div class="bp2w">${I.why}</div>`:''}</div>`}
+       upc=`<div class="bp2u"><div class="bp2ut">⬆ Mejorar muros a nivel ${b.lvl+1}</div><div class="bp2sc"><button class="${sel('one').trim()}" onclick="wScopeSet(${id},'one')">Este muro<small>1</small></button><button class="${sel('line').trim()}" onclick="wScopeSet(${id},'line')">Tramo recto<small>${lin.n}</small></button><button class="${sel('seg').trim()}" onclick="wScopeSet(${id},'seg')">Tramo conectado<small>${seg.n}</small></button><button class="${sel('all').trim()}" onclick="wScopeSet(${id},'all')">Todos nivel ${b.lvl}<small>${all.n}</small></button></div><div class="bp2d"><span>♥ Vida por muro</span><span><s>${mxhp(b)}</s> → <b>${I.hp1}</b></span></div><div class="bp2d"><span>🧱 Muros a mejorar</span><span><b>${I.n}</b></span></div><div class="bp2ck">${chipsC||'<small>Sin coste</small>'}</div><button class="bp2b" ${I.why?'disabled':''} onclick="wUpg(${id})">⬆ Mejorar ${I.n>1?I.n+' muros':'muro'}</button>${I.why?`<div class="bp2w">${I.why}</div>`:''}</div>`}
    }else if(!isHall){
      if(b.lvl>=MXL)upc=`<div class="bp2u max">★ Nivel máximo alcanzado</div>`;
      else{
@@ -85,6 +85,7 @@ window.bPanel=function(id){const b=bm[id];if(!b)return;
    if(canPause)act+=`<button onclick="togB(${id})">${b.pause?'▶ Encender':'⏸ Pausar'}</button>`;
    if(PAL[b.type])act+=`<button onclick="aspMenu(${id})">🎨 Aspecto</button>`;
    act+=`<button onclick="moveB(${id})">✥ Mover</button>`;
+   if((b.type==='wall'||b.type==='gate')&&window.wSelStart){act+=`<button onclick="wSelStart(${id},'line','move')">✥ Mover tramo recto</button><button onclick="wSelStart(${id})">⬚ Seleccionar varios</button>`}
    if(isHall){const nd=S.bld.filter(x=>x.hp<mxhp(x)-.5).length;act+=`<button onclick="repMenu()">🔧 Reparaciones<small> ${nd?nd+' dañadas':'todo en orden'}</small></button>`}
    if(!isHall)act+=`<button class="del" id="bp2d" onclick="bp2Del(${id})">🗑 Destruir</button>`;
    act+=`</div>`;
@@ -100,6 +101,7 @@ window.wScopeSet=(id,k)=>{window.wScope=k;bPanel(id)};
 function wList(b,sc){const L=b.lvl,W=S.bld.filter(x=>x.type==='wall'||x.type==='gate');
   if(sc==='one')return [b];
   if(sc==='all')return W.filter(x=>x.type==='wall'&&x.lvl===L);
+  if(sc==='line'&&window.wLine)return wLine(b).filter(x=>x.type==='wall'&&x.lvl===L);
   const key=(x,y)=>x+','+y,M={};W.forEach(w=>{for(let i=0;i<w.w;i++)for(let j=0;j<w.h;j++)M[key(w.x+i,w.y+j)]=w});
   const seen=new Set([b]),q=[b];while(q.length){const w=q.pop();for(let i=-1;i<=w.w;i++)for(let j=-1;j<=w.h;j++){if((i<0||i>=w.w)&&(j<0||j>=w.h))continue;const n=M[key(w.x+i,w.y+j)];if(n&&!seen.has(n)){seen.add(n);q.push(n)}}}
   return [...seen].filter(x=>x.type==='wall'&&x.lvl===L)}
