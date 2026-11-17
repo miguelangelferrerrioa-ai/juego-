@@ -28,7 +28,7 @@ function check(){const n=performance.now();if(n-chkT<250)return;chkT=n;
  const ch=[];for(const [k,o] of nb)if(!BK.has(k))ch.push(box(o));for(const [k,o] of BK)if(!nb.has(k))ch.push(box(o));BK=nb;
  if(!ch.length)return;for(const [k,e] of C){const r=rectOf(k);if(ch.some(b=>b[2]>=r[0]&&b[0]<=r[2]&&b[3]>=r[1]&&b[1]<=r[3]))e.dirty=true}}
 /* cada trozo lleva 2 px de margen a la derecha y abajo: se solapa con el vecino sin estirarse (sin juntas) */const MG=2;
-function paint(e,sc,i,j){GP++;const W=PW/sc,H=PH/sc,x0=i*W,y0=j*H,x1=x0+W+MG/sc,y1=y0+H+MG/sc;
+function paint(e,sc,i,j){GP++;if(window.PERFC)PERFC.tz++;const W=PW/sc,H=PH/sc,x0=i*W,y0=j*H,x1=x0+W+MG/sc,y1=y0+H+MG/sc;
  let cv=e&&e.cv;if(!cv){cv=document.createElement('canvas');cv.width=PW+MG;cv.height=PH+MG}const c=cv.getContext('2d');
  c.setTransform(1,0,0,1,0,0);c.fillStyle='#14210f';c.fillRect(0,0,PW+MG,PH+MG);c.setTransform(sc,0,0,sc,-x0*sc,-y0*sc);
  if(window.outerRegion)outerRegion(c,x0,y0,x1,y1,sc);
@@ -49,7 +49,7 @@ window.groundDraw=function(c){if(T!==lastT){lastT=T;budget=1}ready=new Set();che
   const x0=i*W,y0=j*H;
   /* un píxel de solape para que no se vean las juntas entre trozos */
   if(e){c.drawImage(e.cv,0,0,PW+MG,PH+MG,x0,y0,W+MG/USE,H+MG/USE);if(!e.dirty)ready.add(i+':'+j)}
-  else{if(window.outerRegion)outerRegion(c,x0,y0,x0+W+ov,y0+H+ov,s);const tx0=Math.max(x0,-N*32),ty0=Math.max(y0,0),tx1=Math.min(x0+W+ov,N*32),ty1=Math.min(y0+H+ov,TC?TC.height:0);if(TC&&tx1>tx0&&ty1>ty0)drawTiled(c,TC,window.TCV|0,N*32,0,1,tx0,ty0,tx1,ty1,s)}}
+  else{if(window.PERFC)PERFC.fb++;if(window.outerRegion)outerRegion(c,x0,y0,x0+W+ov,y0+H+ov,s);const tx0=Math.max(x0,-N*32),ty0=Math.max(y0,0),tx1=Math.min(x0+W+ov,N*32),ty1=Math.min(y0+H+ov,TC?TC.height:0);if(TC&&tx1>tx0&&ty1>ty0)drawTiled(c,TC,window.TCV|0,N*32,0,1,tx0,ty0,tx1,ty1,s)}}
  /* con cupo libre, se adelantan los trozos de alrededor */
  if(budget>0)for(let j=j0-1;j<=j1+1&&budget>0;j++)for(let i=i0-1;i<=i1+1&&budget>0;i++){const k=key(USE,i,j),e=C.get(k);if(!e||e.dirty){budget--;put(k,paint(e,USE,i,j))}}
  G.W=W;G.H=H};

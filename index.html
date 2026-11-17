@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v179</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v181</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -2144,9 +2144,12 @@ window.lootWreck=function(ob){
 /* árboles y rocas: cada variante se pinta una vez en un atlas (lienzos grandes que viven en la GPU) en vez de un lienzo pequeño por variante */
 const OAT={1:[],2:[]},OAS={};
 function obsSlot(sc){const w=100*sc,h=110*sc,cols=Math.floor(2048/w),rows=Math.floor(2048/h),L=OAT[sc];let pg=L[L.length-1];if(!pg||pg.n>=cols*rows){const cv=document.createElement('canvas');cv.width=cols*w;cv.height=rows*h;pg={cv,n:0};L.push(pg)}const i=pg.n++;return {cv:pg.cv,x:(i%cols)*w,y:Math.floor(i/cols)*h}}
+/* se preparan de antemano todas las variantes de árboles/rocas a las dos escalas (4 cada 60 ms), para que el zoom no tenga que crearlas de golpe */
+function obsBake(ob,sc){const bk=ob.t+(ob.l?'L':'')+biomeAt(ob.x,ob.y)+Math.floor(hh(ob.x,ob.y)*8)+'@'+sc;if(OAS[bk])return false;if(window.PERFC)PERFC.ar++;const p=P(ob.x+.5,ob.y+.5),s=OAS[bk]=obsSlot(sc),x=s.cv.getContext('2d');x.save();x.beginPath();x.rect(s.x,s.y,100*sc,110*sc);x.clip();x.setTransform(sc,0,0,sc,s.x,s.y);x.translate(50-p[0],90-p[1]);obsD(x,ob);x.restore();return true}
+setInterval(()=>{try{if(!S||!S.obs||window.ATLAS_OFF)return;let n=0;for(const sc of [1,2])for(const o of S.obs){if(obsBake(o,sc)&&++n>=4)return}}catch(e){}},60);
 function obsSpr(c,ob){const sc=(dpr*cam.z)>1.2?2:1,bk=ob.t+(ob.l?'L':'')+biomeAt(ob.x,ob.y)+Math.floor(hh(ob.x,ob.y)*8)+'@'+sc;const p=P(ob.x+.5,ob.y+.5);
  if(window.ATLAS_OFF){let s=OSP[bk];if(!s){const cv=document.createElement('canvas');cv.width=100*sc;cv.height=110*sc;const x=cv.getContext('2d');x.scale(sc,sc);x.translate(50-p[0],90-p[1]);obsD(x,ob);s=OSP[bk]={cv}}c.drawImage(s.cv,p[0]-50,p[1]-90,100,110);return}
- let s=OAS[bk];if(!s){s=OAS[bk]=obsSlot(sc);const x=s.cv.getContext('2d');x.save();x.beginPath();x.rect(s.x,s.y,100*sc,110*sc);x.clip();x.setTransform(sc,0,0,sc,s.x,s.y);x.translate(50-p[0],90-p[1]);obsD(x,ob);x.restore()}
+ let s=OAS[bk];if(!s){obsBake(ob,sc);s=OAS[bk]}
  c.drawImage(s.cv,s.x,s.y,100*sc,110*sc,p[0]-50,p[1]-90,100,110)}
 /* orden de dibujo de árboles/rocas: en caché mientras no cambien los edificios (antes recorría todos los edificios por cada árbol en cada fotograma) */const OKC=new WeakMap();let OKS='',OKT=-1;function obsKey(o){{const nw=performance.now();if(nw-OKT>12){OKT=nw;let h=S.bld.length;for(const b of S.bld)h=(h*31+b.x*7+b.y*13+b.w*3+b.h)%1e9;const ns=h+'';if(ns!==OKS){OKS=ns}}}const e=OKC.get(o);if(e&&e[0]===OKS&&e[2]===o.x&&e[3]===o.y)return e[1];const k=obsKey0(o);OKC.set(o,[OKS,k,o.x,o.y]);return k}
 let GLW=null;function glowSpr(){if(GLW)return GLW;GLW=document.createElement('canvas');GLW.width=GLW.height=128;const x=GLW.getContext('2d'),g=x.createRadialGradient(64,64,64*2/34,64,64,64);g.addColorStop(0,'rgba(255,190,90,1)');g.addColorStop(1,'rgba(255,150,50,0)');x.fillStyle=g;x.fillRect(0,0,128,128);return GLW}
@@ -2295,7 +2298,7 @@ function drawBub(c,x,y,k){const bob=Math.sin(T*4)*1.2;c.save();c.translate(x,y+b
 function render(){const cv=$('c'),w=vw(),h=vh();window.outerClamp&&outerClamp();dpr=Math.min(1.5,devicePixelRatio||1)*QS;if(cv.width!=Math.round(w*dpr)||cv.height!=Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
 if(cv.style.width!==w+'px'||cv.style.height!==h+'px'){cv.style.width=w+'px';cv.style.height=h+'px'}
 const c=cv.getContext('2d');window.g=c;c.setTransform(1,0,0,1,0,0);c.fillStyle='#14210f';c.fillRect(0,0,cv.width,cv.height);c.setTransform(cam.z*dpr,0,0,cam.z*dpr,-cam.x*cam.z*dpr,-cam.y*cam.z*dpr);
-if(SHK>0)c.translate((Math.random()-.5)*SHK*14,(Math.random()-.5)*SHK*14);const GD=!!(window.GROUND_ON&&window.groundDraw);if(window.drawOuter&&!GD)drawOuter(c);if(dirtyT){TC=terr();dirtyT=0;/* solo cuenta como terreno nuevo si la imagen cambió de verdad (rebuild() lo repinta a menudo sin cambios y eso rehacía todos los trozos de suelo) */const th=window.tcHash?tcHash(TC):Math.random();if(th!==window.TCH){window.TCH=th;window.TCV=(window.TCV|0)+1}}/* Extiende visualmente el terreno hasta el borde inferior de la pantalla: el mundo isométrico original es más bajo que algunas pantallas panorámicas. */if(TC&&!window.drawOuter){const extra=Math.max(0,vh()/cam.z-TC.height);if(extra>0){const band=Math.min(72,Math.floor(TC.height*.12));const sourceY=Math.max(0,Math.min(TC.height-band,Math.floor(TC.height*.42)));c.drawImage(TC,0,sourceY,TC.width,band,-N*32,TC.height,TC.width,extra)}}{const viewH=vh()/cam.z,B=window.outerBounds;if(B){cam.y=cl(cam.y,B.y0,Math.max(B.y0,B.y1-viewH));cam.x=cl(cam.x,B.x0,Math.max(B.x0,B.x1-vw()/cam.z))}else cam.y=cl(cam.y,0,Math.max(0,TC.height-viewH));const viewW=vw()/cam.z,x0=Math.max(cam.x-12,-N*32),y0=Math.max(cam.y-12,0),x1=Math.min(cam.x+viewW+12,N*32),y1=Math.min(cam.y+viewH+12,TC.height);if(GD)groundDraw(c);else if(x1>x0&&y1>y0)(window.drawTiled?drawTiled(c,TC,window.TCV|0,N*32,0,1,x0,y0,x1,y1,cam.z*dpr):c.drawImage(TC,x0+N*32,y0,x1-x0,y1-y0,x0,y0,x1-x0,y1-y0))}drawBuildGrid(c);ambientFX(c);
+if(SHK>0)c.translate((Math.random()-.5)*SHK*14,(Math.random()-.5)*SHK*14);const GD=!!(window.GROUND_ON&&window.groundDraw);if(window.drawOuter&&!GD)drawOuter(c);if(dirtyT){if(window.PERFC)PERFC.te++;TC=terr();dirtyT=0;/* solo cuenta como terreno nuevo si la imagen cambió de verdad (rebuild() lo repinta a menudo sin cambios y eso rehacía todos los trozos de suelo) */const th=window.tcHash?tcHash(TC):Math.random();if(th!==window.TCH){window.TCH=th;window.TCV=(window.TCV|0)+1}}/* Extiende visualmente el terreno hasta el borde inferior de la pantalla: el mundo isométrico original es más bajo que algunas pantallas panorámicas. */if(TC&&!window.drawOuter){const extra=Math.max(0,vh()/cam.z-TC.height);if(extra>0){const band=Math.min(72,Math.floor(TC.height*.12));const sourceY=Math.max(0,Math.min(TC.height-band,Math.floor(TC.height*.42)));c.drawImage(TC,0,sourceY,TC.width,band,-N*32,TC.height,TC.width,extra)}}{const viewH=vh()/cam.z,B=window.outerBounds;if(B){cam.y=cl(cam.y,B.y0,Math.max(B.y0,B.y1-viewH));cam.x=cl(cam.x,B.x0,Math.max(B.x0,B.x1-vw()/cam.z))}else cam.y=cl(cam.y,0,Math.max(0,TC.height-viewH));const viewW=vw()/cam.z,x0=Math.max(cam.x-12,-N*32),y0=Math.max(cam.y-12,0),x1=Math.min(cam.x+viewW+12,N*32),y1=Math.min(cam.y+viewH+12,TC.height);if(GD)groundDraw(c);else if(x1>x0&&y1>y0)(window.drawTiled?drawTiled(c,TC,window.TCV|0,N*32,0,1,x0,y0,x1,y1,cam.z*dpr):c.drawImage(TC,x0+N*32,y0,x1-x0,y1-y0,x0,y0,x1-x0,y1-y0))}drawBuildGrid(c);ambientFX(c);
 if(window.drawOil)drawOil(c);const L=[];S.bld.forEach(b=>{if(b.type!='road'&&BT[b.type]&&vis(b.x+b.w/2,b.y+b.h/2,140+(b.w+b.h)*22))L.push([b.x+b.w-1+b.y+b.h-1+.5,()=>{if(window.bCache&&bCache(c,b))mir(c,b,(c,bb)=>buildingLifeFX(c,bb));else{shB(c,b);mir(c,b,(c,bb)=>{drawB(c,bb);buildingPolish(c,bb);buildingLifeFX(c,bb)})}}])});
 S.obs.forEach(o=>{if(vis(o.x+.5,o.y+.5,60)&&!(GD&&groundHas(o)))L.push([obsKey(o),()=>obsSpr(c,o)])});
 const OC=[];const inU=new Set(U.map(u=>u.p));S.ppl.forEach(p=>{if(p.away||p.inside||inU.has(p)||!vis(p.x,p.y,90))return;const f=()=>{FL=hitD(p,p.hp,'#c22');const fgt=T-(p.fg||-9)<.35,idl=!p.job&&!p.mv&&!horde&&!fgt,tt=S.dayT/600,ACT=fgt?8:(horde&&p.mv)?3:idl&&(tt>.78||tt<.03)?11:idl&&((tt>.4&&tt<.46)||(tt>.62&&tt<.68))?12:idl&&(p.id%3==0)?13:(p.job&&!p.mv&&!horde?1:0);EXP=ACT==11?'sleep':expOf(p,fgt);SXF=p.sex==='F'?1:0;OLDF=p.age>=55?1:0;KIDF=p.age<18?1:0;WPN=p.wp?p.wp.n:'';fig(p.x,p.y,(p.look&&p.look.shirt)||PC[p.prof],(p.sex==='F'?.85:.9)*(p.age<6?.6:p.age<18?.78:1),p.mv,(p.look&&p.look.skin)||0,p.arm||p.wp,p.dx,p.arm||p.prof,ACT,p.id,(p.look&&p.look.hair),!!(p.gear&&p.gear.armor),!!(p.gear&&p.gear.pack));if(p.preg&&window.pregBadge){const q=P(p.x,p.y);pregBadge(c,q[0]+9,q[1]-36,5.2)}else if(p.age<18&&window.kidBadge){const q=P(p.x,p.y);kidBadge(c,q[0]+8,q[1]-30,5,p.age<6)}drawSurvivorWear(c,p);{const q=P(p.x,p.y),oc=occl(p),bk=oc?0:ACT==11?'sleep':needOf(p);if(bk)drawBub(c,q[0]+(ACT==11?-8:0),q[1]-(ACT==11?36:55),bk);if(p.hp<mhp(p)-1&&!oc){c.fillStyle='#400';c.fillRect(q[0]-9,q[1]-45,18,3.4);c.fillStyle='#4e4';c.fillRect(q[0]-9,q[1]-45,18*cl(p.hp/mhp(p),0,1),3.4)}}};L.push([dk(p.x,p.y),f])});
@@ -5981,7 +5984,7 @@ window._qmShown=()=>shown;window._qm={vtpl,rngS,rollRar,lvlOf,rollGear,RW,giveGe
 (function(){
 'use strict';
 const TS=1024,M=new WeakMap();
-function lv(src,k){const f=1/(1<<k),w=Math.max(1,Math.ceil(src.width*f)),h=Math.max(1,Math.ceil(src.height*f)),t=[];
+function lv(src,k){if(window.PERFC)PERFC.lv++;const f=1/(1<<k),w=Math.max(1,Math.ceil(src.width*f)),h=Math.max(1,Math.ceil(src.height*f)),t=[];
  for(let y=0;y<h;y+=TS)for(let x=0;x<w;x+=TS){const cv=document.createElement('canvas');cv.width=Math.min(TS,w-x);cv.height=Math.min(TS,h-y);const g=cv.getContext('2d');g.imageSmoothingQuality='high';
   g.drawImage(src,x/f,y/f,cv.width/f,cv.height/f,0,0,cv.width,cv.height);t.push([x,y,cv])}
  return {f,t}}
@@ -6117,7 +6120,7 @@ function check(){const n=performance.now();if(n-chkT<250)return;chkT=n;
  const ch=[];for(const [k,o] of nb)if(!BK.has(k))ch.push(box(o));for(const [k,o] of BK)if(!nb.has(k))ch.push(box(o));BK=nb;
  if(!ch.length)return;for(const [k,e] of C){const r=rectOf(k);if(ch.some(b=>b[2]>=r[0]&&b[0]<=r[2]&&b[3]>=r[1]&&b[1]<=r[3]))e.dirty=true}}
 /* cada trozo lleva 2 px de margen a la derecha y abajo: se solapa con el vecino sin estirarse (sin juntas) */const MG=2;
-function paint(e,sc,i,j){GP++;const W=PW/sc,H=PH/sc,x0=i*W,y0=j*H,x1=x0+W+MG/sc,y1=y0+H+MG/sc;
+function paint(e,sc,i,j){GP++;if(window.PERFC)PERFC.tz++;const W=PW/sc,H=PH/sc,x0=i*W,y0=j*H,x1=x0+W+MG/sc,y1=y0+H+MG/sc;
  let cv=e&&e.cv;if(!cv){cv=document.createElement('canvas');cv.width=PW+MG;cv.height=PH+MG}const c=cv.getContext('2d');
  c.setTransform(1,0,0,1,0,0);c.fillStyle='#14210f';c.fillRect(0,0,PW+MG,PH+MG);c.setTransform(sc,0,0,sc,-x0*sc,-y0*sc);
  if(window.outerRegion)outerRegion(c,x0,y0,x1,y1,sc);
@@ -6138,7 +6141,7 @@ window.groundDraw=function(c){if(T!==lastT){lastT=T;budget=1}ready=new Set();che
   const x0=i*W,y0=j*H;
   /* un píxel de solape para que no se vean las juntas entre trozos */
   if(e){c.drawImage(e.cv,0,0,PW+MG,PH+MG,x0,y0,W+MG/USE,H+MG/USE);if(!e.dirty)ready.add(i+':'+j)}
-  else{if(window.outerRegion)outerRegion(c,x0,y0,x0+W+ov,y0+H+ov,s);const tx0=Math.max(x0,-N*32),ty0=Math.max(y0,0),tx1=Math.min(x0+W+ov,N*32),ty1=Math.min(y0+H+ov,TC?TC.height:0);if(TC&&tx1>tx0&&ty1>ty0)drawTiled(c,TC,window.TCV|0,N*32,0,1,tx0,ty0,tx1,ty1,s)}}
+  else{if(window.PERFC)PERFC.fb++;if(window.outerRegion)outerRegion(c,x0,y0,x0+W+ov,y0+H+ov,s);const tx0=Math.max(x0,-N*32),ty0=Math.max(y0,0),tx1=Math.min(x0+W+ov,N*32),ty1=Math.min(y0+H+ov,TC?TC.height:0);if(TC&&tx1>tx0&&ty1>ty0)drawTiled(c,TC,window.TCV|0,N*32,0,1,tx0,ty0,tx1,ty1,s)}}
  /* con cupo libre, se adelantan los trozos de alrededor */
  if(budget>0)for(let j=j0-1;j<=j1+1&&budget>0;j++)for(let i=i0-1;i<=i1+1&&budget>0;i++){const k=key(USE,i,j),e=C.get(k);if(!e||e.dirty){budget--;put(k,paint(e,USE,i,j))}}
  G.W=W;G.H=H};
@@ -10978,7 +10981,7 @@ function alloc(w,h){w+=2;h+=2;if(w>AS||h>AS)return null;const hh=Math.ceil(h/16)
  for(let i=0;i<PG.length;i++){const pg=PG[i];for(const sh of pg.sh){if(sh.h===hh&&sh.x+w<=AS){const r={pg:i,x:sh.x+1,y:sh.y+1};sh.x+=w;return r}}if(pg.y+hh<=AS){const sh={y:pg.y,h:hh,x:w};pg.sh.push(sh);pg.y+=hh;return {pg:i,x:1,y:sh.y+1}}}
  if(PG.length<MAXPG){newPage();return alloc(w-2,h-2)}return null}
 /* compactar: copia solo las imágenes vivas a páginas nuevas (copia de GPU a GPU, sin redibujar); los huecos viejos de otros zooms se liberan */
-function compact(){const old=PG.splice(0);const live=[...C.entries()].filter(([,e])=>e.sl).sort((a,b)=>b[1].H-a[1].H);
+function compact(){if(window.PERFC)PERFC.cp++;const old=PG.splice(0);const live=[...C.entries()].filter(([,e])=>e.sl).sort((a,b)=>b[1].H-a[1].H);
  for(const [id,e] of live){const sl=alloc(e.W,e.H);if(!sl){C.delete(id);continue}const o=old[e.sl.pg];PG[sl.pg].cv.getContext('2d').drawImage(o.cv,e.sl.x,e.sl.y,e.W,e.H,sl.x,sl.y,e.W,e.H);e.sl=sl}}
 function atlasReset(){PG.forEach(pg=>{pg.sh=[];pg.y=0;pg.cv.getContext('2d').clearRect(0,0,AS,AS)});C.clear();px=0}
 function paintIn(x,b,sq,bx){const og=window.g;window.g=x;try{shB(x,b);mir(x,b,(c,bb)=>{drawB(c,bb);buildingPolish(c,bb)})}finally{window.g=og}}
@@ -11003,7 +11006,7 @@ window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){last
  /* mientras el zoom cambia (pellizco) se reutiliza la imagen anterior escalada; se repinta al parar 0,3 s */if(Math.abs(s-ZS)>1e-4){ZS=s;ZT=T}if(e&&e.sq!==sq&&T-ZT<.3&&e.kb===kb&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]){blit(c,e);return true}
  const fresh=e&&e.k===k&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]&&(T-e.t<per||budget<=0);
  if(!fresh&&budget<=0&&e&&e.kb===kb&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]){/* sin cupo de repintado este fotograma: se usa la imagen anterior (otro zoom o fotograma de animación) en vez de dibujarlo entero */blit(c,e);return true}
- if(!fresh){if(budget<=0)return false;budget--;const an=animated(b,bx),tb=tbox(b,bx);
+ if(!fresh){if(budget<=0)return false;budget--;if(window.PERFC)PERFC.ed++;const an=animated(b,bx),tb=tbox(b,bx);
   const W=Math.ceil((tb[2]-tb[0])*sq),H=Math.ceil((tb[3]-tb[1])*sq);
   if(ATL_ON&&!an){/* solo los edificios quietos van al atlas: repintar a menudo una página ya dibujada obliga al navegador a copiarla entera *//* mismo tamaño que antes: se repinta en su hueco; si no, hueco nuevo (y si el atlas se llena, se vacía y se rehace poco a poco) */
    let sl=e&&e.sl&&e.W===W&&e.H===H?e.sl:null;if(!sl){if(e&&e.sl)e.sl=null;sl=alloc(W,H);if(!sl&&T-(window.__cmpT||-9)>1){window.__cmpT=T;compact();sl=alloc(W,H)}}
@@ -11435,7 +11438,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'179';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'181';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
@@ -11488,17 +11491,19 @@ window.figCacheStats=()=>({n:C.size,mpx:+(px/1e6).toFixed(2),repintados:RP});
    (pintado en la GPU, composición, recolector de basura...). Objetivo: fotograma ≤ 16,6 ms. */
 (function(){
 'use strict';
-let on=false;try{on=localStorage.getItem('ats_fps')==='1'}catch(e){}
+window.PERFC={tz:0,fb:0,ed:0,ar:0,lv:0,te:0,cp:0};let on=false;try{on=localStorage.getItem('ats_fps')==='1'}catch(e){}
 const A={upd:[],render:[],hud:[]},F=[];let el=null,lastF=0,lastShow=0;
 function wrap(k){const o=window[k];if(typeof o!=='function')return;const w=function(){if(!on)return o.apply(this,arguments);const t=performance.now();try{return o.apply(this,arguments)}finally{A[k].push(performance.now()-t)}};window[k]=w;try{(0,eval)(k+'=window.'+k)}catch(e){}}
 ['upd','render','hud'].forEach(wrap);
 const avg=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:0,p95=a=>{if(!a.length)return 0;const b=a.slice().sort((x,y)=>x-y);return b[Math.min(b.length-1,Math.floor(b.length*.95))]};
 const col=v=>v<=16.6?'#7fe07f':v<=33?'#f2c94c':'#ff6b5e';
 function box(){if(el)return el;el=document.createElement('div');el.id='fpsM';el.style.cssText='position:fixed;left:8px;bottom:8px;z-index:99999;background:rgba(0,0,0,.72);color:#e8e8e8;font:600 11px/1.35 ui-monospace,Menlo,Consolas,monospace;padding:5px 8px;border-radius:7px;pointer-events:none;white-space:pre;border:1px solid rgba(255,255,255,.15)';document.body.appendChild(el);return el}
-function tick(n){requestAnimationFrame(tick);if(!on){if(el)el.style.display='none';return}if(lastF)F.push(n-lastF);lastF=n;
+/* peor fotograma de los últimos 3 s y el trabajo que se hizo en él */let PV=null,WORST=null,wT=0;const snap=()=>Object.assign({},PERFC);
+function tick(n){requestAnimationFrame(tick);if(!on){if(el)el.style.display='none';return}if(lastF){const d=n-lastF;F.push(d);if(PV&&(!WORST||d>WORST.d||n-wT>3000)){WORST={d,c:PV};wT=n}}lastF=n;
+ {const cur=snap(),pr=tick._p||cur,dl={};for(const k in cur)dl[k]=cur[k]-pr[k];tick._p=cur;PV=dl}
  if(n-lastShow<1000)return;lastShow=n;const fr=avg(F),fps=fr?1000/fr:0,u=avg(A.upd),r=avg(A.render),h=A.hud.reduce((s,v)=>s+v,0)/Math.max(1,F.length),js=u+r+h,rest=Math.max(0,fr-js);
  const e=box();e.style.display='block';
- e.innerHTML=`<span style="color:${col(fr)}">${fps.toFixed(0)} fps · fotograma ${fr.toFixed(1)} ms (p95 ${p95(F).toFixed(1)})</span>\nlógica  ${u.toFixed(2)} ms (p95 ${p95(A.upd).toFixed(1)})\ndibujo  ${r.toFixed(2)} ms (p95 ${p95(A.render).toFixed(1)})\nbarra   ${h.toFixed(2)} ms\nresto   ${rest.toFixed(1)} ms <span style="opacity:.6">(GPU/navegador)</span>\nzoom ${(typeof cam!=='undefined'?cam.z:0).toFixed(2)} · res ${((typeof dpr!=='undefined'?dpr:0)).toFixed(2)}x`;
+ e.innerHTML=`<span style="color:${col(fr)}">${fps.toFixed(0)} fps · fotograma ${fr.toFixed(1)} ms (p95 ${p95(F).toFixed(1)})</span>\nlógica  ${u.toFixed(2)} ms (p95 ${p95(A.upd).toFixed(1)})\ndibujo  ${r.toFixed(2)} ms (p95 ${p95(A.render).toFixed(1)})\nbarra   ${h.toFixed(2)} ms\nresto   ${rest.toFixed(1)} ms <span style="opacity:.6">(GPU/navegador)</span>\n${WORST?`<span style="color:${col(WORST.d)}">peor 3 s: ${WORST.d.toFixed(0)} ms</span> · trozos ${WORST.c.tz} · sin trozo ${WORST.c.fb} · edificios ${WORST.c.ed}${WORST.c.cp?' · compactar':''} · árboles ${WORST.c.ar}${WORST.c.lv?' · niveles '+WORST.c.lv:''}${WORST.c.te?' · terreno':''}`:''}\nzoom ${(typeof cam!=='undefined'?cam.z:0).toFixed(2)} · res ${((typeof dpr!=='undefined'?dpr:0)).toFixed(2)}x`;
  F.length=0;A.upd.length=0;A.render.length=0;A.hud.length=0}
 
 /* interruptores de capas para encontrar qué cuesta en la GPU: se apaga una capa y se mira cuánto suben los fps (no se guardan) */

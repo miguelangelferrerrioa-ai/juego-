@@ -18,7 +18,7 @@ function alloc(w,h){w+=2;h+=2;if(w>AS||h>AS)return null;const hh=Math.ceil(h/16)
  for(let i=0;i<PG.length;i++){const pg=PG[i];for(const sh of pg.sh){if(sh.h===hh&&sh.x+w<=AS){const r={pg:i,x:sh.x+1,y:sh.y+1};sh.x+=w;return r}}if(pg.y+hh<=AS){const sh={y:pg.y,h:hh,x:w};pg.sh.push(sh);pg.y+=hh;return {pg:i,x:1,y:sh.y+1}}}
  if(PG.length<MAXPG){newPage();return alloc(w-2,h-2)}return null}
 /* compactar: copia solo las imágenes vivas a páginas nuevas (copia de GPU a GPU, sin redibujar); los huecos viejos de otros zooms se liberan */
-function compact(){const old=PG.splice(0);const live=[...C.entries()].filter(([,e])=>e.sl).sort((a,b)=>b[1].H-a[1].H);
+function compact(){if(window.PERFC)PERFC.cp++;const old=PG.splice(0);const live=[...C.entries()].filter(([,e])=>e.sl).sort((a,b)=>b[1].H-a[1].H);
  for(const [id,e] of live){const sl=alloc(e.W,e.H);if(!sl){C.delete(id);continue}const o=old[e.sl.pg];PG[sl.pg].cv.getContext('2d').drawImage(o.cv,e.sl.x,e.sl.y,e.W,e.H,sl.x,sl.y,e.W,e.H);e.sl=sl}}
 function atlasReset(){PG.forEach(pg=>{pg.sh=[];pg.y=0;pg.cv.getContext('2d').clearRect(0,0,AS,AS)});C.clear();px=0}
 function paintIn(x,b,sq,bx){const og=window.g;window.g=x;try{shB(x,b);mir(x,b,(c,bb)=>{drawB(c,bb);buildingPolish(c,bb)})}finally{window.g=og}}
@@ -43,7 +43,7 @@ window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){last
  /* mientras el zoom cambia (pellizco) se reutiliza la imagen anterior escalada; se repinta al parar 0,3 s */if(Math.abs(s-ZS)>1e-4){ZS=s;ZT=T}if(e&&e.sq!==sq&&T-ZT<.3&&e.kb===kb&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]){blit(c,e);return true}
  const fresh=e&&e.k===k&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]&&(T-e.t<per||budget<=0);
  if(!fresh&&budget<=0&&e&&e.kb===kb&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]){/* sin cupo de repintado este fotograma: se usa la imagen anterior (otro zoom o fotograma de animación) en vez de dibujarlo entero */blit(c,e);return true}
- if(!fresh){if(budget<=0)return false;budget--;const an=animated(b,bx),tb=tbox(b,bx);
+ if(!fresh){if(budget<=0)return false;budget--;if(window.PERFC)PERFC.ed++;const an=animated(b,bx),tb=tbox(b,bx);
   const W=Math.ceil((tb[2]-tb[0])*sq),H=Math.ceil((tb[3]-tb[1])*sq);
   if(ATL_ON&&!an){/* solo los edificios quietos van al atlas: repintar a menudo una página ya dibujada obliga al navegador a copiarla entera *//* mismo tamaño que antes: se repinta en su hueco; si no, hueco nuevo (y si el atlas se llena, se vacía y se rehace poco a poco) */
    let sl=e&&e.sl&&e.W===W&&e.H===H?e.sl:null;if(!sl){if(e&&e.sl)e.sl=null;sl=alloc(W,H);if(!sl&&T-(window.__cmpT||-9)>1){window.__cmpT=T;compact();sl=alloc(W,H)}}
