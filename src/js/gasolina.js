@@ -39,7 +39,7 @@ function genOil(){
  if(S.obs.length!==before)setTimeout(()=>{try{rebuild()}catch(e){}},0)}
 function ensure(){if(!S||!S.bld)return false;if(!S.parc)return false;if(!Array.isArray(S.oil))genOil();if(!S.gasG){S.gasG=1;S.res.gas=(S.res.gas||0)+15}return true}
 window.oilSite=function(x,y,w,h){if(!ensure())return false;return w===3&&h===3&&S.oil.some(o=>Math.abs(x-o.x)<=1&&Math.abs(y-o.y)<=1)};
-const OSPR={};
+const OSPR={};(window.__gfxR=window.__gfxR||[]).push(()=>{for(const k in OSPR)delete OSPR[k]});
 function rng(sd){let s=sd>>>0||1;return()=>(s=(s*1664525+1013904223)>>>0)/4294967296}
 function blob(x,cx,cy,rx,ry,k,ph){const n=20,pts=[];for(let i=0;i<n;i++){const a=i/n*Math.PI*2,r=k*(1+.2*Math.sin(a*3+ph[0])+.14*Math.sin(a*5+ph[1])+.09*Math.sin(a*2+ph[2]));pts.push([cx+Math.cos(a)*rx*r,cy+Math.sin(a)*ry*r])}
  x.beginPath();for(let i=0;i<n;i++){const p0=pts[i],p1=pts[(i+1)%n],mx=(p0[0]+p1[0])/2,my=(p0[1]+p1[1])/2;if(i===0)x.moveTo(mx,my);else x.quadraticCurveTo(p0[0],p0[1],mx,my)}

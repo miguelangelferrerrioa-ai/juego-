@@ -8,7 +8,7 @@
 'use strict';
 const PW=1024,PH=512,MAXC=22,C=new Map();let TS='',BS='',chkT=-1,ZS=0,ZT=-9,USE=0,budget=0,lastT=-1,ready=new Set(),GP=0;
 const LZ=new WeakMap();let BK=new Map();
-window.GROUND_ON=true;
+window.GROUND_ON=true;window.groundReset=()=>{C.clear();POOL.length=0;JOB=null;PEND=0};
 /* huella del terreno: copia a 256×128 y suma de píxeles (lectura pequeña, solo cuando se repinta el terreno) */
 let HC=null;window.tcHash=function(tc){try{if(!HC){HC=document.createElement('canvas');HC.width=256;HC.height=128}const x=HC.getContext('2d',{willReadFrequently:true});x.clearRect(0,0,256,128);x.drawImage(tc,0,0,256,128);const d=x.getImageData(0,0,256,128).data;let h=tc.width*7+tc.height;for(let i=0;i<d.length;i+=4)h=(h*31+d[i]*3+d[i+1]*5+d[i+2])%2147483647;return h}catch(e){return Math.random()}};
 const q3=s=>Math.pow(2,Math.round(Math.log2(Math.max(.2,s))*3)/3);

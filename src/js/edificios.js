@@ -132,7 +132,7 @@ function solar(c,x,y,z){const a=V(x,y+.6,z+5),b=V(x+.9,y+.6,z+5),d=V(x+.9,y,z+10
 function ac(c,x,y,z){vol(c,{x,y,w:.55,h:.45,z:8,z0:z,col:'#b9c0c2',mat:'metal',seed:3});const p=V(x+.27,y+.22,z+8);c.fillStyle='#2e3436';c.beginPath();c.ellipse(p[0],p[1],5.6,2.8,0,0,7);c.fill();c.strokeStyle='#6c7476';c.lineWidth=.8;c.beginPath();c.moveTo(p[0]-5,p[1]);c.lineTo(p[0]+5,p[1]);c.stroke()}
 function tank(c,x,y,z,col){const p=V(x,y,z);post(c,x-.12,y-.08,z,14,'#5b4a38');post(c,x+.12,y+.1,z,14,'#5b4a38');cyl(c,p[0],p[1]-14,9,17,col||'#7fa0aa',{bands:2})}
 
-const SPR={};
+const SPR={};(window.__gfxR=window.__gfxR||[]).push(()=>{for(const k in SPR)delete SPR[k]});
 /* ===== Rotación real en 4 direcciones =====
    Los pintores dibujan en su "marco" original (w0×h0). Con rot≠0 se transforma cada primitiva al marco del mundo,
    las caras visibles pasan a ser otras (laterales / trasera) y las piezas se reordenan por profundidad. */

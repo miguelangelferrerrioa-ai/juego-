@@ -359,7 +359,7 @@ window.exEnd=function(){const e=S.exp;
   shown=false;if(ov)ov.style.display='none';cancelAnimationFrame(raf);M=null;return oEnd.apply(this,arguments)};
 /* ---------- dibujo ---------- */
 const hs=(x,y)=>{let h=(x*374761393+y*668265263)^0x5bd1e995;h=(h^(h>>>13))*1274126177;return((h^(h>>>16))>>>0)/4294967296};
-let dark=null,FL=null;
+let dark=null,FL=null;window._qmReset=()=>{dark=null;FL=null};
 function drawFig(c,x,y,o){ // figura vista desde arriba: sombra, torso, cabeza, brazos/arma
   const r=o.r,fa=o.fa||0,cs=Math.cos(fa),sn=Math.sin(fa);
   c.fillStyle='#0006';c.beginPath();c.ellipse(x,y+r*.55,r*1.05,r*.55,0,0,7);c.fill();

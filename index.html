@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v213</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v216</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -810,6 +810,33 @@ if(document.body)start();else document.addEventListener('DOMContentLoaded',start
 /* ---- estilo ---- */
 const st=document.createElement('style');st.textContent='.ic{width:1em;height:1em;vertical-align:-.15em;flex:none;display:inline-block;overflow:visible}button>.ic:only-child{pointer-events:none}.ib>.ic{width:1.15em;height:1.15em}';document.head.appendChild(st);
 
+})();
+</script>
+<script>/* Lienzos perdidos: Chrome de Android, cuando le falta memoria gráfica, borra el contenido de los lienzos (pérdida de contexto).
+   El juego guarda muchas imágenes ya pintadas (terreno, atlas de edificios, trozos de suelo, árboles, texturas) y no se enteraba:
+   se veía el pueblo sin edificios, sin terreno y sin árboles. Ahora se detecta y se rehace todo solo. */
+(function(){
+'use strict';
+let ev=0;const mark=()=>{ev++};
+const oC=document.createElement.bind(document);
+document.createElement=function(t){const e=oC.apply(document,arguments);if(typeof t==='string'&&t.toLowerCase()==='canvas'){try{e.addEventListener('contextlost',mark);e.addEventListener('contextrestored',mark)}catch(x){}}return e};
+document.addEventListener('DOMContentLoaded',()=>{try{const c=document.getElementById('c');if(c){c.addEventListener('contextlost',mark);c.addEventListener('contextrestored',mark)}}catch(x){}});
+let done=0,lastEv=0,quiet=0;
+function flush(){try{window.PERFC&&(PERFC.lost=(PERFC.lost||0)+1)}catch(e){}
+ const T=(f)=>{try{f()}catch(e){}};
+ T(()=>{for(const k in TEXC)delete TEXC[k];for(const k in TPAT)delete TPAT[k]});
+ T(()=>{for(const k in OSP)delete OSP[k];for(const k in OAS)delete OAS[k];OAT[1]=[];OAT[2]=[]});
+ T(()=>{GLW=null;GLL=null;APOV=null});
+ T(()=>{TB=null;TBK='';window.__TK=null;dirtyT=1});
+ T(()=>window.bCacheClear&&bCacheClear());T(()=>window.groundReset&&groundReset());T(()=>window.tileReset&&tileReset());
+ T(()=>window.outerReset&&outerReset());T(()=>{NOI=null});(window.__gfxR||[]).forEach(f=>T(f));T(()=>window._qmReset&&_qmReset());
+ done++}
+/* se rehace cuando han pasado 400 ms sin más avisos (la pérdida y la recuperación llegan en ráfaga) */
+setInterval(()=>{if(ev!==lastEv){lastEv=ev;quiet=performance.now();return}if(ev&&quiet&&performance.now()-quiet>400&&done<ev){done=ev;flush();quiet=0}},200);
+window.gfxFlush=flush;
+/* botón manual en Opciones, por si el navegador no avisa */
+function addBtn(){const rl=document.getElementById('rl');if(!rl||document.getElementById('gfxBtn'))return;const b=document.createElement('button');b.id='gfxBtn';b.innerHTML='<i class="ib">🔄</i>Rehacer gráficos';b.onclick=()=>{try{tg(0)}catch(e){}flush();try{toast('Gráficos rehechos.')}catch(e){}};rl.appendChild(b)}
+setTimeout(addBtn,1500);setTimeout(addBtn,4000);
 })();
 </script>
 <script>
@@ -2529,7 +2556,7 @@ function solar(c,x,y,z){const a=V(x,y+.6,z+5),b=V(x+.9,y+.6,z+5),d=V(x+.9,y,z+10
 function ac(c,x,y,z){vol(c,{x,y,w:.55,h:.45,z:8,z0:z,col:'#b9c0c2',mat:'metal',seed:3});const p=V(x+.27,y+.22,z+8);c.fillStyle='#2e3436';c.beginPath();c.ellipse(p[0],p[1],5.6,2.8,0,0,7);c.fill();c.strokeStyle='#6c7476';c.lineWidth=.8;c.beginPath();c.moveTo(p[0]-5,p[1]);c.lineTo(p[0]+5,p[1]);c.stroke()}
 function tank(c,x,y,z,col){const p=V(x,y,z);post(c,x-.12,y-.08,z,14,'#5b4a38');post(c,x+.12,y+.1,z,14,'#5b4a38');cyl(c,p[0],p[1]-14,9,17,col||'#7fa0aa',{bands:2})}
 
-const SPR={};
+const SPR={};(window.__gfxR=window.__gfxR||[]).push(()=>{for(const k in SPR)delete SPR[k]});
 /* ===== Rotación real en 4 direcciones =====
    Los pintores dibujan en su "marco" original (w0×h0). Con rot≠0 se transforma cada primitiva al marco del mundo,
    las caras visibles pasan a ser otras (laterales / trasera) y las piezas se reordenan por profundidad. */
@@ -5817,7 +5844,7 @@ window.exEnd=function(){const e=S.exp;
   shown=false;if(ov)ov.style.display='none';cancelAnimationFrame(raf);M=null;return oEnd.apply(this,arguments)};
 /* ---------- dibujo ---------- */
 const hs=(x,y)=>{let h=(x*374761393+y*668265263)^0x5bd1e995;h=(h^(h>>>13))*1274126177;return((h^(h>>>16))>>>0)/4294967296};
-let dark=null,FL=null;
+let dark=null,FL=null;window._qmReset=()=>{dark=null;FL=null};
 function drawFig(c,x,y,o){ // figura vista desde arriba: sombra, torso, cabeza, brazos/arma
   const r=o.r,fa=o.fa||0,cs=Math.cos(fa),sn=Math.sin(fa);
   c.fillStyle='#0006';c.beginPath();c.ellipse(x,y+r*.55,r*1.05,r*.55,0,0,7);c.fill();
@@ -5994,7 +6021,7 @@ window._qmShown=()=>shown;/* mientras la misión ocupa la pantalla, el pueblo de
    - Con la cámara alejada se usa la versión reducida: se mueven 4 o 16 veces menos píxeles por fotograma. */
 (function(){
 'use strict';
-const TS=1024,M=new WeakMap();
+const TS=1024;let M=new WeakMap();window.tileReset=()=>{M=new WeakMap()};
 function lv(src,k){if(window.PERFC)PERFC.lv++;const f=1/(1<<k),w=Math.max(1,Math.ceil(src.width*f)),h=Math.max(1,Math.ceil(src.height*f)),t=[];
  for(let y=0;y<h;y+=TS)for(let x=0;x<w;x+=TS){const cv=document.createElement('canvas');cv.width=Math.min(TS,w-x);cv.height=Math.min(TS,h-y);const g=cv.getContext('2d');g.imageSmoothingQuality='high';
   g.drawImage(src,x/f,y/f,cv.width/f,cv.height/f,0,0,cv.width,cv.height);t.push([x,y,cv])}
@@ -6017,7 +6044,7 @@ window.drawTiled=function(c,src,ver,ox,oy,sc,x0,y0,x1,y1,dps){
 (function(){
 'use strict';
 const OM=16,SC=.5,W0=(N+2*OM)*32,TY=2*OM*16;
-let OC=null;
+let OC=null;window.outerReset=()=>{OC=null};
 const road=(x,y)=>((y===42||y===43)&&(x<0||x>=N))||((x===43||x===44)&&(y<0||y>=N));
 const dist=(x,y)=>Math.max(-x,-y,x-(N-1),y-(N-1));
 function build(){
@@ -6111,7 +6138,7 @@ window.outerBounds={x0:-W0,x1:W0,y0:-TY,y1:((N+2*OM)*32+40)-TY};
 'use strict';
 const PW=1024,PH=512,MAXC=22,C=new Map();let TS='',BS='',chkT=-1,ZS=0,ZT=-9,USE=0,budget=0,lastT=-1,ready=new Set(),GP=0;
 const LZ=new WeakMap();let BK=new Map();
-window.GROUND_ON=true;
+window.GROUND_ON=true;window.groundReset=()=>{C.clear();POOL.length=0;JOB=null;PEND=0};
 /* huella del terreno: copia a 256×128 y suma de píxeles (lectura pequeña, solo cuando se repinta el terreno) */
 let HC=null;window.tcHash=function(tc){try{if(!HC){HC=document.createElement('canvas');HC.width=256;HC.height=128}const x=HC.getContext('2d',{willReadFrequently:true});x.clearRect(0,0,256,128);x.drawImage(tc,0,0,256,128);const d=x.getImageData(0,0,256,128).data;let h=tc.width*7+tc.height;for(let i=0;i<d.length;i+=4)h=(h*31+d[i]*3+d[i+1]*5+d[i+2])%2147483647;return h}catch(e){return Math.random()}};
 const q3=s=>Math.pow(2,Math.round(Math.log2(Math.max(.2,s))*3)/3);
@@ -6901,7 +6928,7 @@ window.upd=function(dt){oU.apply(this,arguments);try{const e=S&&S.exp;if(!e||!e.
 (function(){
 'use strict';
 const K=window.NBK;if(!K||!window.nbDraw)return;
-const {vol,V,faceTf,post}=K,CACHE={},SC=2,PAD=44;
+const {vol,V,faceTf,post}=K,CACHE={},SC=2,PAD=44;(window.__gfxR=window.__gfxR||[]).push(()=>{for(const k in CACHE)delete CACHE[k]});
 const WH=38,GH=46;
 const isW=(x,y)=>{if(x<0||y<0||x>=N||y>=N)return 0;const o=bm[occ[y*N+x]];return o&&(o.type==='wall'||o.type==='gate')?1:0};
 function paint(c,type,mask,dm,l){
@@ -7118,7 +7145,7 @@ function genOil(){
  if(S.obs.length!==before)setTimeout(()=>{try{rebuild()}catch(e){}},0)}
 function ensure(){if(!S||!S.bld)return false;if(!S.parc)return false;if(!Array.isArray(S.oil))genOil();if(!S.gasG){S.gasG=1;S.res.gas=(S.res.gas||0)+15}return true}
 window.oilSite=function(x,y,w,h){if(!ensure())return false;return w===3&&h===3&&S.oil.some(o=>Math.abs(x-o.x)<=1&&Math.abs(y-o.y)<=1)};
-const OSPR={};
+const OSPR={};(window.__gfxR=window.__gfxR||[]).push(()=>{for(const k in OSPR)delete OSPR[k]});
 function rng(sd){let s=sd>>>0||1;return()=>(s=(s*1664525+1013904223)>>>0)/4294967296}
 function blob(x,cx,cy,rx,ry,k,ph){const n=20,pts=[];for(let i=0;i<n;i++){const a=i/n*Math.PI*2,r=k*(1+.2*Math.sin(a*3+ph[0])+.14*Math.sin(a*5+ph[1])+.09*Math.sin(a*2+ph[2]));pts.push([cx+Math.cos(a)*rx*r,cy+Math.sin(a)*ry*r])}
  x.beginPath();for(let i=0;i<n;i++){const p0=pts[i],p1=pts[(i+1)%n],mx=(p0[0]+p1[0])/2,my=(p0[1]+p1[1])/2;if(i===0)x.moveTo(mx,my);else x.quadraticCurveTo(p0[0],p0[1],mx,my)}
@@ -11485,7 +11512,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'213';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'216';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';

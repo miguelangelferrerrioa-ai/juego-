@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 const OM=16,SC=.5,W0=(N+2*OM)*32,TY=2*OM*16;
-let OC=null;
+let OC=null;window.outerReset=()=>{OC=null};
 const road=(x,y)=>((y===42||y===43)&&(x<0||x>=N))||((x===43||x===44)&&(y<0||y>=N));
 const dist=(x,y)=>Math.max(-x,-y,x-(N-1),y-(N-1));
 function build(){

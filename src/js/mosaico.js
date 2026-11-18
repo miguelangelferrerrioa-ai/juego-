@@ -3,7 +3,7 @@
    - Con la cámara alejada se usa la versión reducida: se mueven 4 o 16 veces menos píxeles por fotograma. */
 (function(){
 'use strict';
-const TS=1024,M=new WeakMap();
+const TS=1024;let M=new WeakMap();window.tileReset=()=>{M=new WeakMap()};
 function lv(src,k){if(window.PERFC)PERFC.lv++;const f=1/(1<<k),w=Math.max(1,Math.ceil(src.width*f)),h=Math.max(1,Math.ceil(src.height*f)),t=[];
  for(let y=0;y<h;y+=TS)for(let x=0;x<w;x+=TS){const cv=document.createElement('canvas');cv.width=Math.min(TS,w-x);cv.height=Math.min(TS,h-y);const g=cv.getContext('2d');g.imageSmoothingQuality='high';
   g.drawImage(src,x/f,y/f,cv.width/f,cv.height/f,0,0,cv.width,cv.height);t.push([x,y,cv])}

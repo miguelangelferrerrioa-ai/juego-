@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 const K=window.NBK;if(!K||!window.nbDraw)return;
-const {vol,V,faceTf,post}=K,CACHE={},SC=2,PAD=44;
+const {vol,V,faceTf,post}=K,CACHE={},SC=2,PAD=44;(window.__gfxR=window.__gfxR||[]).push(()=>{for(const k in CACHE)delete CACHE[k]});
 const WH=38,GH=46;
 const isW=(x,y)=>{if(x<0||y<0||x>=N||y>=N)return 0;const o=bm[occ[y*N+x]];return o&&(o.type==='wall'||o.type==='gate')?1:0};
 function paint(c,type,mask,dm,l){
