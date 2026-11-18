@@ -224,11 +224,11 @@ function drawMo(){const m=M.mo;if(!m||m.done)return;const pulse=(x,y,col,lab,pro
 function gen(e){
   let th=themeOf(e);let T=null;const story=e.z.chap!==undefined;
   if(!story&&e.seed===undefined)e.seed=Math.floor(Math.random()*1e9);
-  if(th&&PAL[th]){const sk=e.z.n+':'+(e.dist||1)+':'+e.step+(story?'':':'+e.seed);
+  if(th&&PAL[th]){const sk=e.z.n+':'+(e.dist||1)+':'+e.step+(story?'':':'+e.seed)+((e.zn||1)>1?':z'+e.zn:'');
     if(story){const R=rngS(sk);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)))}
     else{if(th=='house')th='casa';for(let i=0;i<14&&!T;i++){const R=rngS(sk+':'+i);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)),vtpl(th,R,e.z.sub))}if(!T){th=themeOf(e);if(th=='casa')th='house';const R=rngS(sk);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)))}}}
   const M0=genDefault(e,T);unPocket(M0);M0.theme=T?th:null;M0.pal=T?PAL[th]:null;if(T){M0.fv=T.fv;M0.pr=T.pr;M0.dc=T.dc}
-  setMode(M0,e);try{dangerInit(M0,e)}catch(er){}return M0}
+  setMode(M0,e);try{dangerInit(M0,e)}catch(er){}try{if((e.zn||1)>1)prepCross(M0,e)}catch(er){}return M0}
 /* Huecos cerrados por paredes: lo que cae dentro (coches, cajas, enemigos…) se mueve a la casilla alcanzable más cercana, para que todo se pueda coger o abatir */
 function unPocket(M){try{const R=new Uint8Array(COLS*ROWS),q=[];const sol=(x,y)=>x<0||y<0||x>=COLS||y>=ROWS||M.g[y][x]>0;
   (M.units||[]).forEach(u=>{const x=Math.floor(u.x),y=Math.floor(u.y);if(!sol(x,y)&&!R[y*COLS+x]){R[y*COLS+x]=1;q.push([x,y])}});if(!q.length)return;
@@ -355,13 +355,13 @@ function atExit(){return M.units.filter(isAl).every(inExit)}
 function hasDown(){return M.units.some(u=>!u.dead&&u.p.hp<=0)}
 function leave(){const e=S.exp;if(!e)return;e.log.push('Enemigos abatidos: '+(M.kills||0)+(M.revived?' · Compañeros reanimados: '+M.revived:''));e.fin=1;shown=false;ov.style.display='none';cancelAnimationFrame(raf);exEnd()}
 window.exEnd=function(){const e=S.exp;
-  if(e&&!e.fin&&tm(e).length){if(!e.complete){e.complete=1;toast('✅ Objetivo cumplido. Vuelve a la salida con tu equipo.');setTimeout(()=>{giveGear(lvlOf(e.z),1);givePlan(lvlOf(e.z))},900)}return}
+  if(e&&!e.fin&&tm(e).length){if(!e.complete&&M&&!M.pv&&(e.zn||1)<(e.zt||1)&&(e.zn||1)===1){nextZone(e);return}if(!e.complete){e.complete=1;toast('✅ Objetivo cumplido. Vuelve a la salida con tu equipo.');setTimeout(()=>{giveGear(lvlOf(e.z),1);givePlan(lvlOf(e.z))},900)}return}
   shown=false;if(ov)ov.style.display='none';cancelAnimationFrame(raf);M=null;return oEnd.apply(this,arguments)};
 /* ---------- peligro de las misiones: barra de peligro, patrullas, trampas, emboscadas y evacuación ---------- */
 const HZ={wire:['Alambre de espino','#9aa0a4'],acid:['Charco de ácido','#8adf3a'],mine:['Mina','#c23a2e'],floor:['Suelo que cede','#7a5a3a']};
 function freeTiles(M0,x0){const f=[],busy=new Set();['pois','crates','cars','meds','barrels','en'].forEach(k=>(M0[k]||[]).forEach(o=>busy.add(Math.floor(o.x)+','+Math.floor(o.y))));(M0.units||[]).forEach(u=>busy.add(Math.floor(u.x)+','+Math.floor(u.y)));
  for(let y=1;y<ROWS-1;y++)for(let x=x0;x<COLS-1;x++)if(!M0.g[y][x]&&!busy.has(x+','+y))f.push([x,y]);return f}
-function dangerInit(M0,e){if(M0.pv)return;const L=lvlOf(e.z);M0.dg=0;M0.dgT=0;M0.dgN=0;M0.evac={need:Math.min(35,20+Math.floor(L/2)),t:0,on:0,done:0,w:3};
+function dangerInit(M0,e){if(M0.pv)return;const L=lvlOf(e.z);if(!e.zt){e.zn=1;e.zt=(L>=14||(M0.mo&&M0.mo.k==='boss'))?3:2}M0.zk=e.zn||1;M0.dg=0;M0.dgT=0;M0.dgN=0;M0.evac={need:Math.min(35,20+Math.floor(L/2)),t:0,on:0,done:0,w:3};
  /* trampas */const f=freeTiles(M0,6),n=Math.min(f.length,8,4+Math.floor(L/6)),ks=Object.keys(HZ);M0.hz=[];for(let i=0;i<n;i++){const t=f.splice(Math.floor(Math.random()*f.length),1)[0];M0.hz.push({k:ks[Math.floor(Math.random()*ks.length)],x:t[0]+.5,y:t[1]+.5,on:1})}
  /* patrullas: un tercio de los enemigos camina por el mapa */M0.en.forEach(z=>{if(z.boss||Math.random()>.33)return;z.pat=1});
  /* emboscadas: una de cada cuatro cajas esconde enemigos */(M0.crates||[]).forEach(c=>{if(Math.random()<.25)c.amb=1})}
@@ -369,6 +369,12 @@ function spawnAt(x,y,n,wake){const e=S.exp,lvl=lvlOf(e.z),hpM=.85+.035*lvl,dmM=.
  for(let i=0;i<n&&t.length;i++){const q=t.splice(Math.floor(Math.random()*t.length),1)[0],ty=mixType(lvl,Math.random,themeOf(e)),hp=Math.round(ZT[ty].hp*hpM);M.en.push({t:ty,x:q[0],y:q[1],hp,mhp:hp,st:wake?1:0,path:[],pt:0,dm:dmM,cd:1})}}
 function ambush(c){const lvl=lvlOf(S.exp.z),n=2+Math.floor(lvl/6);spawnAt(c.x,c.y,n,1);M.shake=.4;addFl(M,c.x,c.y,'¡Emboscada!','#ff4a3a');toast('⚠ ¡Emboscada! Salen infectados escondidos.');M.dg=Math.min(100,(M.dg||0)+8)}
 /* oleada desde los bordes del mapa, lejos del equipo */
+function prepCross(M0,e){M0.pois=[];M0.mo=null;
+ /* el equipo entra por la derecha: la salida queda al otro lado del mapa */const st=nearTiles(M0,COLS-2.5,5.5,M0.units.length+4);M0.units.forEach((u,i)=>{const q=st[i]||[COLS-2.5,5.5];u.x=q[0];u.y=q[1];u.home=[q[0],q[1]];u.path=[]});
+ M0.en=M0.en.filter(z=>!M0.units.some(u=>Math.hypot(u.x-z.x,u.y-z.y)<5));
+ M0.units.forEach(u=>{for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if(Math.hypot(x+.5-u.x,y+.5-u.y)<=3)M0.vis[y*COLS+x]=2})}
+function nextZone(e){const dg=M.dg||0,kills=M.kills||0,rev=M.revived||0;e.zn=(e.zn||1)+1;const nm=gen(e);nm.step0=e.z.n;nm.dg=Math.max(0,dg-15);nm.dgN=Math.floor(nm.dg/34);nm.kills=kills;nm.revived=rev;M=nm;evOpen=false;
+ toast(e.zn===2?'✅ Objetivo cumplido. Ahora el camino de vuelta: cruzad '+(e.zt-1)+' zona'+(e.zt-1>1?'s':'')+' hasta el punto de evacuación.':'➡ Zona '+e.zn+'/'+e.zt+': seguid hacia la salida.');try{sfx('done')}catch(er){}}
 function wave(n){const al=M.units.filter(isAl);const f=[];for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++){if(M.g[y][x])continue;const edge=x>=COLS-3||y<=1||y>=ROWS-2;if(!edge||x<8)continue;if(al.some(u=>Math.hypot(u.x-x,u.y-y)<6))continue;f.push([x,y])}
  if(!f.length)return;const c=f[Math.floor(Math.random()*f.length)];spawnAt(c[0]+.5,c[1]+.5,n,1)}
 function dangerStep(dt,al){if(M.pv||M.dg===undefined)return;const e=S.exp,lvl=lvlOf(e.z);
@@ -383,6 +389,7 @@ function dangerStep(dt,al){if(M.pv||M.dg===undefined)return;const e=S.exp,lvl=lv
    else if(h.k==='mine'){h.on=0;M.shake=.6;M.vis[Math.floor(h.y)*COLS+Math.floor(h.x)]=2;M.units.filter(isAl).forEach(o=>{if(Math.hypot(o.x-h.x,o.y-h.y)<1.7){o.p.hp-=32;addFl(M,o.x,o.y,'-32','#ff7b6b')}});M.en.forEach(z=>{if(Math.hypot(z.x-h.x,z.y-h.y)<1.7)z.hp-=60});M.tr.push({a:{x:h.x,y:h.y},b:{x:h.x+.01,y:h.y},l:.3,m:true,c:'#ffb040'});addFl(M,h.x,h.y,'¡BOOM!','#ff9a30');toast('💥 ¡Una mina!');M.dg=Math.min(100,M.dg+10)}
    else if(h.k==='floor'){h.on=0;p.hp-=16;u.slow=3;M.shake=.3;addFl(M,u.x,u.y,'¡El suelo cede! -16','#ff7b6b')}});
   if(h.on&&h.k==='mine')M.en.forEach(z=>{if(z.st&&tile(z)){h.on=0;M.en.forEach(q=>{if(Math.hypot(q.x-h.x,q.y-h.y)<1.7)q.hp-=60});addFl(M,h.x,h.y,'¡BOOM!','#ff9a30');M.shake=.4}})});
+ /* camino de vuelta: al llegar a la salida, siguiente zona o evacuación */if(M.zk>1&&!e.complete&&atExit()&&!hasDown()&&al.length){if(e.zn<e.zt){nextZone(e);return}e.complete=1;toast('🏁 ¡Habéis llegado al punto de evacuación! Pulsa «Pedir evacuación» y aguantad.');setTimeout(()=>{giveGear(lvlOf(e.z),1);givePlan(lvlOf(e.z))},900)}
  /* evacuación */const v=M.evac;if(v&&v.on&&!v.done){if(atExit()&&!hasDown())v.t+=dt;v.w-=dt;if(v.w<=0){v.w=8;wave(1+Math.floor(lvl/8))}
   if(v.t>=v.need){v.done=1;toast('🚁 ¡Ha llegado la ayuda! Salís de la zona.');setTimeout(()=>{if(S.exp&&M)leave()},700)}}}
 function drawHz(){(M.hz||[]).forEach(h=>{if(!h.on||M.vis[Math.floor(h.y)*COLS+Math.floor(h.x)]!==2)return;const x=h.x*ts,y=h.y*ts,r=ts*.38;
@@ -523,7 +530,7 @@ function draw(){
   const gr2=dc.createRadialGradient(2.5*ts,5.5*ts,ts,2.5*ts,5.5*ts,ts*4);gr2.addColorStop(0,'rgba(0,0,0,.8)');gr2.addColorStop(1,'rgba(0,0,0,0)');dc.fillStyle=gr2;dc.beginPath();dc.arc(2.5*ts,5.5*ts,ts*4,0,7);dc.fill();
   cx.drawImage(dark,0,0,ts*COLS,ts*ROWS)}
   cx.restore();try{drawDanger(W,H)}catch(er){}
-  const e=S.exp;if(e){$('qm_t').textContent=e.z.n+' · amenaza '+threatOf(lvlOf(e.z));$('qm_o').textContent=e.complete?'Objetivo cumplido · vuelve a la salida':(M.mo&&!M.mo.done)?moTxt():'Eventos '+Math.min(e.step,nR(e))+'/'+nR(e)+' · botín '+(Object.keys(e.loot).map(k=>k+' '+Math.round(e.loot[k])).join(', ')||'—');
+  const e=S.exp;if(e){$('qm_t').textContent=e.z.n+' · amenaza '+threatOf(lvlOf(e.z));$('qm_o').textContent=(M.zk>1&&!e.complete)?('Camino de vuelta · zona '+M.zk+'/'+e.zt+' · cruzad hasta la salida'):e.complete?'Objetivo cumplido · vuelve a la salida':(M.mo&&!M.mo.done)?moTxt():'Eventos '+Math.min(e.step,nR(e))+'/'+nR(e)+' · botín '+(Object.keys(e.loot).map(k=>k+' '+Math.round(e.loot[k])).join(', ')||'—');
     const ex=atExit(),ev=M.evac&&M.evac.on&&!M.evac.done;$('qm_ret').textContent=ev?('Evacuando… '+Math.ceil(M.evac.need-M.evac.t)+' s'):ex?(e.complete?(M.evac&&!M.evac.done&&!M.pv?'📻 Pedir evacuación':'Salir ✓'):'Salir (abandonar)'):'Ir a la salida';$('qm_ret').className=ex&&e.complete?'good':'';
     $('qm_med').disabled=S.res.meds<2}
 }
