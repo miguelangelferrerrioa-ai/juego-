@@ -18,6 +18,7 @@ const POOL=[
 const REW=[{alloy:15,steel:30},{concrete:40,glass:30},{rp:60,ammo:60}];
 function cur(){const f=F(),w=week();if(f.wk!==w){f.wk=w;f.base={};f.got={};const sel=[];let s=w*7+3;while(sel.length<3){s=(s*31+17)%997;const i=s%POOL.length;if(!sel.includes(i))sel.push(i)}f.sel=sel;sel.forEach(i=>{f.base[POOL[i].k]=POOL[i].v()||0})}
  const sc=1+Math.min(3,Math.floor(w/4))*.5;return f.sel.map((i,j)=>{const P=POOL[i],need=Math.max(1,Math.round(P.n0*sc)),prog=Math.max(0,(P.v()||0)-(f.base[P.k]||0));return {P,need,prog:Math.min(need,prog),done:prog>=need,got:!!f.got[P.k],rew:REW[j]}})}
+window.finReady=()=>{try{return on()&&cur().some(r=>r.done&&!r.got)}catch(e){return false}};
 window.finClaim=k=>{const f=F(),L=cur(),r=L.find(x=>x.P.k===k);if(!r||!r.done||r.got)return;f.got[k]=1;for(const x in r.rew)S.res[x]=(S.res[x]||0)+r.rew[x];try{toast('🏆 Reto completado: '+cs(r.rew))}catch(e){}try{save()}catch(e){}finMenu()};
 /* contadores */
 const W=(n,fn)=>{const o=window[n];if(typeof o!=='function')return;window[n]=function(){return fn.call(this,o,arguments)};try{(0,eval)(n+'=window.'+n)}catch(e){}};
