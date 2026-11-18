@@ -8,7 +8,7 @@ const CATS=[
  ['def','🛡','Defensa',['wall','gate','trap','tower','mtower','turret','bunker','sniper','fortif']],
  ['ent','🎓','Entrenamiento',['barr','tr_Médico','tr_Soldado','tr_Constructor','tr_Agricultor','tr_Cocinero','tr_Explorador','tr_Mecánico','tr_Recolector','tr_Científico','gym','agil','biblio','salon','escuela']],
  ['sal','🩺','Salud',['hosp','pharm','lab','elab','abxlab','hospc']]];
-window.bTab=window.bTab||'ciudad';
+window.BCATS=CATS;window.bTab=window.bTab||'ciudad';
 {const st=document.createElement('style');st.textContent='.bcard.blim{opacity:.6;filter:grayscale(.5)}';document.head.appendChild(st)}
 /* Formaciones desbloqueadas por potencia del rol: las básicas primero, las más fuertes con ayuntamiento alto */
 [['Recolector',2,{wood:110,metal:25}],['Agricultor',2,{wood:120,metal:30}],['Cocinero',3,{wood:140,metal:50}],['Constructor',3,{wood:170,metal:80}],['Mecánico',4,{wood:200,metal:140}],['Médico',5,{wood:230,metal:150,meds:20}],['Explorador',6,{wood:260,metal:180}],['Soldado',7,{wood:300,metal:240,ammo:40}],['Científico',9,{wood:380,metal:320,comp:20}]].forEach(([pf,lv,c])=>{const d=BT['tr_'+pf];if(d){d.lv=lv;d.cost=c}});

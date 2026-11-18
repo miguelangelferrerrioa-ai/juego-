@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v236</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v240</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -2181,7 +2181,7 @@ function obsSpr(c,ob){const sc=(dpr*cam.z)>1.2?2:1,bk=ob.t+(ob.l?'L':'')+biomeAt
  c.drawImage(s.cv,s.x,s.y,100*sc,110*sc,p[0]-50,p[1]-90,100,110)}
 /* orden de dibujo de árboles/rocas: en caché mientras no cambien los edificios (antes recorría todos los edificios por cada árbol en cada fotograma) */const OKC=new WeakMap();let OKS='',OKT=-1;function obsKey(o){{const nw=performance.now();if(nw-OKT>12){OKT=nw;let h=S.bld.length;for(const b of S.bld)h=(h*31+b.x*7+b.y*13+b.w*3+b.h)%1e9;const ns=h+'';if(ns!==OKS){OKS=ns}}}const e=OKC.get(o);if(e&&e[0]===OKS&&e[2]===o.x&&e[3]===o.y)return e[1];const k=obsKey0(o);OKC.set(o,[OKS,k,o.x,o.y]);return k}
 let GLL=null;function glowLayer(){let h=S.bld.length;for(const b of S.bld)h=(h*31+b.x*7+b.y*13+b.w*3+b.h+(b.type.length))%1e9;if(GLL&&GLL.k===h)return GLL;
- const sc=.25,G=[];let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;S.bld.forEach(b=>{if(b.type=='road'||!BT[b.type])return;const q=P(b.x+b.w/2,b.y+b.h/2),rr=24+b.w*10,cy=q[1]-BT[b.type].z*.4;G.push([q[0],cy,rr]);x0=Math.min(x0,q[0]-rr);x1=Math.max(x1,q[0]+rr);y0=Math.min(y0,cy-rr);y1=Math.max(y1,cy+rr)});
+ const sc=.25,G=[];let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;S.bld.forEach(b=>{if(b.type=='road'||!BT[b.type]||BT[b.type].deco)return;const q=P(b.x+b.w/2,b.y+b.h/2),rr=24+b.w*10,cy=q[1]-BT[b.type].z*.4;G.push([q[0],cy,rr]);x0=Math.min(x0,q[0]-rr);x1=Math.max(x1,q[0]+rr);y0=Math.min(y0,cy-rr);y1=Math.max(y1,cy+rr)});
  if(!G.length){GLL={k:h,cv:null};return null}const cv=(GLL&&GLL.cv)||document.createElement('canvas');cv.width=Math.max(1,Math.ceil((x1-x0)*sc));cv.height=Math.max(1,Math.ceil((y1-y0)*sc));const x=cv.getContext('2d');x.clearRect(0,0,cv.width,cv.height);x.globalCompositeOperation='lighter';x.globalAlpha=.45*.85;
  for(const [gx,gy,rr] of G)x.drawImage(glowSpr(),(gx-rr-x0)*sc,(gy-rr-y0)*sc,rr*2*sc,rr*2*sc);GLL={k:h,cv,x0,y0,s:sc};return GLL}
 let GLW=null;function glowSpr(){if(GLW)return GLW;GLW=document.createElement('canvas');GLW.width=GLW.height=128;const x=GLW.getContext('2d'),g=x.createRadialGradient(64,64,64*2/34,64,64,64);g.addColorStop(0,'rgba(255,190,90,1)');g.addColorStop(1,'rgba(255,150,50,0)');x.fillStyle=g;x.fillRect(0,0,128,128);return GLW}
@@ -2201,7 +2201,7 @@ function groundB(c,b){const k=b.type;if(k=='road'||k=='bridge'||k=='dock'||k=='w
  const ring=(m,col)=>{poly(c,[P(b.x-m,b.y-m),P(b.x+b.w+m,b.y-m),P(b.x+b.w+m,b.y+b.h+m),P(b.x-m,b.y+b.h+m)],col)};
  ring(e,'rgba(112,86,52,.42)');ring(e*.55,'rgba(88,64,38,.5)');ring(.1,'rgba(40,26,14,.38)');c.restore();
  for(let i=0;i<14;i++){const r1=hh(b.x*7+i,b.y*3+i),r2=hh(b.y*5+i,b.x*11+i),u=-e+r1*(b.w+2*e),v=-e+r2*(b.h+2*e);if(u>0&&u<b.w&&v>0&&v<b.h)continue;const p=P(b.x+u,b.y+v);c.fillStyle=i%3?'rgba(70,50,30,.55)':'rgba(150,140,120,.7)';c.beginPath();c.ellipse(p[0],p[1],1.6+r1*1.6,.9+r2,0,0,7);c.fill()}}
-function shB(c,b){groundB(c,b);const z=BT[b.type].z*.6,a=P(b.x,b.y),b2=P(b.x+b.w,b.y),d=P(b.x+b.w,b.y+b.h),e=P(b.x,b.y+b.h),o=[z*.9,z*.45];poly(c,[a,b2,d,e],'rgba(0,0,0,.2)');poly(c,[[e[0],e[1]],[d[0],d[1]],[d[0]+o[0],d[1]+o[1]],[e[0]+o[0],e[1]+o[1]]],'rgba(0,0,0,.17)');poly(c,[[b2[0],b2[1]],[d[0],d[1]],[d[0]+o[0],d[1]+o[1]],[b2[0]+o[0],b2[1]+o[1]]],'rgba(0,0,0,.17)')}
+function shB(c,b){if(BT[b.type]&&BT[b.type].deco)return;groundB(c,b);const z=BT[b.type].z*.6,a=P(b.x,b.y),b2=P(b.x+b.w,b.y),d=P(b.x+b.w,b.y+b.h),e=P(b.x,b.y+b.h),o=[z*.9,z*.45];poly(c,[a,b2,d,e],'rgba(0,0,0,.2)');poly(c,[[e[0],e[1]],[d[0],d[1]],[d[0]+o[0],d[1]+o[1]],[e[0]+o[0],e[1]+o[1]]],'rgba(0,0,0,.17)');poly(c,[[b2[0],b2[1]],[d[0],d[1]],[d[0]+o[0],d[1]+o[1]],[b2[0]+o[0],b2[1]+o[1]]],'rgba(0,0,0,.17)')}
 function lightFX(c,cv){const t=S.dayT/600,W=cv.width,H=cv.height;let col=null,a=0,nf=0;
 if(t<.08){col='255,190,120';a=.5*(1-t/.08)}else if(t>=.62&&t<.8){col='255,150,90';a=.55*(t-.62)/.18}else if(t>=.8){const k=Math.min(1,(t-.8)/.1);col='70,85,150';a=.55+.2*k;nf=k}
 c.setTransform(1,0,0,1,0,0);if(t>=.04&&t<.62){c.fillStyle='rgba(255,190,100,.05)';c.fillRect(0,0,W,H)}if(col&&!window.PERF_NOBLEND){c.globalCompositeOperation='multiply';c.globalAlpha=a;c.fillStyle='rgb('+col+')';c.fillRect(0,0,W,H);c.globalAlpha=1;c.globalCompositeOperation='source-over'}
@@ -7001,7 +7001,7 @@ const CATS=[
  ['def','🛡','Defensa',['wall','gate','trap','tower','mtower','turret','bunker','sniper','fortif']],
  ['ent','🎓','Entrenamiento',['barr','tr_Médico','tr_Soldado','tr_Constructor','tr_Agricultor','tr_Cocinero','tr_Explorador','tr_Mecánico','tr_Recolector','tr_Científico','gym','agil','biblio','salon','escuela']],
  ['sal','🩺','Salud',['hosp','pharm','lab','elab','abxlab','hospc']]];
-window.bTab=window.bTab||'ciudad';
+window.BCATS=CATS;window.bTab=window.bTab||'ciudad';
 {const st=document.createElement('style');st.textContent='.bcard.blim{opacity:.6;filter:grayscale(.5)}';document.head.appendChild(st)}
 /* Formaciones desbloqueadas por potencia del rol: las básicas primero, las más fuertes con ayuntamiento alto */
 [['Recolector',2,{wood:110,metal:25}],['Agricultor',2,{wood:120,metal:30}],['Cocinero',3,{wood:140,metal:50}],['Constructor',3,{wood:170,metal:80}],['Mecánico',4,{wood:200,metal:140}],['Médico',5,{wood:230,metal:150,meds:20}],['Explorador',6,{wood:260,metal:180}],['Soldado',7,{wood:300,metal:240,ammo:40}],['Científico',9,{wood:380,metal:320,comp:20}]].forEach(([pf,lv,c])=>{const d=BT['tr_'+pf];if(d){d.lv=lv;d.cost=c}});
@@ -11545,7 +11545,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'236';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'240';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
@@ -12047,9 +12047,9 @@ const D=[
  ['a10','🏛','Capital','Ayuntamiento nivel 10',10,()=>hallLv(),'Capital',{metal:200}],
  ['a15','🏛','Sede del Consejo','Ayuntamiento nivel 15',15,()=>hallLv(),'Sede del Consejo',{concrete:30}],
  ['a25','🏛','La ciudad renace','Ayuntamiento nivel 25',25,()=>hallLv(),'Ciudad renacida',{alloy:40}],
- ['b50','🏗','Constructores','Ten 50 edificios',50,()=>S.bld.filter(b=>b.type!=='road'&&b.type!=='wall').length,'Constructores',{plank:40}],
- ['b100','🏗','Urbanistas','Ten 100 edificios',100,()=>S.bld.filter(b=>b.type!=='road'&&b.type!=='wall').length,'Urbanistas',{sheet:40}],
- ['b200','🏗','Gran ciudad','Ten 200 edificios',200,()=>S.bld.filter(b=>b.type!=='road'&&b.type!=='wall').length,'Gran ciudad',{steel:30}],
+ ['b50','🏗','Constructores','Ten 50 edificios',50,()=>S.bld.filter(b=>b.type!=='road'&&b.type!=='wall'&&!(BT[b.type]&&BT[b.type].deco)).length,'Constructores',{plank:40}],
+ ['b100','🏗','Urbanistas','Ten 100 edificios',100,()=>S.bld.filter(b=>b.type!=='road'&&b.type!=='wall'&&!(BT[b.type]&&BT[b.type].deco)).length,'Urbanistas',{sheet:40}],
+ ['b200','🏗','Gran ciudad','Ten 200 edificios',200,()=>S.bld.filter(b=>b.type!=='road'&&b.type!=='wall'&&!(BT[b.type]&&BT[b.type].deco)).length,'Gran ciudad',{steel:30}],
  ['k100','🎯','Cazadores','Abate 100 infectados',100,()=>S.stat.kills,'Cazadores',{ammo:40}],
  ['k1000','🎯','Exterminadores','Abate 1.000 infectados',1000,()=>S.stat.kills,'Exterminadores',{ammo:100}],
  ['k10000','🎯','Plaga humana','Abate 10.000 infectados',10000,()=>S.stat.kills,'La plaga de la plaga',{alloy:25}],
@@ -12122,6 +12122,120 @@ setInterval(()=>tick(0),700);
 const st=document.createElement('style');st.textContent=`#qhn{position:fixed;z-index:40;display:none;align-items:center;gap:7px;max-width:min(300px,34vw);padding:5px 7px 5px 8px;border-radius:11px;background:rgba(14,19,11,.9);border:1.5px solid #c9a23a;color:#e8e2cc;font:600 11.5px/1.25 system-ui;box-shadow:0 3px 12px #0008;cursor:pointer;animation:qhin .4s ease-out}
 @keyframes qhin{from{opacity:0;transform:translateY(-6px)}to{opacity:1}}#qhn .qh-i{font-size:19px}#qhn .qh-t{flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:11px}#qhn small{display:block;color:#f2d27a;font-weight:900;font-size:9.5px;letter-spacing:.04em;text-transform:uppercase}
 #qhn .qh-a{flex:0 0 auto;color:#241a04;background:linear-gradient(180deg,#e8b84a,#b8861e);border-radius:7px;padding:4px 7px;font-size:10.5px}#qhn .qh-x{flex:0 0 auto;color:#9a9c8e;font-size:12px;padding:2px 3px}`;document.head.appendChild(st);
+})();
+</script>
+<script>/* Diario del pueblo (Opciones → 📜 Diario): lo importante de la partida, día a día, y gráficas.
+   Sucesos: nacimientos, llegadas, muertes (con nombre y causa), hordas, capítulos, ayuntamiento, logros y cambios de estación.
+   Gráficas: población, soldados, edificios y comida guardados cada amanecer. Empieza a registrar desde que se instala. */
+(function(){
+'use strict';
+const D=()=>{S.diario=S.diario||{ev:[],hist:[],d0:S.day};return S.diario};
+function add(ic,t,k){const d=D();d.ev.push({d:S.day,ic,t,k:k||''});if(d.ev.length>500)d.ev.splice(0,d.ev.length-500)}
+window.diarioAdd=add;
+/* muertes */
+const oDie=window.die;if(typeof oDie==='function'){window.die=function(p,w){const was=p&&S.ppl.includes(p);const r=oDie.apply(this,arguments);try{if(was&&!S.ppl.includes(p))add('✝',p.n+' murió'+(w?' '+String(w).replace(/^\(|\)$/g,''):'')+'.','muerte')}catch(e){}return r};try{die=window.die}catch(e){}}
+/* hordas */
+const oEnd=window.endHorde;if(typeof oEnd==='function'){window.endHorde=function(){const h=horde;const r=oEnd.apply(this,arguments);try{if(h)add('🧟','Horda superada: '+(h.name||'horda')+(h.lostB?' · '+h.lostB+' edificios perdidos':' sin perder edificios')+'.','horda')}catch(e){}return r};try{endHorde=window.endHorde}catch(e){}}
+/* vigilante: nacimientos, llegadas, capítulos, ayuntamiento, logros, amanecer */
+let W=null;
+function watch(){if(!S||!S.ppl||!S.bld)return;const d=D();
+ if(!W||W.S!==S){W={S,ids:new Set(S.ppl.map(p=>p.id)),story:S.story||0,hall:hallLv(),lg:Object.keys((S.logros&&S.logros.got)||{}).length,day:S.day};if(!d.hist.length)snap();return}
+ const now=new Set(S.ppl.map(p=>p.id));S.ppl.forEach(p=>{if(W.ids.has(p.id))return;if(p.bd2||p.age<1)add('👶','Nace '+p.n+'.','vida');else add('🚶',p.n+' se une al pueblo.','vida')});W.ids=now;
+ const st=S.story||0;if(st>W.story){for(let i=W.story;i<st;i++){const c=STORY[i];add('📖','Capítulo completado: '+(c?c.n:(i+1))+'.','historia')}W.story=st}
+ const hl=hallLv();if(hl>W.hall){add('🏛','El ayuntamiento sube a nivel '+hl+'.','pueblo');W.hall=hl}else if(hl<W.hall)W.hall=hl;
+ const lg=Object.keys((S.logros&&S.logros.got)||{}).length;if(lg>W.lg){add('🏅','Nuevo logro conseguido ('+lg+').','pueblo');W.lg=lg}
+ if(S.day!==W.day){W.day=S.day;snap()}}
+function snap(){const d=D();const h={d:S.day,pop:S.ppl.length,sol:S.ppl.filter(p=>p.arm).length,bld:S.bld.filter(b=>b.type!=='road'&&b.type!=='wall'&&!(BT[b.type]&&BT[b.type].deco)).length,food:Math.round(S.res.food||0)};const L=d.hist;if(L.length&&L[L.length-1].d===h.d)L[L.length-1]=h;else L.push(h);if(L.length>400)L.splice(0,L.length-400)}
+setInterval(()=>{try{watch()}catch(e){}},1000);
+/* panel */
+window.dTab=window.dTab||'ev';
+function chart(id,key,col,lab){return `<div class="dj-ch"><div class="dj-cl"><b style="color:${col}">${lab}</b><small id="${id}v"></small></div><canvas id="${id}" data-k="${key}" data-c="${col}" width="1000" height="130"></canvas></div>`}
+function drawCharts(){const H=D().hist;document.querySelectorAll('#pan canvas[data-k]').forEach(cv=>{const x=cv.getContext('2d'),k=cv.dataset.k,col=cv.dataset.c,W=cv.width,Hh=cv.height;x.clearRect(0,0,W,Hh);
+ if(H.length<2){x.fillStyle='#9a9c8e';x.font='14px system-ui';x.fillText('Aún no hay datos: se apunta uno cada amanecer.',12,Hh/2);return}
+ const v=H.map(h=>h[k]||0),mx=Math.max(1,...v),mn=Math.min(...v,0),sx=i=>8+i*(W-16)/(H.length-1),sy=y=>Hh-10-(y-mn)/(mx-mn||1)*(Hh-24);
+ x.strokeStyle='rgba(255,255,255,.08)';for(let g=0;g<4;g++){const y=10+g*(Hh-20)/3;x.beginPath();x.moveTo(0,y);x.lineTo(W,y);x.stroke()}
+ x.beginPath();v.forEach((y,i)=>i?x.lineTo(sx(i),sy(y)):x.moveTo(sx(i),sy(y)));x.lineTo(sx(v.length-1),Hh-10);x.lineTo(sx(0),Hh-10);x.closePath();x.fillStyle=col+'33';x.fill();
+ x.beginPath();v.forEach((y,i)=>i?x.lineTo(sx(i),sy(y)):x.moveTo(sx(i),sy(y)));x.strokeStyle=col;x.lineWidth=2.5;x.stroke();
+ x.fillStyle='#cfc8a8';x.font='12px system-ui';x.fillText('día '+H[0].d,6,Hh-1);const t='día '+H[H.length-1].d;x.fillText(t,W-x.measureText(t).width-6,Hh-1);
+ const lb=document.getElementById(cv.id+'v');if(lb)lb.textContent=' · ahora '+v[v.length-1].toLocaleString('es')+' · máximo '+mx.toLocaleString('es')})}
+const FIL={'':'Todo',vida:'Vida',muerte:'Muertes',horda:'Hordas',historia:'Historia',pueblo:'Pueblo'};
+window.dFil=window.dFil||'';
+window.diarioMenu=function(){const d=D(),tab=window.dTab;let h=`<div class="prow ptabs"><button class="${tab==='ev'?'primary':''}" onclick="dTab='ev';diarioMenu()">📜 Sucesos</button><button class="${tab==='gr'?'primary':''}" onclick="dTab='gr';diarioMenu()">📈 Gráficas</button></div>`;
+ if(tab==='gr'){h+=`<p class="bsub">Un dato cada amanecer desde el día ${d.hist.length?d.hist[0].d:S.day}.</p>`+chart('djP','pop','#7fc97f','👥 Población')+chart('djS','sol','#6fa8dc','🪖 Soldados')+chart('djB','bld','#e8b84a','🏗 Edificios')+chart('djF','food','#e0704a','🌾 Comida guardada')}
+ else{const f=window.dFil,L=d.ev.filter(e=>!f||e.k===f).slice().reverse();h+=`<div class="dj-f">${Object.keys(FIL).map(k=>`<button class="${f===k?'on':''}" onclick="dFil='${k}';diarioMenu()">${FIL[k]}</button>`).join('')}</div>`;
+  if(!L.length)h+=`<p class="bsub">El diario empezó el día ${d.d0}. Aquí se irán apuntando nacimientos, llegadas, muertes, hordas, capítulos y logros.</p>`;
+  let last=null;h+='<div class="dj-l">'+L.slice(0,200).map(e=>{const hd=e.d!==last?`<div class="dj-d">Día ${e.d}</div>`:'';last=e.d;return hd+`<div class="dj-e ${e.k}"><span>${e.ic}</span>${e.t.replace(/[<>&]/g,'')}</div>`}).join('')+'</div>'}
+ show('📜 Diario del pueblo',h);if(tab==='gr')setTimeout(drawCharts,30)};
+function addBtn(){const rl=document.getElementById('rl');if(!rl||document.getElementById('djBtn'))return;const b=document.createElement('button');b.id='djBtn';b.innerHTML='<i class="ib">📜</i>Diario';b.onclick=()=>{try{tg(0)}catch(e){}diarioMenu()};rl.insertBefore(b,rl.children[6]||null)}
+setTimeout(addBtn,1500);setTimeout(addBtn,4000);
+const st=document.createElement('style');st.textContent=`.dj-f{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 6px}#pan .dj-f button{min-height:0;padding:3px 9px;font-size:11px;border-radius:12px;border:1px solid #6a7a4a;background:#1d2618;color:#d8dfcc}#pan .dj-f button.on{background:#5a4a12;border-color:#c9a23a;color:#ffe9a8}
+.dj-d{margin:8px 0 3px;font-weight:900;color:#f2d27a;font-size:12px;border-bottom:1px solid #3a4434;padding-bottom:2px}.dj-e{display:flex;gap:8px;align-items:flex-start;padding:3px 4px;font-size:12.5px;color:#e0dccb}.dj-e span{width:20px;text-align:center}.dj-e.muerte{color:#e8a49a}
+.dj-ch{margin:6px 0;padding:6px 8px;border-radius:9px;border:1px solid #3a4434;background:#141a10}.dj-cl{font-size:12.5px;margin-bottom:2px}.dj-cl small{color:#b9b39c}.dj-ch canvas{width:100%;height:auto;display:block}`;document.head.appendChild(st);
+})();
+</script>
+<script>/* Estaciones del año: cambian cada 30 días (primavera → verano → otoño → invierno).
+   Primavera: granjas +15 %. Verano: pozos y bombas +25 % de agua, granjas −10 %. Otoño: granjas +5 %, aserraderos +15 %.
+   Invierno: granjas −35 % (el invernadero y el hidropónico no se ven afectados) y agua −10 %. En invierno nieva y el mapa se ve más frío.
+   Se ve en la barra superior (junto al día) y avisa unos días antes de que llegue el invierno. */
+(function(){
+'use strict';
+const SN=[['primavera','🌸','Primavera','Las granjas producen un 15 % más.'],['verano','☀','Verano','Pozos y bombas dan un 25 % más de agua; las granjas, un 10 % menos.'],['otono','🍂','Otoño','Las granjas producen un 5 % más y los aserraderos un 15 % más.'],['invierno','❄','Invierno','Las granjas producen un 35 % menos (no los invernaderos) y el agua un 10 % menos.']];
+const LEN=30;
+window.season=()=>{try{return Math.floor(((S.day||1)-1)/LEN)%4}catch(e){return 0}};
+window.seasonLeft=()=>{try{return LEN-((S.day||1)-1)%LEN}catch(e){return LEN}};
+window.seasonInfo=()=>SN[season()];
+const FARM=new Set(['farm']),WATER=new Set(['well','pump','cistern']),SAW=new Set(['saw']);
+const oOut=window.out;if(typeof oOut==='function'){window.out=function(b){const o=oOut.apply(this,arguments);try{if(!o||S.mode==='creativo')return o;const s=season();let m=1,w=1,wd=1;
+  if(FARM.has(b.type))m=[1.15,.9,1.05,.65][s];if(WATER.has(b.type))w=[1,1.25,1,.9][s];if(SAW.has(b.type))wd=[1,1,1.15,1][s];
+  if(m!==1&&o.food>0)o.food*=m;if(w!==1&&o.water>0)o.water*=w;if(wd!==1&&o.wood>0)o.wood*=wd}catch(e){}return o};try{out=window.out}catch(e){}}
+/* aviso al cambiar y unos días antes del invierno */
+let last=null,warned=-1;
+setInterval(()=>{try{if(!S||!S.day)return;const s=season();if(last===null){last=s;return}if(s!==last){last=s;const i=SN[s];try{toast(i[1]+' Llega el '+i[2].toLowerCase()+': '+i[3])}catch(e){}try{notify(i[1],'Llega el '+i[2].toLowerCase(),i[3],'pueblo')}catch(e){}try{window.diarioAdd&&diarioAdd(i[1],'Empieza el '+i[2].toLowerCase()+'.','pueblo')}catch(e){}}
+ if(s===2&&seasonLeft()<=3&&warned!==S.day){warned=S.day;try{toast('❄ El invierno llega en '+seasonLeft()+' día'+(seasonLeft()>1?'s':'')+': guarda comida, las granjas producirán un 35 % menos.')}catch(e){}}}catch(e){}},1500);
+/* chip en la barra superior */
+function chip(){try{const top=document.getElementById('top');if(!top)return;let c=document.getElementById('snChip');if(!c){c=document.createElement('button');c.id='snChip';c.className='ch';c.onclick=e=>{e.stopPropagation();const i=seasonInfo();try{toast(i[1]+' '+i[2]+' · quedan '+seasonLeft()+' días · '+i[3])}catch(er){}};
+  }/* junto al aviso de horda (después de los 5 primeros chips, que tienen su propio estilo) */const hz=document.getElementById('hzChip');if(hz&&c.nextSibling!==hz)top.insertBefore(c,hz);else if(!hz&&!c.parentNode)top.appendChild(c);const i=seasonInfo();c.textContent=i[1]+' '+i[2];c.title=i[2]+' · quedan '+seasonLeft()+' días';c.style.display=(S&&S.bld&&S.bld.length)?'':'none'}catch(e){}}
+setInterval(chip,1500);
+{const st=document.createElement('style');st.textContent='#snChip{cursor:pointer;border:1px solid #6a7a8a;font-weight:800;padding:0 7px;white-space:nowrap;font-size:11px;color:#e8eef4;background:linear-gradient(180deg,#2a3440,#1a222a)}';document.head.appendChild(st)}
+/* aspecto: invierno frío con nieve; otoño con hojas */
+const oR=window.render;
+window.render=function(){const r=oR.apply(this,arguments);try{if(!S||!S.bld||!S.bld.length)return r;const s=season();if(s!==3&&s!==2)return r;const cv=document.getElementById('c'),c=cv.getContext('2d'),W=cv.width,H=cv.height,t=T;c.save();c.setTransform(1,0,0,1,0,0);
+  if(s===3){c.fillStyle='rgba(215,230,255,.13)';c.fillRect(0,0,W,H);c.fillStyle='rgba(255,255,255,.85)';c.beginPath();const n=70,k=W/900;for(let i=0;i<n;i++){const x=((i*137.7+t*(14+i%5*4)+Math.sin(t*.8+i)*20)%(W+40))-20,y=((i*91.3+t*(26+i%4*7))%(H+40))-20,rr=(1+(i%3)*.6)*k;c.moveTo(x+rr,y);c.arc(x,y,rr,0,7)}c.fill()}
+  else{const n=16,k=W/900;for(let i=0;i<n;i++){const x=((i*211.7+t*(10+i%4*3)+Math.sin(t+i)*30)%(W+40))-20,y=((i*77.3+t*(18+i%3*6))%(H+40))-20;c.fillStyle=['#c8642a','#e0a124','#a8401e'][i%3];c.save();c.translate(x,y);c.rotate(t*2+i);c.fillRect(-3*k,-1.4*k,6*k,2.8*k);c.restore()}}
+  c.restore()}catch(e){}return r};
+try{render=window.render}catch(e){}
+})();
+</script>
+<script>/* Decoraciones: piezas baratas sin efecto para dejar el pueblo a tu gusto (pestaña 🌳 Decoración del menú Construir).
+   No tienen trabajadores ni producción, no se mejoran y no cuentan para logros ni requisitos de edificios. */
+(function(){
+'use strict';
+const K=window.NBK;if(!K)return;const {V,vol,post,line,OLC,cyl,crate}=K;
+const D={
+ d_farola:['Farola',1,1,{metal:6},1,30],d_banco:['Banco',1,1,{wood:8},1,8],d_arbol:['Árbol',1,1,{wood:4},1,40],d_flores:['Macetero de flores',1,1,{wood:5},1,10],
+ d_hoguera:['Hoguera',1,1,{wood:6},1,10],d_espanta:['Espantapájaros',1,1,{wood:6},2,34],d_bandera:['Mástil con bandera',1,1,{metal:10},2,60],d_buzon:['Buzón y señal',1,1,{metal:6,wood:4},2,24],
+ d_pozo:['Pozo de los deseos',1,1,{wood:10,stone:10},3,22],d_carro:['Carro de heno',1,1,{wood:14},3,20],d_fuente:['Fuente',2,2,{stone:30,metal:10},5,30],d_estatua:['Estatua del fundador',1,1,{stone:40,metal:20},8,64]};
+Object.keys(D).forEach(k=>{const d=D[k];BT[k]={n:d[0],w:d[1],h:d[2],z:d[5],c:'#8a7a5a',cost:d[3],lv:d[4],hp:60,deco:1,f:'Decoración: solo para adornar el pueblo. No produce ni necesita trabajadores.'}});
+/* pestaña del menú Construir */
+try{const CATS=window.BCATS;if(CATS&&!CATS.some(c=>c[0]==='deco'))CATS.push(['deco','🌳','Decoración',Object.keys(D)])}catch(e){}
+/* no se mejoran */
+const oU=window.upg;if(typeof oU==='function'){window.upg=function(id){const b=bm[id];if(b&&BT[b.type]&&BT[b.type].deco){try{toast('Las decoraciones no se mejoran.')}catch(e){}return}return oU.apply(this,arguments)};try{upg=window.upg}catch(e){}}
+const oB=window.bPanel;window.bPanel=function(id){const r=oB.apply(this,arguments);try{const b=bm[id];if(b&&BT[b.type]&&BT[b.type].deco){const u=document.querySelector('#pan .bp2u');if(u)u.outerHTML='<div class="bp2u max">🌳 Decoración: no se mejora</div>';document.querySelectorAll('#pan .bp2l small, #pan .bp2l .bp2st').forEach(x=>x.remove())}}catch(e){}return r};
+/* dibujos */
+const NB=window.NB,g=(c,x,y,r,col)=>{const q=c.createRadialGradient(x,y,0,x,y,r);q.addColorStop(0,col);q.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=q;c.beginPath();c.arc(x,y,r,0,7);c.fill()};
+const base=(c)=>{const a=V(.15,.15,0),b=V(.85,.15,0),d=V(.85,.85,0),e=V(.15,.85,0);c.fillStyle='rgba(0,0,0,.18)';c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.lineTo(d[0],d[1]);c.lineTo(e[0],e[1]);c.closePath();c.fill()};
+NB.d_farola={up:90,paint(c){base(c);post(c,.5,.5,0,28,'#2a2a2a');line(c,V(.5,.5,28),V(.75,.5,30),'#2a2a2a',2);const q=V(.75,.5,28);c.fillStyle='#ffe08a';c.strokeStyle=OLC;c.lineWidth=1;c.beginPath();c.moveTo(q[0]-3,q[1]);c.lineTo(q[0]+3,q[1]);c.lineTo(q[0]+2,q[1]+4);c.lineTo(q[0]-2,q[1]+4);c.closePath();c.fill();c.stroke();g(c,q[0],q[1]+2,12,'rgba(255,220,120,.5)')}};
+NB.d_banco={up:90,paint(c){base(c);vol(c,{x:.15,y:.4,w:.7,h:.22,z:2,z0:4,col:'#8a5a32',mat:'plank',seed:3});vol(c,{x:.15,y:.36,w:.7,h:.06,z:6,z0:6,col:'#7a4a28',mat:'plank',seed:4});post(c,.2,.6,0,4,'#3a3a3a');post(c,.8,.6,0,4,'#3a3a3a')}};
+NB.d_arbol={up:90,paint(c){base(c);post(c,.5,.5,0,14,'#6a4a2a');const q=V(.5,.5,24);c.strokeStyle=OLC;c.lineWidth=1.2;[[0,0,13,'#3f7a35'],[-5,-6,8,'#4f8f42'],[5,-4,7,'#58a047']].forEach(([dx,dy,r,col])=>{c.fillStyle=col;c.beginPath();c.arc(q[0]+dx,q[1]+dy,r,0,7);c.fill();if(r>10)c.stroke()})}};
+NB.d_flores={up:90,paint(c){vol(c,{x:.2,y:.2,w:.6,h:.6,z:6,z0:0,col:'#a86a42',mat:'block',seed:5});for(let k=0;k<9;k++){const q=V(.28+(k%3)*.22,.28+Math.floor(k/3)*.22,8);c.fillStyle='#3f7a35';c.beginPath();c.arc(q[0],q[1]+1,2.2,0,7);c.fill();c.fillStyle=['#e04a6a','#f2c542','#ffffff','#b36cff','#ff8a3a'][k%5];c.beginPath();c.arc(q[0],q[1]-1,1.8,0,7);c.fill()}}};
+NB.d_hoguera={up:90,paint(c){base(c);for(let k=0;k<7;k++){const a=k/7*6.28,q=V(.5+Math.cos(a)*.3,.5+Math.sin(a)*.3,1);c.fillStyle='#7a7a74';c.beginPath();c.ellipse(q[0],q[1],3,2,0,0,7);c.fill()}const f=V(.5,.5,2);c.fillStyle='#4a3020';c.fillRect(f[0]-6,f[1]-1,12,2.4);g(c,f[0],f[1]-4,16,'rgba(255,160,60,.55)');c.fillStyle='#ff8a30';c.beginPath();c.moveTo(f[0]-5,f[1]);c.quadraticCurveTo(f[0]-3,f[1]-9,f[0],f[1]-13);c.quadraticCurveTo(f[0]+3,f[1]-9,f[0]+5,f[1]);c.fill();c.fillStyle='#ffe08a';c.beginPath();c.moveTo(f[0]-2,f[1]);c.quadraticCurveTo(f[0],f[1]-6,f[0]+2,f[1]);c.fill()}};
+NB.d_espanta={up:90,paint(c){base(c);post(c,.5,.5,0,30,'#6a4a2a');line(c,V(.3,.5,22),V(.7,.5,22),'#6a4a2a',2.4);const b=V(.5,.5,18);c.fillStyle='#4a6a8a';c.strokeStyle=OLC;c.lineWidth=1;c.fillRect(b[0]-5,b[1]-8,10,10);c.strokeRect(b[0]-5,b[1]-8,10,10);const h=V(.5,.5,30);c.fillStyle='#e8d29a';c.beginPath();c.arc(h[0],h[1],4.5,0,7);c.fill();c.stroke();c.fillStyle='#8a6a32';c.beginPath();c.ellipse(h[0],h[1]-4,8,2.4,0,0,7);c.fill();c.stroke();c.fillRect(h[0]-3.5,h[1]-9,7,5)}};
+NB.d_bandera={up:90,paint(c){vol(c,{x:.3,y:.3,w:.4,h:.4,z:3,z0:0,col:'#8a8678',mat:'block',seed:3});post(c,.5,.5,3,60,'#c8ccce');const q=V(.5,.5,58),t=(typeof T==='number'?T:0);c.fillStyle='#c9a23a';c.strokeStyle=OLC;c.lineWidth=1;c.beginPath();c.moveTo(q[0],q[1]);for(let i=0;i<=6;i++)c.lineTo(q[0]+i*3.4,q[1]+Math.sin(t*3+i)*1.6);for(let i=6;i>=0;i--)c.lineTo(q[0]+i*3.4,q[1]+12+Math.sin(t*3+i)*1.6);c.closePath();c.fill();c.stroke();c.fillStyle='#5a3a12';c.beginPath();c.arc(q[0]+10,q[1]+6,3,0,7);c.fill()}};
+NB.d_buzon={up:90,paint(c){base(c);post(c,.35,.5,0,10,'#5a4a3a');vol(c,{x:.22,y:.4,w:.26,h:.2,z:7,z0:10,col:'#3a6ab8',mat:'metal',seed:3});post(c,.7,.5,0,24,'#6a6a6a');const s=V(.7,.5,22);c.fillStyle='#e8d29a';c.strokeStyle=OLC;c.beginPath();c.moveTo(s[0]-2,s[1]-4);c.lineTo(s[0]+12,s[1]-4);c.lineTo(s[0]+16,s[1]);c.lineTo(s[0]+12,s[1]+4);c.lineTo(s[0]-2,s[1]+4);c.closePath();c.fill();c.stroke()}};
+NB.d_pozo={up:90,paint(c){const q=V(.5,.5,0);cyl(c,q[0],q[1],11,8,'#9a968c',{bands:1});const w=V(.5,.5,8);c.fillStyle='#3a6a8a';c.beginPath();c.ellipse(w[0],w[1],8,4,0,0,7);c.fill();for(let k=0;k<4;k++){c.fillStyle='#f2c542';const a=k*1.6;c.beginPath();c.arc(w[0]+Math.cos(a)*4,w[1]+Math.sin(a)*2,1,0,7);c.fill()}post(c,.2,.5,6,22,'#6a4a2a');post(c,.8,.5,6,22,'#6a4a2a');line(c,V(.2,.5,22),V(.8,.5,22),'#6a4a2a',2.2);const r=V(.5,.5,22);c.fillStyle='#a2402f';c.strokeStyle=OLC;c.beginPath();c.moveTo(r[0]-14,r[1]+2);c.lineTo(r[0],r[1]-8);c.lineTo(r[0]+14,r[1]+2);c.closePath();c.fill();c.stroke()}};
+NB.d_carro={up:90,paint(c){vol(c,{x:.15,y:.25,w:.7,h:.5,z:5,z0:5,col:'#8a5a32',mat:'plank',seed:3});const h=V(.5,.5,14);c.fillStyle='#e8c860';c.strokeStyle=OLC;c.lineWidth=1;c.beginPath();c.ellipse(h[0],h[1],13,6,0,0,7);c.fill();c.stroke();c.strokeStyle='#c8a440';for(let k=0;k<5;k++){c.beginPath();c.moveTo(h[0]-9+k*4,h[1]-3);c.lineTo(h[0]-7+k*4,h[1]+3);c.stroke()}[V(.25,.78,4),V(.75,.78,4)].forEach(w=>{c.strokeStyle='#3a2a1a';c.lineWidth=2;c.beginPath();c.arc(w[0],w[1],4.5,0,7);c.stroke()});line(c,V(.15,.5,7),V(-.15,.5,4),'#6a4a2a',2)}};
+NB.d_fuente={up:90,paint(c){const q=V(1,1,0);cyl(c,q[0],q[1],26,7,'#a8a296',{bands:1});const w=V(1,1,7);c.fillStyle='#6fb6d8';c.beginPath();c.ellipse(w[0],w[1],21,10.5,0,0,7);c.fill();c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=1;c.beginPath();c.ellipse(w[0],w[1],13,6.5,0,0,7);c.stroke();cyl(c,w[0],w[1],5,14,'#cfc9ba',{});const t=V(1,1,21);c.fillStyle='#6fb6d8';c.beginPath();c.ellipse(t[0],t[1],9,4,0,0,7);c.fill();for(let k=0;k<5;k++){const a=k/5*6.28;c.fillStyle='rgba(220,245,255,.8)';c.beginPath();c.arc(t[0]+Math.cos(a)*10,t[1]+8+Math.sin(a)*4,1.2,0,7);c.fill()}g(c,t[0],t[1]-6,12,'rgba(170,225,255,.45)')}};
+NB.d_estatua={up:90,paint(c){vol(c,{x:.15,y:.15,w:.7,h:.7,z:10,z0:0,col:'#a8a296',mat:'block',seed:3});vol(c,{x:.28,y:.28,w:.44,h:.44,z:6,z0:10,col:'#bdb7a8',mat:'block',seed:4});const s=V(.5,.5,16);c.fillStyle='#8a9096';c.strokeStyle=OLC;c.lineWidth=1.2;c.beginPath();c.moveTo(s[0]-6,s[1]);c.lineTo(s[0]-4,s[1]-26);c.lineTo(s[0]+4,s[1]-26);c.lineTo(s[0]+6,s[1]);c.closePath();c.fill();c.stroke();c.beginPath();c.arc(s[0],s[1]-31,5,0,7);c.fill();c.stroke();line(c,[s[0]+4,s[1]-22],[s[0]+12,s[1]-36],'#8a9096',3);line(c,[s[0]-4,s[1]-22],[s[0]-10,s[1]-12],'#8a9096',3);const pl=V(.5,.85,5);c.fillStyle='#c9a23a';c.fillRect(pl[0]-6,pl[1]-3,12,4)}};
 })();
 </script>
 <script>/* Medidor de rendimiento (Opciones → 📊 Medidor); con botones para apagar capas (Mezclas, Ambiente, Terreno...) y ver cuánto cuesta cada una: fps reales y ms por fotograma de lógica (upd), dibujo (render) y barra (hud),
