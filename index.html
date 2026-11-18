@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v221</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v222</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -11473,7 +11473,9 @@ const oU=window.upd;window.upd=function(dt){let L=[],g=null;try{syncU()}catch(e)
  return r};
 })();
 </script>
-<script>/* Las hordas y los zombis sueltos aparecen en el borde del mapa. Si ese borde ya es parte de tu territorio (parcelas compradas)
+<script>/* Entrada desde fuera: los enemigos nuevos de hordas y zombis sueltos aparecen unas casillas FUERA del mapa, en el bosque del borde,
+   y entran caminando (mientras están fuera solo caminan hacia dentro; al entrar se comportan como siempre).
+   Las hordas y los zombis sueltos aparecen en el borde del mapa. Si ese borde ya es parte de tu territorio (parcelas compradas)
    o hay edificios cerca, el zombi se lleva al punto del borde libre más cercano, lejos de lo construido (antes aparecían dentro de la base). */
 (function(){
 'use strict';
@@ -11488,9 +11490,15 @@ const oU=window.upd;
 window.upd=function(dt){try{if(typeof Z!=='undefined'&&Z.length&&S&&S.bld){const moved=[];for(const z of Z){if(z._sp)continue;z._sp=1;if(!z.act)continue;
   const edge=z.x<2.6||z.y<2.6||z.x>N-2.6||z.y>N-2.6;if(!edge||!bad(z.x,z.y))continue;
   /* los que salían juntos se llevan juntos */let g=moved.find(m=>Math.hypot(m.ox-z.x,m.oy-z.y)<6);if(!g){const p=pick(z.x,z.y);if(!p)continue;g={ox:z.x,oy:z.y,p};moved.push(g)}
-  let nx=g.p.x,ny=g.p.y;for(let k=0;k<6;k++){const ax=Math.max(.6,Math.min(N-.6,g.p.x+(Math.random()-.5)*3)),ay=Math.max(.6,Math.min(N-.6,g.p.y+(Math.random()-.5)*3));if(!(typeof ownP==='function'&&ownP(ax,ay))&&near(ax,ay)>=8){nx=ax;ny=ay;break}}z.x=nx;z.y=ny;z.tg=0;z.tx=0}}}catch(e){}return oU.apply(this,arguments)};
+  let nx=g.p.x,ny=g.p.y;for(let k=0;k<6;k++){const ax=Math.max(.6,Math.min(N-.6,g.p.x+(Math.random()-.5)*3)),ay=Math.max(.6,Math.min(N-.6,g.p.y+(Math.random()-.5)*3));if(!(typeof ownP==='function'&&ownP(ax,ay))&&near(ax,ay)>=8){nx=ax;ny=ay;break}}z.x=nx;z.y=ny;z.tg=0;z.tx=0}
+  /* sacarlos al bosque de fuera: 2,5-5 casillas más allá del borde más cercano */for(const z of Z){if(z._out!==undefined||!z.act)continue;z._out=0;const dl=z.x,dr=N-z.x,dt2=z.y,db=N-z.y,m=Math.min(dl,dr,dt2,db);if(m>2.6)continue;const o=2.5+Math.random()*2.5;if(m===dl)z.x=-o;else if(m===dr)z.x=N+o;else if(m===dt2)z.y=-o;else z.y=N+o;z._out=1}}}catch(e){}return oU.apply(this,arguments)};
 try{upd=window.upd}catch(e){}
 window.spawnSafe=pick;
+/* fuera del mapa: caminar recto hacia dentro (allí no hay casillas ni obstáculos) */
+const out=z=>z.x<0||z.y<0||z.x>=N||z.y>=N;
+const oZ=window.zUpd;
+window.zUpd=function(z,dt){if(z&&z.act&&z.hp>0&&out(z)){const tx=Math.max(1.2,Math.min(N-1.2,z.x)),ty=Math.max(1.2,Math.min(N-1.2,z.y)),d=Math.hypot(tx-z.x,ty-z.y)||1,sp=((ZT[z.t]&&ZT[z.t].sp)||1)*dt*(z.boost>T?1.35:1);z.x+=(tx-z.x)/d*Math.min(sp,d);z.y+=(ty-z.y)/d*Math.min(sp,d);z.dx=tx-z.x;z.at=0;return}return oZ.apply(this,arguments)};
+try{zUpd=window.zUpd}catch(e){}
 })();
 </script>
 <script>/* Expedición solitaria: indicador de cómo le irán los combates (según su fuerza y el tramo) y de cuánto le protege su defensa, al elegir a quién mandar y durante la expedición. */
@@ -11532,7 +11540,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'221';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'222';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
