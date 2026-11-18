@@ -25,7 +25,7 @@ work:{n:'Taller de armas',w:3,h:3,z:26,c:'#94704a',cost:{wood:200,metal:100},lv:
 expo:{n:'Centro de expediciones',w:3,h:3,z:26,c:'#b0985f',cost:{wood:220,metal:80},lv:3,hp:200,job:['Explorador'],slots:2,f:'Permite enviar equipos al mundo exterior.'},
 fact:{n:'Fábrica',w:4,h:3,z:34,c:'#7a7f85',cost:{wood:300,metal:150},lv:4,hp:280,p:{metal:14},job:['Mecánico'],slots:3,pw:1,f:'Produce metal. Requiere energía.'},
 gen:{n:'Generador',w:2,h:2,z:20,c:'#c9a93a',cost:{wood:100,metal:60},lv:2,hp:130,p:{elec:20},job:['Mecánico','Científico'],slots:2,f:'Da energía a la base. Sus trabajadores y su nivel suben la capacidad.'},
-lab:{n:'Laboratorio',w:3,h:3,z:28,c:'#4e8f8a',cost:{wood:260,metal:180},lv:4,hp:220,job:['Científico'],p:{rp:24},slots:2,pw:1,f:'Necesario para investigar tecnologías. Requiere energía.'},
+lab:{n:'Laboratorio',w:3,h:3,z:28,c:'#4e8f8a',cost:{wood:260,metal:180},lv:3,hp:220,job:['Científico'],p:{rp:24},slots:2,pw:1,f:'Necesario para investigar tecnologías. Requiere energía.'},
 trap:{n:'Trampa',w:1,h:1,z:3,c:'#777',cost:{metal:12},lv:2,hp:90,tech:'def2',f:'Daña a los zombis que pasan por encima.'},
 turret:{n:'Arma automática',w:1,h:1,z:14,c:'#4a4f58',cost:{metal:70,wood:20},lv:3,hp:130,tech:'arms2',fire:{r:5,d:5,rt:.35},f:'Torreta de disparo rápido (gasta munición).'}};
 Object.assign(BT,{
