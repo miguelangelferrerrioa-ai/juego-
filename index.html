@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v217</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v219</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -866,7 +866,7 @@ work:{n:'Taller de armas',w:3,h:3,z:26,c:'#94704a',cost:{wood:200,metal:100},lv:
 expo:{n:'Centro de expediciones',w:3,h:3,z:26,c:'#b0985f',cost:{wood:220,metal:80},lv:3,hp:200,job:['Explorador'],slots:2,f:'Permite enviar equipos al mundo exterior.'},
 fact:{n:'Fábrica',w:4,h:3,z:34,c:'#7a7f85',cost:{wood:300,metal:150},lv:4,hp:280,p:{metal:14},job:['Mecánico'],slots:3,pw:1,f:'Produce metal. Requiere energía.'},
 gen:{n:'Generador',w:2,h:2,z:20,c:'#c9a93a',cost:{wood:100,metal:60},lv:2,hp:130,p:{elec:20},job:['Mecánico','Científico'],slots:2,f:'Da energía a la base. Sus trabajadores y su nivel suben la capacidad.'},
-lab:{n:'Laboratorio',w:3,h:3,z:28,c:'#4e8f8a',cost:{wood:260,metal:180},lv:3,hp:220,job:['Científico'],p:{rp:24},slots:2,pw:1,f:'Necesario para investigar tecnologías. Requiere energía.'},
+lab:{n:'Laboratorio',w:3,h:3,z:28,c:'#4e8f8a',cost:{wood:260,metal:180},lv:4,hp:220,job:['Científico'],p:{rp:24},slots:2,pw:1,f:'Necesario para investigar tecnologías. Requiere energía.'},
 trap:{n:'Trampa',w:1,h:1,z:3,c:'#777',cost:{metal:12},lv:2,hp:90,tech:'def2',f:'Daña a los zombis que pasan por encima.'},
 turret:{n:'Arma automática',w:1,h:1,z:14,c:'#4a4f58',cost:{metal:70,wood:20},lv:3,hp:130,tech:'arms2',fire:{r:5,d:5,rt:.35},f:'Torreta de disparo rápido (gasta munición).'}};
 Object.assign(BT,{
@@ -11131,9 +11131,9 @@ window.lvTip=function(nb,falta,hb){try{const c=S.bld.filter(x=>x!==hb&&!['wall',
 const LV={plank:2,stone:3,comp:4,brick:4,abx:4,sheet:5,chem:7,glass:8,steel:8,concrete:13,alloy:13};
 window.RES_LV=LV;
 const hl=()=>{try{return hallLv()}catch(e){return 1}};
-window.resLocked=function(k){try{if(!LV[k])return false;if(typeof S==='undefined'||!S||!S.bld||!S.bld.length)return true;if(S.mode==='creativo')return false;return hl()<LV[k]}catch(e){return false}};
+window.resLocked=function(k){try{if(!LV[k])return false;if(typeof S==='undefined'||!S||!S.bld||!S.bld.length)return true;if(S.mode==='creativo')return false;/* el material también se desbloquea al investigar la tecnología que lo produce (antes: Metalistería abría el Taller de chapa, pero la chapa seguía bloqueada hasta el ayuntamiento 5 y el taller salía como «???» sin producir) */const tk=({sheet:'mat2',stone:'mat3',brick:'mat3',glass:'mat4',steel:'mat4',concrete:'mat5'})[k];if(tk&&S.tech&&S.tech[tk])return false;return hl()<LV[k]}catch(e){return false}};
 window.resLockImg='filter:brightness(0) invert(.38)';
-window.resLockTxt=k=>'Material bloqueado: se desbloquea con el ayuntamiento nivel '+LV[k]+'.';
+window.resLockTxt=k=>{const tk=({sheet:'mat2',stone:'mat3',brick:'mat3',glass:'mat4',steel:'mat4',concrete:'mat5'})[k],tn=tk&&typeof TECH!=='undefined'&&(TECH.find(t=>t[0]===tk)||[])[2];return 'Material bloqueado: se desbloquea con el ayuntamiento nivel '+LV[k]+(tn?' o al investigar '+tn:'')+'.'};
 
 /* los edificios no producen materiales bloqueados (el ayuntamiento no da piedra hasta el nivel 3, el desguace no da componentes hasta el 4…) */
 (function(){const o=window.out;if(typeof o!=='function')return;window.out=function(b){const r=o.apply(this,arguments);try{if(r)for(const k in r)if(resLocked(k))delete r[k]}catch(e){}return r}})();
@@ -11512,7 +11512,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'217';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'219';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';

@@ -4,9 +4,9 @@
 const LV={plank:2,stone:3,comp:4,brick:4,abx:4,sheet:5,chem:7,glass:8,steel:8,concrete:13,alloy:13};
 window.RES_LV=LV;
 const hl=()=>{try{return hallLv()}catch(e){return 1}};
-window.resLocked=function(k){try{if(!LV[k])return false;if(typeof S==='undefined'||!S||!S.bld||!S.bld.length)return true;if(S.mode==='creativo')return false;return hl()<LV[k]}catch(e){return false}};
+window.resLocked=function(k){try{if(!LV[k])return false;if(typeof S==='undefined'||!S||!S.bld||!S.bld.length)return true;if(S.mode==='creativo')return false;/* el material también se desbloquea al investigar la tecnología que lo produce (antes: Metalistería abría el Taller de chapa, pero la chapa seguía bloqueada hasta el ayuntamiento 5 y el taller salía como «???» sin producir) */const tk=({sheet:'mat2',stone:'mat3',brick:'mat3',glass:'mat4',steel:'mat4',concrete:'mat5'})[k];if(tk&&S.tech&&S.tech[tk])return false;return hl()<LV[k]}catch(e){return false}};
 window.resLockImg='filter:brightness(0) invert(.38)';
-window.resLockTxt=k=>'Material bloqueado: se desbloquea con el ayuntamiento nivel '+LV[k]+'.';
+window.resLockTxt=k=>{const tk=({sheet:'mat2',stone:'mat3',brick:'mat3',glass:'mat4',steel:'mat4',concrete:'mat5'})[k],tn=tk&&typeof TECH!=='undefined'&&(TECH.find(t=>t[0]===tk)||[])[2];return 'Material bloqueado: se desbloquea con el ayuntamiento nivel '+LV[k]+(tn?' o al investigar '+tn:'')+'.'};
 
 /* los edificios no producen materiales bloqueados (el ayuntamiento no da piedra hasta el nivel 3, el desguace no da componentes hasta el 4…) */
 (function(){const o=window.out;if(typeof o!=='function')return;window.out=function(b){const r=o.apply(this,arguments);try{if(r)for(const k in r)if(resLocked(k))delete r[k]}catch(e){}return r}})();
