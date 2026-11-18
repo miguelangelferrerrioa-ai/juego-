@@ -11,8 +11,8 @@ Se juega sobre todo en un **Android en horizontal (2424×1080, devicePixelRatio 
 - `index.html` (raíz) → **el juego ya montado en un solo archivo**. Es lo que publica Vercel. No se edita a mano: se genera.
 - `sw.js`, `manifest.webmanifest`, `icon-*.png`, `_headers` → para que se pueda instalar como aplicación y jugar sin conexión.
 - `tools/build.py` → junta `src/` en `index.html` y sube la versión de caché de `sw.js` (para que los móviles cojan la versión nueva).
-- `tools/scan.py` → prueba rápida: dibuja todos los edificios en todos los niveles; debe imprimir `[2440, [], 0] []`.
-- `tools/regresion.js` → batería de comportamiento (node tools/regresion.js, ~4 min): zombis sueltos (con y sin soldados), hordas temprana/avanzada, horda con muros, agarre del cazador, bandas, sucesos encadenados, guardar/cargar y expediciones. Comprueba que embarazadas/menores/desarmados no pelean, que todo termina, sin matanzas ni errores. Debe acabar en "0 FALLOS".
+- `tools/scan.py` → prueba rápida: dibuja todos los edificios en todos los niveles; debe imprimir `[3040, [], 0] []` (el primer número sube al añadir edificios; lo importante es que no haya errores).
+- `tools/regresion.js` → batería de comportamiento (node tools/regresion.js, ~10 min; con SOLO="texto" se lanza solo un escenario): zombis sueltos (con y sin soldados), hordas temprana/avanzada, horda con muros, agarre del cazador, bandas, sucesos encadenados, guardar/cargar y expediciones. Comprueba que embarazadas/menores/desarmados no pelean, que todo termina, sin matanzas ni errores. Debe acabar en "0 FALLOS".
 - `partidas/` → partidas guardadas para probar (`partida_larga_dia248.json`: la de día 248 sin tutoriales pendientes, lista para importar en el móvil; `prueba_asalto_final.json`: día 248, pueblo grande, listo para el asalto final; `dia3.json`: partida temprana).
 - `HISTORIAL.md` → notas de todo lo que se ha cambiado en sesiones anteriores (leer antes de tocar algo grande).
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Prueba rápida: abre el juego, empieza partida y dibuja todos los edificios en todos los niveles.
-Debe imprimir algo como [2440, [], 0] []  (sin errores). Necesita: pip install playwright && playwright install chromium"""
+Debe imprimir algo como [3040, [], 0] []  (sin errores). Necesita: pip install playwright && playwright install chromium"""
 import os
 from playwright.sync_api import sync_playwright
 R=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
