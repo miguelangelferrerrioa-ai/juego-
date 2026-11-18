@@ -89,7 +89,13 @@ try{uUpd=window.uUpd}catch(e){}
 /* fuera de las hordas: los alistados sin puesto hacen la ronda (se controla antes y después del paseo normal para que este no les cambie el destino) */
 function pick(p,g){const pts=g.town;if(!pts.length)return false;let best=null;for(let i=0;i<14;i++){const q=pts[Math.floor(Math.random()*pts.length)],d=Math.hypot(q[0]-p.x,q[1]-p.y);if(d>2&&d<9){best=q;break}if(!best||d<Math.hypot(best[0]-p.x,best[1]-p.y))best=q}p.vtx=best[0];p.vty=best[1];return true}
 const idleOK=p=>p.arm&&!p.away&&!p.inside&&!p.job&&p.age>=18&&!p.preg;
-const oU=window.upd;window.upd=function(dt){let L=[],g=null;
+/* durante una horda o zombis sueltos, el grupo de soldados se mantiene al día: quien sale de una torre (o se alista) entra a combatir desde donde está,
+   y quien entra en una torre deja el grupo (antes, al quitar a un soldado de una torre en plena horda se quedaba parado como un civil) */
+function syncU(){if(!(horde||window.raidOn)||typeof U==='undefined')return;const twr=p=>window.inTower?inTower(p):!!(p.job&&bm[p.job]&&BT[bm[p.job].type].gun);
+ for(let i=U.length-1;i>=0;i--){const u=U[i],p=u.p;if(p&&typeof p.id==='number'&&(twr(p)||!p.arm||p.away)){p.hp=Math.max(1,u.hp);U.splice(i,1)}}
+ const inU=new Set(U.map(u=>u.p));S.ppl.forEach(p=>{if(p.arm&&!p.away&&p.hp>15&&!p.preg&&p.age>=18&&!inU.has(p)&&!twr(p)&&!p.inside){U.push({p,x:p.x,y:p.y,hp:p.hp,cd:0,vInit:1})}})}
+window.vigSyncU=syncU;
+const oU=window.upd;window.upd=function(dt){let L=[],g=null;try{syncU()}catch(e){}
  try{if(!horde&&typeof S!=='undefined'&&S&&S.ppl){L=S.ppl.filter(idleOK);if(L.length){g=geo();L.forEach(p=>{if(p.vtx===undefined&&!pick(p,g))return;
    if(p.vw>0){p._px=p.x;p._py=p.y;p._dx=p.dx;p.tx=p.x+1;p.ty=p.y}else{p.tx=p.vtx;p.ty=p.vty}})}}}catch(e){L=[]}
  const r=oU.apply(this,arguments);

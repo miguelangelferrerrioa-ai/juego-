@@ -108,6 +108,11 @@ scenarios.push(['Soldado con lanza','partida_larga_dia248.json',async pg=>pg.eva
  S.ppl.filter(p=>p.arm&&p!==sol).forEach(p=>p.away=1);startHorde();await __run(5);const u=U.find(u=>u.p===sol);let shots=0,hits=0;const seen=new Set();
  await __run(300,()=>{FX.forEach(f=>{if(f.a&&u&&!seen.has(f)&&Math.hypot(f.a[0]-u.x,f.a[1]-u.y)<.05){seen.add(f);shots++}});return !horde});
  return {refused,kicked,inU:!!u,shots,V:__V}})]);
+/* 5g) en plena horda: quitar a un soldado de una torre lo mete a combatir; meterlo en una torre lo saca del grupo */
+scenarios.push(['Torre en plena horda','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{window.show=window.show||(()=>{});const t=S.bld.find(b=>b.type==='tower');const g=S.ppl.find(p=>p.job===t.id&&p.arm&&p.wp&&!p.preg);
+ startHorde();await __run(5);const before=U.some(u=>u.p===g);unjob(g.id,t.id);await __run(1);const u=U.find(u=>u.p===g);const joined=!!u;const x0=u?u.x:0,y0=u?u.y:0;let acted=0;await __run(30,()=>{if(u&&(Math.hypot(u.x-x0,u.y-y0)>.5||u.cd>0.5))acted=1;return acted});
+ const other=U.find(v=>typeof v.p.id==='number'&&v.p.wp&&!(window.isMelee&&isMelee(v.p.wp))&&v.p!==g);let out=null;if(other){S.ppl.filter(p=>p.job===t.id).forEach(p=>p.job=0);asg(other.p.id,t.id);await __run(1);out=!U.some(v=>v.p===other.p)}
+ await __run(400,()=>!horde);return {before,joined,acted,out,ended:!horde,V:__V}})]);
 (async()=>{const b=await chromium.launch();const t0=Date.now();
  for(const [name,sv,fn] of scenarios){if(ONLY&&!name.includes(ONLY))continue;const {pg,pe}=await open(b,SV(sv));let r=null;try{r=await fn(pg)}catch(e){r={crash:String(e).slice(0,200)}}
   const V=r&&r.V||{};const tag=name;
@@ -128,6 +133,7 @@ scenarios.push(['Soldado con lanza','partida_larga_dia248.json',async pg=>pg.eva
   if(name==='Reparar')ok(tag+': solo pide materiales que el edificio ya usó para llegar a su nivel',r.bad.length===0,r.bad.join(', '));
   if(name==='Soldado en torre'){ok(tag+': el soldado sale en la lista de la torre',r.listed,JSON.stringify(r));ok(tag+': se le puede asignar',r.assigned,JSON.stringify(r));ok(tag+': en la horda se queda en la torre (no patrulla)',r.assigned&&!r.inU,JSON.stringify(r));ok(tag+': está dentro (no se ve ni merodea)',r.hidden&&r.far===0,JSON.stringify(r));ok(tag+': no se pasa del cupo',r.full,JSON.stringify(r));ok(tag+': protegido mientras la torre está en pie',!r.standing||(r.alive&&r.lost<=0.01),JSON.stringify(r))}
   if(name==='Soldado con lanza'){ok(tag+': no se le puede poner de tirador',r.refused,JSON.stringify(r));ok(tag+': si estaba en una torre, deja el puesto',r.kicked,JSON.stringify(r));ok(tag+': en la horda no dispara (pelea de cerca)',r.inU&&r.shots===0,JSON.stringify(r))}
+  if(name==='Torre en plena horda'){ok(tag+': en la torre no está en el grupo',!r.before,JSON.stringify(r));ok(tag+': al quitarlo de la torre entra a combatir',r.joined&&r.acted,JSON.stringify(r));ok(tag+': al meterlo en una torre sale del grupo',r.out!==false,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Soldado sin arma'){ok(tag+': no dispara',r.shots===0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Guardar y cargar')ok(tag+': partida idéntica',r.diffs===0,r.ex);
   if(name==='Expediciones'){ok(tag+': solitaria arranca sin coste (comida, agua ni gasolina)',r.started&&r.cost<=0,JSON.stringify(r));ok(tag+': vuelve y queda en casa',r.back,JSON.stringify(r))}
