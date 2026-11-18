@@ -2,13 +2,14 @@
 (function(){
 'use strict';
 const CATS=[
- ['ciudad','🏠','Ciudad',['house','store','silo','expo','radio','road','bridge','cmd','puesto','radiolr','monum','plaza']],
- ['rec','🌾','Recursos',['farm','saw','scrapy','dock','well','pump','mine','quarry','oilp','sheetw','kiln','cistern','greenh','kitchen']],
- ['prod','⚙','Producción',['work','fact','smithy','glassw','steelw','cement','ammof','chem','refin','gen','solar','wind','market','forgeb','obs','garaje','curalab']],
+ ['ciudad','🏠','Ciudad',['house','store','silo','expo','radio','road','bridge','cmd','puesto','radiolr','monum','plaza','perrera']],
+ ['rec','🌾','Recursos',['farm','saw','scrapy','dock','well','pump','mine','quarry','oilp','sheetw','kiln','cistern','greenh','kitchen','hidro']],
+ ['prod','⚙','Producción',['work','fact','smithy','glassw','steelw','cement','ammof','chem','refin','gen','solar','wind','market','forgeb','obs','garaje','curalab','polvorin','drones','nuclear']],
  ['def','🛡','Defensa',['wall','gate','trap','tower','mtower','turret','bunker','sniper','fortif']],
  ['ent','🎓','Entrenamiento',['barr','tr_Médico','tr_Soldado','tr_Constructor','tr_Agricultor','tr_Cocinero','tr_Explorador','tr_Mecánico','tr_Recolector','tr_Científico','gym','agil','biblio','salon','escuela']],
  ['sal','🩺','Salud',['hosp','pharm','lab','elab','abxlab','hospc']]];
 window.bTab=window.bTab||'ciudad';
+{const st=document.createElement('style');st.textContent='.bcard.blim{opacity:.6;filter:grayscale(.5)}';document.head.appendChild(st)}
 /* Formaciones desbloqueadas por potencia del rol: las básicas primero, las más fuertes con ayuntamiento alto */
 [['Recolector',2,{wood:110,metal:25}],['Agricultor',2,{wood:120,metal:30}],['Cocinero',3,{wood:140,metal:50}],['Constructor',3,{wood:170,metal:80}],['Mecánico',4,{wood:200,metal:140}],['Médico',5,{wood:230,metal:150,meds:20}],['Explorador',6,{wood:260,metal:180}],['Soldado',7,{wood:300,metal:240,ammo:40}],['Científico',9,{wood:380,metal:320,comp:20}]].forEach(([pf,lv,c])=>{const d=BT['tr_'+pf];if(d){d.lv=lv;d.cost=c}});
 const catOf=k=>{const c=CATS.find(x=>x[3].includes(k));return c?c[0]:'ciudad'};
@@ -35,12 +36,13 @@ window.buildMenu=function(){
   if(!by[window.bTab]||!by[window.bTab].length)window.bTab='ciudad';
   const tabs=CATS.map(c=>{const n=by[c[0]].filter(avail).length;return `<button class="${window.bTab===c[0]?'primary':''}" onclick="bTab='${c[0]}';buildMenu()">${c[1]} ${c[2]}${n?` <span class="mbad">${n}</span>`:''}</button>`}).join('');
   const L=by[window.bTab].slice().sort((a,b)=>(avail(b)?1:0)-(avail(a)?1:0)||BT[a].lv-BT[b].lv);
-  const card=t=>{const d=BT[t],ok=avail(t),c=costOf(d.cost),poor=ok&&!can(c);
+  const card=t=>{const d=BT[t];let ok=avail(t);const c=costOf(d.cost),poor=ok&&!can(c);
     const cost=Object.keys(c).filter(k=>c[k]).map(k=>`<span class="bch${S.res[k]<c[k]?' bnop':''}"><img src="${ICO[k]||''}" width=12>${c[k]}</span>`).join('');
     const prod=d.p?Object.keys(d.p).map(k=>`<span class="bpr"><img src="${ICO[k]||''}" width=11>+${d.p[k]}</span>`).join(''):'';
-    const lock=!ok?`🔒 Ayuntamiento ${d.lv}${d.tech?' · '+TECH.find(q=>q[0]==d.tech)[2]:''}`:'';
-    const act=ok?`pickB('${t}')`:`toast('Requiere ayuntamiento nivel ${d.lv}${d.tech?' y la tecnología '+TECH.find(q=>q[0]==d.tech)[2]:''}')`;
-    return `<div class="bcard${ok?'':' lk'}${poor?' poor':''}" onclick="${act}"><canvas class="mini" data-t="${t}" width="80" height="70"></canvas><button class="binf" onclick="event.stopPropagation();bInfo('${t}')">i</button><div class="bci"><b>${d.n}</b><small>${d.w}×${d.h}${prod?' · '+prod:''}</small>${lock?`<small class="blk">${lock}</small>`:`<div class="bchs">${cost}</div>`}${note(d)?`<small>${note(d)}</small>`:''}</div></div>`};
+    const lim=ok&&d.lim&&S.bld.filter(b=>b.type===t).length>=d.lim;
+    const lock=lim?(d.lim===1?'★ Único · ya construido':'Máximo '+d.lim+' · ya construidos'):!ok?`🔒 Ayuntamiento ${d.lv}${d.tech?' · '+TECH.find(q=>q[0]==d.tech)[2]:''}`:'';
+    const act=lim?`toast('${d.n}: ${d.lim===1?'solo se puede construir uno':'máximo '+d.lim}.')`:ok?`pickB('${t}')`:lim?`toast('${d.n}: ${d.lim===1?'solo se puede construir uno':'máximo '+d.lim}.')`:`toast('Requiere ayuntamiento nivel ${d.lv}${d.tech?' y la tecnología '+TECH.find(q=>q[0]==d.tech)[2]:''}')`;
+    return `<div class="bcard${ok?'':' lk'}${poor&&!lim?' poor':''}${lim?' blim':''}" onclick="${act}"><canvas class="mini" data-t="${t}" width="80" height="70"></canvas><button class="binf" onclick="event.stopPropagation();bInfo('${t}')">i</button><div class="bci"><b>${d.n}</b><small>${d.w}×${d.h}${prod?' · '+prod:''}</small>${lock?`<small class="blk"${lim?' style="color:#f2c542"':''}>${lock}</small>`:`<div class="bchs">${cost}</div>`}${note(d)?`<small>${note(d)}</small>`:''}</div></div>`};
   show('Construir',`<div class="prow ptabs bcat">${tabs}</div><p class="bsub">Ayuntamiento nivel <b>${hallLv()}</b> · toca una estructura, colócala y confirma cuando el contorno esté verde.</p><div class="bgrid">${L.map(card).join('')}</div>`);
   document.querySelectorAll('canvas.mini').forEach(c=>{const x=c.getContext('2d'),t=c.dataset.t,d=BT[t],s=Math.min(76/((d.w+d.h)*32),62/(d.z+(d.w+d.h)*16));x.translate(40-(d.w-d.h)*16*s,d.z*s+4);x.scale(s,s);try{if(t=='road'){box(x,0,0,1,1,2,'#77736b')}else drawB(x,{type:t,x:0,y:0,w:d.w,h:d.h,lvl:1,hp:1},1)}catch(e){}})};
 })();
