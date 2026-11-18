@@ -113,6 +113,12 @@ scenarios.push(['Torre en plena horda','partida_larga_dia248.json',async pg=>pg.
  startHorde();await __run(5);const before=U.some(u=>u.p===g);unjob(g.id,t.id);await __run(1);const u=U.find(u=>u.p===g);const joined=!!u;const x0=u?u.x:0,y0=u?u.y:0;let acted=0;await __run(30,()=>{if(u&&(Math.hypot(u.x-x0,u.y-y0)>.5||u.cd>0.5))acted=1;return acted});
  const other=U.find(v=>typeof v.p.id==='number'&&v.p.wp&&!(window.isMelee&&isMelee(v.p.wp))&&v.p!==g);let out=null;if(other){S.ppl.filter(p=>p.job===t.id).forEach(p=>p.job=0);asg(other.p.id,t.id);await __run(1);out=!U.some(v=>v.p===other.p)}
  await __run(400,()=>!horde);return {before,joined,acted,out,ended:!horde,V:__V}})]);
+/* 5h) territorio en el borde del mapa: la horda y los zombis sueltos no aparecen dentro ni junto a la base */
+scenarios.push(['Horda con territorio en el borde','dia3.json',async pg=>pg.evaluate(async()=>{for(let i=0;i<PG;i++)S.parc[i]=1;rebuild();dirtyT=1;let id=Math.max(...S.bld.map(b=>b.id))+1;
+ for(let x=10;x<70;x+=12)if(okAt(x,1,2,2,0))S.bld.push({type:'house',x,y:1,w:2,h:2,lvl:1,hp:120,id:id++});rebuild();
+ const bad=[];const chk=()=>{Z.forEach(z=>{if(z._ck||!z.act)return;z._ck=1;let m=1e9;S.bld.forEach(b=>{if(b.type==='road')return;const dx=Math.max(b.x-z.x,0,z.x-(b.x+b.w)),dy=Math.max(b.y-z.y,0,z.y-(b.y+b.h));m=Math.min(m,Math.hypot(dx,dy))});if(ownP(z.x,z.y)||m<8)bad.push([+z.x.toFixed(1),+z.y.toFixed(1),+m.toFixed(1)])})};
+ startHorde();await __run(.2);chk();const n=Z.filter(z=>z.act).length;await __run(400,()=>!horde);S.raidT=.01;let seen=0;await __run(120,()=>{if(window.raidOn&&!seen){seen=1;__step(.05);chk()}return seen&&!window.raidOn&&!Z.some(z=>z.act)});
+ return {n,bad:bad.slice(0,5),nbad:bad.length,ended:!horde,V:__V}})]);
 (async()=>{const b=await chromium.launch();const t0=Date.now();
  for(const [name,sv,fn] of scenarios){if(ONLY&&!name.includes(ONLY))continue;const {pg,pe}=await open(b,SV(sv));let r=null;try{r=await fn(pg)}catch(e){r={crash:String(e).slice(0,200)}}
   const V=r&&r.V||{};const tag=name;
@@ -134,6 +140,7 @@ scenarios.push(['Torre en plena horda','partida_larga_dia248.json',async pg=>pg.
   if(name==='Soldado en torre'){ok(tag+': el soldado sale en la lista de la torre',r.listed,JSON.stringify(r));ok(tag+': se le puede asignar',r.assigned,JSON.stringify(r));ok(tag+': en la horda se queda en la torre (no patrulla)',r.assigned&&!r.inU,JSON.stringify(r));ok(tag+': está dentro (no se ve ni merodea)',r.hidden&&r.far===0,JSON.stringify(r));ok(tag+': no se pasa del cupo',r.full,JSON.stringify(r));ok(tag+': protegido mientras la torre está en pie',!r.standing||(r.alive&&r.lost<=0.01),JSON.stringify(r))}
   if(name==='Soldado con lanza'){ok(tag+': no se le puede poner de tirador',r.refused,JSON.stringify(r));ok(tag+': si estaba en una torre, deja el puesto',r.kicked,JSON.stringify(r));ok(tag+': en la horda no dispara (pelea de cerca)',r.inU&&r.shots===0,JSON.stringify(r))}
   if(name==='Torre en plena horda'){ok(tag+': en la torre no está en el grupo',!r.before,JSON.stringify(r));ok(tag+': al quitarlo de la torre entra a combatir',r.joined&&r.acted,JSON.stringify(r));ok(tag+': al meterlo en una torre sale del grupo',r.out!==false,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
+  if(name==='Horda con territorio en el borde'){ok(tag+': ningún zombi aparece dentro del territorio ni junto a edificios',r.nbad===0&&r.n>0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Soldado sin arma'){ok(tag+': no dispara',r.shots===0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Guardar y cargar')ok(tag+': partida idéntica',r.diffs===0,r.ex);
   if(name==='Expediciones'){ok(tag+': solitaria arranca sin coste (comida, agua ni gasolina)',r.started&&r.cost<=0,JSON.stringify(r));ok(tag+': vuelve y queda en casa',r.back,JSON.stringify(r))}
