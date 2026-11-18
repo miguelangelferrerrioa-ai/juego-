@@ -228,7 +228,7 @@ function gen(e){
     if(story){const R=rngS(sk);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)))}
     else{if(th=='house')th='casa';for(let i=0;i<14&&!T;i++){const R=rngS(sk+':'+i);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)),vtpl(th,R,e.z.sub))}if(!T){th=themeOf(e);if(th=='casa')th='house';const R=rngS(sk);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)))}}}
   const M0=genDefault(e,T);unPocket(M0);M0.theme=T?th:null;M0.pal=T?PAL[th]:null;if(T){M0.fv=T.fv;M0.pr=T.pr;M0.dc=T.dc}
-  setMode(M0,e);return M0}
+  setMode(M0,e);try{dangerInit(M0,e)}catch(er){}return M0}
 /* Huecos cerrados por paredes: lo que cae dentro (coches, cajas, enemigos…) se mueve a la casilla alcanzable más cercana, para que todo se pueda coger o abatir */
 function unPocket(M){try{const R=new Uint8Array(COLS*ROWS),q=[];const sol=(x,y)=>x<0||y<0||x>=COLS||y>=ROWS||M.g[y][x]>0;
   (M.units||[]).forEach(u=>{const x=Math.floor(u.x),y=Math.floor(u.y);if(!sol(x,y)&&!R[y*COLS+x]){R[y*COLS+x]=1;q.push([x,y])}});if(!q.length)return;
@@ -253,7 +253,7 @@ function rngOf(p){return Math.max(1.8,Math.min(6.5,CL[p.arm||'soldado'].rng*.95+
 function addFl(M,x,y,t,c){M.fl.push({x,y,t,c,l:1})}
 const vrOf=u=>u.p.arm=='expl'?8.5:6.5;
 function los(x0,y0,x1,y1){const d=Math.hypot(x1-x0,y1-y0),n=Math.ceil(d/.3);for(let i=1;i<n;i++){const t=i/n,x=Math.floor(x0+(x1-x0)*t),y=Math.floor(y0+(y1-y0)*t);if(M.g[y]&&M.g[y][x]===1)return false}return true}
-function alert_(x,y,rad){M.en.forEach(z=>{if(!z.st&&Math.hypot(z.x-x,z.y-y)<rad)z.st=1})}
+function alert_(x,y,rad){if(M&&!M.pv&&M.dg!==undefined)M.dg=Math.min(100,M.dg+.35);M.en.forEach(z=>{if(!z.st&&Math.hypot(z.x-x,z.y-y)<rad)z.st=1})}
 function killZ(z){const zt=ZT[z.t],e=S.exp;if(window.ZX&&ZX.mk)ZX.mk(z,M);if(z.flag&&z.band&&window.BANDS){const bb=BANDS[z.band];e.loot.metal=(e.loot.metal||0)+15;addFl(M,z.x,z.y-.8,'Estandarte de '+bb.n+' +15 metal',bb.acc)}if(zt&&zt.hum&&e){const l=lvlOf(e.z),a=3+Math.round(Math.random()*4+l*.8);e.loot.ammo=(e.loot.ammo||0)+a;e.loot.metal=(e.loot.metal||0)+Math.round(a/2);e.loot.scrap=(e.loot.scrap||0)+2+Math.round(Math.random()*2);addFl(M,z.x,z.y-.4,'+'+a+' munición','#8dbb69');if(Math.random()<.1+l*.012)giveGear(l,0,1,z)}
   (M.blood=M.blood||[]).push({x:z.x,y:z.y,a:Math.random()*3});addFl(M,z.x,z.y,'☠','#fff');M.kills=(M.kills||0)+1}
 function explode(b){b.hp=0;M.barrels=M.barrels.filter(q=>q!==b);const tx=Math.floor(b.x),ty=Math.floor(b.y);M.g[ty][tx]=0;M.pr[ty][tx]=null;
@@ -320,13 +320,13 @@ function step(dt){
     if(u.rv>=3){p.hp=mhp(p)*.3;u.down=0;u.rv=0;M.revived=(M.revived||0)+1;addFl(M,u.x,u.y,'¡De pie!','#8dbb69')}
     else if(u.dt<=0){u.dead=1;addFl(M,u.x,u.y,'✝','#fff');toast('✝ '+p.n+' no lo ha logrado.');e.dead=e.dead||[];e.dead.push(p.n);p.away=0;e.team=e.team.filter(i=>i!=p.id);die(p,'en la expedición')}});
   if(!e.team.length&&!e.fin){e.fin=1;shown=false;ov.style.display='none';exEnd();return}
-  modeStep(dt,al);
+  modeStep(dt,al);try{dangerStep(dt,al)}catch(er){}
   // objetivos al llegar
   if(M.goal){const g=M.goal,near=al.some(u=>Math.hypot(u.x-g.o.x,u.y-g.o.y)<(g.k=='c'?1.35:1.6));
     if(near&&g.o.on){M.goal=null;if(g.k=='c')openCrate(g.o);else tryPoi(g.o)}}
   M.fl.forEach(f=>f.l-=dt*1.1);M.fl=M.fl.filter(f=>f.l>0);M.tr.forEach(t=>t.l-=dt);M.tr=M.tr.filter(t=>t.l>0);
 }
-function openCrate(c){const e=S.exp,z=e.z,L=lvlOf(z);c.on=0;const o=[];if(Math.random()<(c.emp||0)){addFl(M,c.x,c.y,'Vacío','#9fb0b6');sfx&&sfx('click');return}for(const k in z.l){const a=(z.l[k][0]+z.l[k][1])/2/5*(.75+.05*L)*(.6+Math.random()*.8)*(th('expl2')?1.2:1)*(th('expl3')?1.2:1)*(th('expl4')?1.2:1)*(M.units.some(u=>isAl(u)&&u.p.arm=='ing')?1.3:1);if(a>=1){e.loot[k]=(e.loot[k]||0)+a;o.push('+'+Math.round(a)+' '+k)}}
+function openCrate(c){const e=S.exp,z=e.z,L=lvlOf(z);if(c.amb&&!c.warned){c.warned=1;addFl(M,c.x,c.y,'Se oye algo dentro…','#ff9a6a');toast('⚠ Se oye algo dentro de la caja. Tócala otra vez para abrirla de todos modos.');return}c.on=0;if(c.amb){c.amb=0;ambush(c)}const o=[];if(Math.random()<(c.emp||0)){addFl(M,c.x,c.y,'Vacío','#9fb0b6');sfx&&sfx('click');return}for(const k in z.l){const a=(z.l[k][0]+z.l[k][1])/2/5*(.75+.05*L)*(.6+Math.random()*.8)*(th('expl2')?1.2:1)*(th('expl3')?1.2:1)*(th('expl4')?1.2:1)*(M.units.some(u=>isAl(u)&&u.p.arm=='ing')?1.3:1);if(a>=1){e.loot[k]=(e.loot[k]||0)+a;o.push('+'+Math.round(a)+' '+k)}}
   {const sc=Math.max(2,Math.round((c.car?7:4)*(.8+Math.random()*.6)*(1+.12*L)));e.loot.scrap=(e.loot.scrap||0)+sc;o.unshift('+'+sc+' chatarra')}
   addFl(M,c.x,c.y,o.join(' ')||'vacío','#8dbb69');sfx&&sfx('click');
   if(Math.random()<.06+.012*L)setTimeout(()=>giveGear(L,0,0,{x:c.x,y:c.y-.5}),350)
@@ -357,6 +357,44 @@ function leave(){const e=S.exp;if(!e)return;e.log.push('Enemigos abatidos: '+(M.
 window.exEnd=function(){const e=S.exp;
   if(e&&!e.fin&&tm(e).length){if(!e.complete){e.complete=1;toast('✅ Objetivo cumplido. Vuelve a la salida con tu equipo.');setTimeout(()=>{giveGear(lvlOf(e.z),1);givePlan(lvlOf(e.z))},900)}return}
   shown=false;if(ov)ov.style.display='none';cancelAnimationFrame(raf);M=null;return oEnd.apply(this,arguments)};
+/* ---------- peligro de las misiones: barra de peligro, patrullas, trampas, emboscadas y evacuación ---------- */
+const HZ={wire:['Alambre de espino','#9aa0a4'],acid:['Charco de ácido','#8adf3a'],mine:['Mina','#c23a2e'],floor:['Suelo que cede','#7a5a3a']};
+function freeTiles(M0,x0){const f=[],busy=new Set();['pois','crates','cars','meds','barrels','en'].forEach(k=>(M0[k]||[]).forEach(o=>busy.add(Math.floor(o.x)+','+Math.floor(o.y))));(M0.units||[]).forEach(u=>busy.add(Math.floor(u.x)+','+Math.floor(u.y)));
+ for(let y=1;y<ROWS-1;y++)for(let x=x0;x<COLS-1;x++)if(!M0.g[y][x]&&!busy.has(x+','+y))f.push([x,y]);return f}
+function dangerInit(M0,e){if(M0.pv)return;const L=lvlOf(e.z);M0.dg=0;M0.dgT=0;M0.dgN=0;M0.evac={need:Math.min(35,20+Math.floor(L/2)),t:0,on:0,done:0,w:3};
+ /* trampas */const f=freeTiles(M0,6),n=Math.min(f.length,8,4+Math.floor(L/6)),ks=Object.keys(HZ);M0.hz=[];for(let i=0;i<n;i++){const t=f.splice(Math.floor(Math.random()*f.length),1)[0];M0.hz.push({k:ks[Math.floor(Math.random()*ks.length)],x:t[0]+.5,y:t[1]+.5,on:1})}
+ /* patrullas: un tercio de los enemigos camina por el mapa */M0.en.forEach(z=>{if(z.boss||Math.random()>.33)return;z.pat=1});
+ /* emboscadas: una de cada cuatro cajas esconde enemigos */(M0.crates||[]).forEach(c=>{if(Math.random()<.25)c.amb=1})}
+function spawnAt(x,y,n,wake){const e=S.exp,lvl=lvlOf(e.z),hpM=.85+.035*lvl,dmM=.85+.025*lvl,t=nearTiles(M,x,y,n+6).filter(q=>!M.units.some(u=>isAl(u)&&Math.hypot(u.x-q[0],u.y-q[1])<1.5));
+ for(let i=0;i<n&&t.length;i++){const q=t.splice(Math.floor(Math.random()*t.length),1)[0],ty=mixType(lvl,Math.random,themeOf(e)),hp=Math.round(ZT[ty].hp*hpM);M.en.push({t:ty,x:q[0],y:q[1],hp,mhp:hp,st:wake?1:0,path:[],pt:0,dm:dmM,cd:1})}}
+function ambush(c){const lvl=lvlOf(S.exp.z),n=2+Math.floor(lvl/6);spawnAt(c.x,c.y,n,1);M.shake=.4;addFl(M,c.x,c.y,'¡Emboscada!','#ff4a3a');toast('⚠ ¡Emboscada! Salen infectados escondidos.');M.dg=Math.min(100,(M.dg||0)+8)}
+/* oleada desde los bordes del mapa, lejos del equipo */
+function wave(n){const al=M.units.filter(isAl);const f=[];for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++){if(M.g[y][x])continue;const edge=x>=COLS-3||y<=1||y>=ROWS-2;if(!edge||x<8)continue;if(al.some(u=>Math.hypot(u.x-x,u.y-y)<6))continue;f.push([x,y])}
+ if(!f.length)return;const c=f[Math.floor(Math.random()*f.length)];spawnAt(c[0]+.5,c[1]+.5,n,1)}
+function dangerStep(dt,al){if(M.pv||M.dg===undefined)return;const e=S.exp,lvl=lvlOf(e.z);
+ /* barra de peligro: sube sola y con el ruido; cada tercio trae una oleada; llena, oleadas cada 25 s */
+ if(!(M.evac&&M.evac.on)){M.dg=Math.min(100,M.dg+dt*(.25+.012*lvl));const tier=Math.floor(M.dg/34);if(tier>M.dgN){M.dgN=tier;const n=2+Math.floor(lvl/6)+tier;wave(n);toast('⚠ El ruido atrae a más infectados ('+n+').');M.shake=.25}
+  if(M.dg>=100){M.dgT+=dt;if(M.dgT>=30){M.dgT=0;wave(2+Math.floor(lvl/8))}}}
+ /* patrullas */M.en.forEach(z=>{if(!z.pat||z.st||z.hp<=0)return;if(!z.wp||Math.hypot(z.wp[0]-z.x,z.wp[1]-z.y)<.4||(z.pwT=(z.pwT||0)-dt)<=0){z.pwT=8;let t=null;for(let k=0;k<12&&!t;k++){const x=Math.floor(z.x+(Math.random()-.5)*12),y=Math.floor(z.y+(Math.random()-.5)*8);if(x>4&&!solid(M,x,y))t=[x+.5,y+.5]}z.wp=t||[z.x,z.y];z.path=bfs(M,z.x,z.y,z.wp[0],z.wp[1])||[]}
+  if(z.path&&z.path.length){const[tx,ty]=z.path[0],d=Math.hypot(tx-z.x,ty-z.y),sp=ZT[z.t].sp*.7*dt;z.fa=Math.atan2(ty-z.y,tx-z.x);if(d<=sp){z.x=tx;z.y=ty;z.path.shift()}else{z.x+=(tx-z.x)/d*sp;z.y+=(ty-z.y)/d*sp}}});
+ /* trampas */(M.hz||[]).forEach(h=>{if(!h.on)return;const tile=(o)=>Math.floor(o.x)===Math.floor(h.x)&&Math.floor(o.y)===Math.floor(h.y);
+  al.forEach(u=>{if(!tile(u))return;const p=u.p;if(h.k==='wire'){u.slow=Math.max(u.slow||0,1.5);if(Math.random()<dt*2)addFl(M,u.x,u.y,'Enganchado','#cfd6d8');p.hp-=3*dt}
+   else if(h.k==='acid'){p.hp-=7*dt;p.injury=Math.min(100,(p.injury||0)+dt*2);if(Math.random()<dt*2)addFl(M,u.x,u.y,'Ácido','#8adf3a')}
+   else if(h.k==='mine'){h.on=0;M.shake=.6;M.vis[Math.floor(h.y)*COLS+Math.floor(h.x)]=2;M.units.filter(isAl).forEach(o=>{if(Math.hypot(o.x-h.x,o.y-h.y)<1.7){o.p.hp-=32;addFl(M,o.x,o.y,'-32','#ff7b6b')}});M.en.forEach(z=>{if(Math.hypot(z.x-h.x,z.y-h.y)<1.7)z.hp-=60});M.tr.push({a:{x:h.x,y:h.y},b:{x:h.x+.01,y:h.y},l:.3,m:true,c:'#ffb040'});addFl(M,h.x,h.y,'¡BOOM!','#ff9a30');toast('💥 ¡Una mina!');M.dg=Math.min(100,M.dg+10)}
+   else if(h.k==='floor'){h.on=0;p.hp-=16;u.slow=3;M.shake=.3;addFl(M,u.x,u.y,'¡El suelo cede! -16','#ff7b6b')}});
+  if(h.on&&h.k==='mine')M.en.forEach(z=>{if(z.st&&tile(z)){h.on=0;M.en.forEach(q=>{if(Math.hypot(q.x-h.x,q.y-h.y)<1.7)q.hp-=60});addFl(M,h.x,h.y,'¡BOOM!','#ff9a30');M.shake=.4}})});
+ /* evacuación */const v=M.evac;if(v&&v.on&&!v.done){if(atExit()&&!hasDown())v.t+=dt;v.w-=dt;if(v.w<=0){v.w=8;wave(1+Math.floor(lvl/8))}
+  if(v.t>=v.need){v.done=1;toast('🚁 ¡Ha llegado la ayuda! Salís de la zona.');setTimeout(()=>{if(S.exp&&M)leave()},700)}}}
+function drawHz(){(M.hz||[]).forEach(h=>{if(!h.on||M.vis[Math.floor(h.y)*COLS+Math.floor(h.x)]!==2)return;const x=h.x*ts,y=h.y*ts,r=ts*.38;
+ if(h.k==='acid'){cx.fillStyle='rgba(120,220,60,.55)';cx.beginPath();cx.ellipse(x,y,r*1.2,r*.75,.3,0,7);cx.fill();cx.fillStyle='rgba(200,255,140,.6)';cx.beginPath();cx.arc(x-r*.3,y-r*.15,r*.18,0,7);cx.fill()}
+ else if(h.k==='wire'){cx.strokeStyle='#b8bec2';cx.lineWidth=1.3;for(let k=0;k<3;k++){cx.beginPath();for(let i=0;i<=8;i++){const px=x-r+i*r/4,py=y-r*.4+k*r*.4+Math.sin(i*1.7+k)*r*.15;i?cx.lineTo(px,py):cx.moveTo(px,py)}cx.stroke()}}
+ else if(h.k==='mine'){cx.fillStyle='#3a3a32';cx.beginPath();cx.ellipse(x,y,r*.55,r*.35,0,0,7);cx.fill();cx.fillStyle=(M.t*3%1)<.5?'#ff3a2a':'#5a1a14';cx.beginPath();cx.arc(x,y-r*.12,r*.14,0,7);cx.fill()}
+ else{cx.strokeStyle='#2a1a10';cx.lineWidth=1.6;cx.beginPath();cx.moveTo(x-r,y-r*.3);cx.lineTo(x-r*.2,y);cx.lineTo(x+r*.3,y-r*.5);cx.moveTo(x-r*.2,y);cx.lineTo(x+r*.1,y+r*.6);cx.moveTo(x+r*.3,y-r*.5);cx.lineTo(x+r,y-r*.1);cx.stroke()}
+ cx.strokeStyle='rgba(255,90,60,.55)';cx.lineWidth=1;cx.setLineDash([3,3]);cx.strokeRect(x-ts*.5+2,y-ts*.5+2,ts-4,ts-4);cx.setLineDash([])})}
+function drawDanger(W,H){if(M.pv||M.dg===undefined)return;const v=M.evac,x=10,y=8,w=Math.min(190,W*.28),h=11,k=M.dg/100,col=k<.34?'#e0c040':k<.67?'#e08a30':'#e04a3a';
+ cx.fillStyle='rgba(0,0,0,.6)';cx.fillRect(x-4,y-4,w+8,h+20);cx.fillStyle='#2a1a14';cx.fillRect(x,y+12,w,h);cx.fillStyle=col;cx.fillRect(x,y+12,w*k,h);cx.strokeStyle='#000';cx.strokeRect(x,y+12,w,h);
+ cx.fillStyle='rgba(0,0,0,.5)';[1,2].forEach(i=>cx.fillRect(x+w*i/3-1,y+12,2,h));cx.fillStyle='#ffe9a8';cx.font='bold 10px sans-serif';cx.textAlign='left';cx.fillText('☣ PELIGRO '+Math.round(M.dg)+'%'+(M.dg>=100?' · oleadas':''),x,y+8);
+ if(v&&v.on&&!v.done){const t=Math.max(0,v.need-v.t),bw=Math.min(260,W*.4),bx=W-bw-14,by=H-44;cx.fillStyle='rgba(0,0,0,.65)';cx.fillRect(bx-6,by-4,bw+12,34);cx.fillStyle='#ffe9a8';cx.font='bold 12px sans-serif';cx.textAlign='center';cx.fillText(atExit()?(hasDown()?'⚠ Reanimad a los caídos para seguir':'🚁 EVACUACIÓN · aguanta '+Math.ceil(t)+' s'):'⚠ Volved a la salida para la evacuación',bx+bw/2,by+11);cx.fillStyle='#2a3a2a';cx.fillRect(bx,by+17,bw,8);cx.fillStyle='#5ad08a';cx.fillRect(bx,by+17,bw*(v.t/v.need),8)}}
 /* ---------- dibujo ---------- */
 const hs=(x,y)=>{let h=(x*374761393+y*668265263)^0x5bd1e995;h=(h^(h>>>13))*1274126177;return((h^(h>>>16))>>>0)/4294967296};
 let dark=null,FL=null;window._qmReset=()=>{dark=null;FL=null};
@@ -439,6 +477,7 @@ function draw(){
       if(g[y][x]==3)drawProp(cx,M.pr[y][x],px,py,ts,x,y)}}
   cx=oc}
   cx.drawImage(FL.cv,0,0,ts*COLS,ts*ROWS);
+  try{drawHz()}catch(er){}
   (M.blood||[]).forEach(b=>{if(!seen(b.x,b.y))return;cx.fillStyle='#5a1210aa';cx.beginPath();cx.ellipse(b.x*ts,b.y*ts,ts*.3,ts*.18,b.a,0,7);cx.fill()});
   // salida
   cx.fillStyle='#e0a12433';cx.fillRect(1*ts,4*ts,3*ts,3*ts);cx.save();cx.beginPath();cx.rect(1*ts,4*ts,3*ts,3*ts);cx.clip();cx.strokeStyle='#e0a12440';cx.lineWidth=5;for(let i=-4;i<8;i++){cx.beginPath();cx.moveTo(1*ts+i*ts*.5,4*ts);cx.lineTo(1*ts+i*ts*.5+3*ts,7*ts);cx.stroke()}cx.restore();
@@ -483,9 +522,9 @@ function draw(){
   // la salida siempre algo iluminada
   const gr2=dc.createRadialGradient(2.5*ts,5.5*ts,ts,2.5*ts,5.5*ts,ts*4);gr2.addColorStop(0,'rgba(0,0,0,.8)');gr2.addColorStop(1,'rgba(0,0,0,0)');dc.fillStyle=gr2;dc.beginPath();dc.arc(2.5*ts,5.5*ts,ts*4,0,7);dc.fill();
   cx.drawImage(dark,0,0,ts*COLS,ts*ROWS)}
-  cx.restore();
+  cx.restore();try{drawDanger(W,H)}catch(er){}
   const e=S.exp;if(e){$('qm_t').textContent=e.z.n+' · amenaza '+threatOf(lvlOf(e.z));$('qm_o').textContent=e.complete?'Objetivo cumplido · vuelve a la salida':(M.mo&&!M.mo.done)?moTxt():'Eventos '+Math.min(e.step,nR(e))+'/'+nR(e)+' · botín '+(Object.keys(e.loot).map(k=>k+' '+Math.round(e.loot[k])).join(', ')||'—');
-    const ex=atExit();$('qm_ret').textContent=ex?(e.complete?'Salir ✓':'Salir (abandonar)'):'Ir a la salida';$('qm_ret').className=ex&&e.complete?'good':'';
+    const ex=atExit(),ev=M.evac&&M.evac.on&&!M.evac.done;$('qm_ret').textContent=ev?('Evacuando… '+Math.ceil(M.evac.need-M.evac.t)+' s'):ex?(e.complete?(M.evac&&!M.evac.done&&!M.pv?'📻 Pedir evacuación':'Salir ✓'):'Salir (abandonar)'):'Ir a la salida';$('qm_ret').className=ex&&e.complete?'good':'';
     $('qm_med').disabled=S.res.meds<2}
 }
 function loop(t){if(!shown||!M)return;const dt=Math.min(.1,(t-lastT)/1000||0);lastT=t;if(!evOpen&&!M.pause){for(let i=0;i<(M.spd||1);i++)step(dt)}else M.fl.forEach(f=>f.l-=dt*.5);if(M&&shown){draw();strip();updIn()}raf=requestAnimationFrame(loop)}
@@ -498,7 +537,7 @@ function build(){
   $('qm_pz').onclick=()=>{if(!M)return;M.pause=!M.pause;$('qm_pz').textContent=M.pause?'▶':'II'};
   $('qm_sp').onclick=()=>{if(!M)return;M.spd=M.spd==2?1:2;$('qm_sp').textContent='×'+M.spd};
   $('qm_med').onclick=()=>{const e=S.exp;if(!e||S.res.meds<2)return;S.res.meds-=2;tm(e).forEach(p=>{p.hp=Math.min(mhp(p),Math.max(0,p.hp)+25)});M.units.forEach(u=>{if(!u.dead)addFl(M,u.x,u.y,'+25','#8dbb69')})};
-  $('qm_ret').onclick=()=>{const e=S.exp;if(!e||!M)return;if(atExit()){if(hasDown()){toast('Un compañero ha caído: reanímalo antes de salir.');return}if(!e.complete&&!confirm_ok()){return}leave()}else{M.focus=null;order(2,5)}};
+  $('qm_ret').onclick=()=>{const e=S.exp;if(!e||!M)return;if(atExit()){if(hasDown()){toast('Un compañero ha caído: reanímalo antes de salir.');return}if(!e.complete&&!confirm_ok()){return}if(e.complete&&M.evac&&!M.evac.done&&!M.pv){if(!M.evac.on){M.evac.on=1;toast('📻 Pides la evacuación: aguanta '+M.evac.need+' s en la salida hasta que llegue la ayuda.')}return}leave()}else{M.focus=null;order(2,5)}};
   $('qm_u').addEventListener('pointerdown',ev=>{const c=ev.target.closest('[data-i]');if(!c||!M)return;ev.stopPropagation();const i=+c.dataset.i;if(i<0)M.sel=null;else{const u=M.units[i];if(!u||u.dead)return;M.sel=(M.sel&&M.sel.size==1&&M.sel.has(u))?null:new Set([u])}});
   cv.addEventListener('pointerdown',ev=>{if(evOpen||!M)return;const r=cv.getBoundingClientRect(),fx=(ev.clientX-r.left-ox)/ts,fy=(ev.clientY-r.top-oy)/ts;tap(fx,fy)})}
 let uSig='';
