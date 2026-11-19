@@ -19,7 +19,7 @@ gate:{n:'Puerta reforzada',w:1,h:1,z:16,c:'#6b5a46',cost:{wood:15,metal:15},lv:2
 road:{n:'Carretera',w:1,h:1,z:0,c:'#77736b',cost:{wood:2},lv:1,hp:1,f:'Los edificios junto a una carretera producen un 10% más.'},
 hosp:{n:'Hospital',w:3,h:3,z:30,c:'#e8eef0',cost:{wood:150,metal:60},lv:2,hp:220,p:{meds:3},job:['Médico'],slots:2,pw:1,f:'Cura heridos y produce medicinas. Requiere energía.'},
 barr:{n:'Barracones',w:3,h:3,z:26,c:'#7a8a52',cost:{wood:140,metal:50},lv:2,hp:240,job:['Soldado'],slots:3,f:'Entrena soldados y aumenta el tamaño del ejército.'},
-tower:{n:'Torre de vigilancia',w:2,h:2,z:108,c:'#85705a',cost:{wood:100,metal:50},lv:2,hp:160,fire:{r:7,d:10,rt:1},gun:1,slots:2,job:['Soldado'],f:'Puesto de tirador: solo dispara si asignas 1 o 2 ciudadanos con arma. Alcance y daño dependen del arma (gasta munición).'},
+tower:{n:'Torre de vigilancia',w:2,h:2,z:108,c:'#85705a',cost:{wood:100,metal:50},lv:2,hp:160,fire:{r:7,d:10,rt:1},gun:1,slots:2,job:['Soldado'],f:'Puesto de tirador: solo dispara si asignas 1 o 2 ciudadanos con arma. Alcance y daño dependen del arma.'},
 store:{n:'Almacén',w:3,h:3,z:24,c:'#5f7a96',cost:{wood:120,metal:30},lv:2,hp:220,f:'Capacidad de recursos +250 por nivel.'},
 work:{n:'Taller de armas',w:3,h:3,z:26,c:'#94704a',cost:{wood:200,metal:100},lv:3,hp:220,p:{ammo:8},job:['Mecánico'],slots:2,pw:1,f:'Produce munición y fabrica armas. Requiere energía.'},
 expo:{n:'Centro de expediciones',w:3,h:3,z:26,c:'#b0985f',cost:{wood:220,metal:80},lv:3,hp:200,job:['Explorador'],slots:2,f:'Permite enviar equipos al mundo exterior.'},
@@ -27,13 +27,13 @@ fact:{n:'Fábrica',w:4,h:3,z:34,c:'#7a7f85',cost:{wood:300,metal:150},lv:4,hp:28
 gen:{n:'Generador',w:2,h:2,z:20,c:'#c9a93a',cost:{wood:100,metal:60},lv:2,hp:130,p:{elec:20},job:['Mecánico','Científico'],slots:2,f:'Da energía a la base. Sus trabajadores y su nivel suben la capacidad.'},
 lab:{n:'Laboratorio',w:3,h:3,z:28,c:'#4e8f8a',cost:{wood:260,metal:180},lv:4,hp:220,job:['Científico'],p:{rp:24},slots:2,pw:1,f:'Necesario para investigar tecnologías. Requiere energía.'},
 trap:{n:'Trampa',w:1,h:1,z:3,c:'#777',cost:{metal:12},lv:2,hp:90,tech:'def2',f:'Daña a los zombis que pasan por encima.'},
-turret:{n:'Arma automática',w:1,h:1,z:14,c:'#4a4f58',cost:{metal:70,wood:20},lv:3,hp:130,tech:'arms2',fire:{r:5,d:5,rt:.35},f:'Torreta de disparo rápido (gasta munición).'}};
+turret:{n:'Arma automática',w:1,h:1,z:14,c:'#4a4f58',cost:{metal:70,wood:20},lv:3,hp:130,tech:'arms2',fire:{r:5,d:5,rt:.35},f:'Torreta de disparo rápido.'}};
 Object.assign(BT,{
 bridge:{n:'Puente',w:1,h:1,z:0,c:'#8a6240',cost:{wood:15,metal:3},lv:1,hp:90,wb:1,f:'Se construye sobre el agua. Cruzar ríos y lagos sin puente es lento para todos, también para los zombis.'},
 dock:{n:'Muelle de pesca',w:2,h:2,z:14,c:'#8a6a45',cost:{wood:90,metal:10},lv:2,hp:110,p:{food:12},job:['Recolector','Agricultor'],slots:2,dk:1,f:'Se construye en la orilla, con parte sobre el agua. Los pescadores producen comida.'},
 pump:{n:'Estación de bombeo',w:2,h:2,z:22,c:'#6f8fa3',cost:{wood:110,metal:50},lv:2,hp:140,p:{water:24},job:['Mecánico','Recolector'],slots:2,pm:1,f:'Debe estar junto al agua. Produce el doble de agua que un pozo.'},
 mine:{n:'Mina',w:3,h:3,z:26,c:'#7a6e5c',cost:{wood:170,metal:40},lv:3,hp:220,p:{metal:12},job:['Mecánico','Recolector'],slots:3,mt:1,f:'Solo en montaña. Extrae metal sin necesitar electricidad.'},
-mtower:{n:'Torre de montaña',w:2,h:2,z:104,c:'#7a7a74',cost:{wood:120,metal:90},lv:3,hp:200,fire:{r:11,d:12,rt:1.1},gun:1,slots:2,job:['Soldado'],mt:1,f:'Solo en montaña. Más alcance que la torre normal. Necesita 1 o 2 ciudadanos con arma asignados (gasta munición).'}});
+mtower:{n:'Torre de montaña',w:2,h:2,z:104,c:'#7a7a74',cost:{wood:120,metal:90},lv:3,hp:200,fire:{r:11,d:12,rt:1.1},gun:1,slots:2,job:['Soldado'],mt:1,f:'Solo en montaña. Más alcance que la torre normal. Necesita 1 o 2 ciudadanos con arma asignados.'}});
 ['wall','gate','trap','turret'].forEach(k=>BT[k].anyb=1);delete BT.barricade;
 const PAINT={wall:1,gate:1,road:1,trap:1,bridge:1};
 const PF=['Médico','Soldado','Constructor','Agricultor','Cocinero','Explorador','Mecánico','Recolector','Científico'];
