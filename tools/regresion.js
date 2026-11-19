@@ -119,6 +119,11 @@ scenarios.push(['Horda con territorio en el borde','dia3.json',async pg=>pg.eval
  const bad=[];const chk=()=>{Z.forEach(z=>{if(z._ck||!z.act)return;z._ck=1;let m=1e9;S.bld.forEach(b=>{if(b.type==='road')return;const dx=Math.max(b.x-z.x,0,z.x-(b.x+b.w)),dy=Math.max(b.y-z.y,0,z.y-(b.y+b.h));m=Math.min(m,Math.hypot(dx,dy))});if(ownP(z.x,z.y)||m<8)bad.push([+z.x.toFixed(1),+z.y.toFixed(1),+m.toFixed(1)])})};
  startHorde();await __run(.2);chk();const n=Z.filter(z=>z.act).length;await __run(400,()=>!horde);S.raidT=.01;let seen=0;await __run(120,()=>{if(window.raidOn&&!seen){seen=1;__step(.05);chk()}return seen&&!window.raidOn&&!Z.some(z=>z.act)});
  return {n,bad:bad.slice(0,5),nbad:bad.length,ended:!horde,V:__V}})]);
+/* 5i) plazas del ejército: 4 por nivel de barracón; sin barracones no se alista */
+scenarios.push(['Plazas del ejército','dia3.json',async pg=>pg.evaluate(async()=>{window.pSheet=()=>{};S.res.ammo=999;const B=S.bld.filter(b=>b.type==='barr');S.bld=S.bld.filter(b=>b.type!=='barr');rebuild();
+ const c=()=>S.ppl.filter(p=>p.arm).length,free=()=>S.ppl.find(p=>!p.arm&&!p.preg&&p.age>=18&&!p.away);const n0=c();enlist(free().id,'soldado');const sin=c()-n0;
+ S.bld.push({type:'barr',x:2,y:2,w:B[0]?B[0].w:3,h:B[0]?B[0].h:2,lvl:1,hp:200,id:9999});rebuild();S.ppl.forEach(p=>{if(p.arm)p.arm=null});let k=0;for(let i=0;i<8;i++){const f=free();if(!f)break;enlist(f.id,'soldado')}k=c();
+ return {cap0:0,sin,con:k,cap:acap(),V:__V}})]);
 (async()=>{const b=await chromium.launch();const t0=Date.now();
  for(const [name,sv,fn] of scenarios){if(ONLY&&!name.includes(ONLY))continue;const {pg,pe}=await open(b,SV(sv));let r=null;try{r=await fn(pg)}catch(e){r={crash:String(e).slice(0,200)}}
   const V=r&&r.V||{};const tag=name;
@@ -141,6 +146,7 @@ scenarios.push(['Horda con territorio en el borde','dia3.json',async pg=>pg.eval
   if(name==='Soldado con lanza'){ok(tag+': no se le puede poner de tirador',r.refused,JSON.stringify(r));ok(tag+': si estaba en una torre, deja el puesto',r.kicked,JSON.stringify(r));ok(tag+': en la horda no dispara (pelea de cerca)',r.inU&&r.shots===0,JSON.stringify(r))}
   if(name==='Torre en plena horda'){ok(tag+': en la torre no está en el grupo',!r.before,JSON.stringify(r));ok(tag+': al quitarlo de la torre entra a combatir',r.joined&&r.acted,JSON.stringify(r));ok(tag+': al meterlo en una torre sale del grupo',r.out!==false,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Horda con territorio en el borde'){ok(tag+': ningún zombi aparece dentro del territorio ni junto a edificios',r.nbad===0&&r.n>0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
+  if(name==='Plazas del ejército'){ok(tag+': sin barracones no se puede alistar',r.sin===0,JSON.stringify(r));ok(tag+': un barracón de nivel 1 da 4 plazas y no se pasa',r.cap===4&&r.con===4,JSON.stringify(r))}
   if(name==='Soldado sin arma'){ok(tag+': no dispara',r.shots===0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Guardar y cargar')ok(tag+': partida idéntica',r.diffs===0,r.ex);
   if(name==='Expediciones'){ok(tag+': solitaria arranca sin coste (comida, agua ni gasolina)',r.started&&r.cost<=0,JSON.stringify(r));ok(tag+': vuelve y queda en casa',r.back,JSON.stringify(r))}

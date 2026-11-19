@@ -13,9 +13,9 @@ const done=()=>{try{paintCards()}catch(e){}};
 /* ---------- EJÉRCITO ---------- */
 window.armyMenu=function(){
   const a=S.ppl.filter(p=>p.arm),cap=window.acap?acap():a.length,hp=a.length?Math.round(a.reduce((s,p)=>s+p.hp/mhp(p)*100,0)/a.length):0;
-  const head=`<div class="mu-sts">${stat('🛡',a.length+'/'+cap,'Unidades')}${stat('⚔',armyPow(),'Poder total')}${stat('♥',hp+'%','Salud media')}</div>`;
+  const head=`<div class="mu-sts">${stat('🛡',a.length+'/'+cap,a.length>cap?'Unidades · sobran '+(a.length-cap):'Unidades')}${stat('⚔',armyPow(),'Poder total')}${stat('♥',hp+'%','Salud media')}</div>`;
   const cards=a.map(p=>{const pc=p.hp/mhp(p)*100,cl=CL[p.arm];return `<div class="mu-c" onclick="pSheet(${p.id})"><canvas class="pf" data-id="${p.id}" width="120" height="126"></canvas><div class="mu-ci"><b>${esc(p.n)}</b><span class="mu-tag">${cl.n}</span><small>Nivel ${p.lvl} · ⚔ ${upow(p)}</small>${bar(pc,hpc(pc))}<small>♥ ${Math.round(p.hp)}/${mhp(p)}</small></div></div>`}).join('');
-  show('Ejército',head+(cards?`<div class="mu-grid">${cards}</div>`:`<div class="mu-empty"><span>🛡</span><b>Aún no hay unidades</b><small>Abre la ficha de un superviviente y enrólalo para formar tu ejército.</small>${tile('👥','Ver supervivientes','Elige a quién enrolar','pplMenu()')}</div>`));done()};
+  show('Ejército',head+(a.length>cap?`<p class="bsub" style="color:#f2c542">⚠ Hay más soldados que plazas: no podrás alistar a nadie más hasta tener sitio (cada nivel de barracón da 4 plazas).</p>`:!cap?`<p class="bsub">Construye Barracones para poder alistar: cada nivel da 4 plazas.</p>`:'')+(cards?`<div class="mu-grid">${cards}</div>`:`<div class="mu-empty"><span>🛡</span><b>Aún no hay unidades</b><small>Abre la ficha de un superviviente y enrólalo para formar tu ejército.</small>${tile('👥','Ver supervivientes','Elige a quién enrolar','pplMenu()')}</div>`));done()};
 
 /* ---------- PARTIDA ---------- */
 window.menu=function(){
