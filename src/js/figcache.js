@@ -21,11 +21,21 @@ function cell(){if(FREE.length)return FREE.pop();
 const LK=new Map();function look(id){if(!id)return '';const m=LK.get(id);if(m&&T-m[0]<1&&T>=m[0])return m[1];const v=look0(id);LK.set(id,[T,v]);if(LK.size>800)LK.clear();return v}
 function look0(id){if(typeof byId!=='function')return '';const p=byId(id);if(!p)return '';
  return (p.outfit||'')+'|'+(p.arm||'')+'|'+(p.wp?p.wp.n:'')+'|'+(p.prof||'')+'|'+(p.gear?JSON.stringify(p.gear):'')+'|'+(p.look?JSON.stringify(p.look):'')+'|'+(p.age>=55?2:p.age<18?1:0)+(p.sex||'')}
+/* volumen (se pinta una vez por postura): luz cálida por la izquierda y sombra fría a la derecha, y sombra suave alargada en el suelo */
+/* sombra suave pre-pintada (un degradado; antes un desenfoque por postura, 4 veces más lento) */
+let SHS=null;function shSpr(){if(SHS)return SHS;SHS=document.createElement('canvas');SHS.width=88;SHS.height=40;const x=SHS.getContext('2d');x.translate(44,20);x.scale(1,.36);const g=x.createRadialGradient(0,0,0,0,0,44);g.addColorStop(0,'rgba(10,6,2,.3)');g.addColorStop(.55,'rgba(10,6,2,.2)');g.addColorStop(1,'rgba(10,6,2,0)');x.fillStyle=g;x.beginPath();x.arc(0,0,44,0,7);x.fill();return SHS}
+function shade(x,j){const q=j.q,sc=+j.a[3]||1;
+ x.globalCompositeOperation='source-atop';{let g=x.createLinearGradient(q[0]-8,0,q[0]+8,0);g.addColorStop(0,'rgba(255,232,185,.30)');g.addColorStop(.5,'rgba(255,232,185,0)');g.addColorStop(.55,'rgba(25,20,60,0)');g.addColorStop(1,'rgba(25,20,60,.34)');x.fillStyle=g;x.fillRect(q[0]+BX0,q[1]+BY0,BW,BH);
+ g=x.createLinearGradient(0,q[1]-34,0,q[1]);g.addColorStop(0,'rgba(255,248,220,.18)');g.addColorStop(.6,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(10,6,2,.25)');x.fillStyle=g;x.fillRect(q[0]+BX0,q[1]+BY0,BW,BH)}
+ x.globalCompositeOperation='destination-over';x.drawImage(shSpr(),q[0]-5*sc,q[1]-3.5*sc,22*sc,10*sc);x.globalCompositeOperation='source-over'}
 /* pinta la postura en su celda con el reloj T ajustado a esa fase de la animación */
-function paint(j){const sl=cell();if(!sl)return;const [p,i]=sl,cx=(i%COLS)*CW+1,cy=Math.floor(i/COLS)*CH+1,cv=PG[p],x=cv.getContext('2d');RP++;
- x.save();x.setTransform(1,0,0,1,0,0);x.clearRect(cx-1,cy-1,CW,CH);x.beginPath();x.rect(cx,cy,CW-2,CH-2);x.clip();
- x.setTransform(SQ,0,0,SQ,cx-(j.q[0]+BX0)*SQ,cy-(j.q[1]+BY0)*SQ);
- const T0=T,og=window.g;T=j.T;window.g=x;try{orig.apply(null,j.a)}finally{T=T0;window.g=og;x.restore()}
+/* se pinta en un lienzo pequeño aparte y se copia al atlas de una vez (sombrear leyendo de la página del atlas obligaría a copiarla entera) */
+let FC=null;function paint(j){const sl=cell();if(!sl)return;const [p,i]=sl,cx=(i%COLS)*CW+1,cy=Math.floor(i/COLS)*CH+1,cv=PG[p],x=cv.getContext('2d');RP++;
+ if(!FC)FC=document.createElement('canvas');if(FC.width!==CW||FC.height!==CH){FC.width=CW;FC.height=CH}const f=FC.getContext('2d');
+ f.save();f.setTransform(1,0,0,1,0,0);f.globalCompositeOperation='source-over';f.globalAlpha=1;f.clearRect(0,0,CW,CH);f.beginPath();f.rect(1,1,CW-2,CH-2);f.clip();
+ f.setTransform(SQ,0,0,SQ,1-(j.q[0]+BX0)*SQ,1-(j.q[1]+BY0)*SQ);
+ const T0=T,og=window.g;T=j.T;window.g=f;try{orig.apply(null,j.a);if(window.FIGSH!==false)shade(f,j)}finally{T=T0;window.g=og;f.restore()}
+ x.save();x.setTransform(1,0,0,1,0,0);x.clearRect(cx-1,cy-1,CW,CH);x.drawImage(FC,cx-1,cy-1);x.restore();
  C.set(j.k,{pg:p,i,x:cx,y:cy,t:T})}
 window.figFlush=function(){if(!Q.size)return;const t0=performance.now();let n=0;for(const [k,j] of Q){Q.delete(k);if(j.sq===SQ&&!C.has(k))paint(j);if(++n>=24||performance.now()-t0>3)break}};
 {const ob=window.bcFlush;window.bcFlush=function(){if(ob)try{ob()}catch(e){}try{figFlush()}catch(e){}}}

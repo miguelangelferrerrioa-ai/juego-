@@ -38,7 +38,8 @@ function vol(c,o){const{x,y,w,h,z}=o,z0=o.z0||0,q=Q(o.col),mat=o.mat||'plaster',
  faceTf(c,'L',x,y,w,h,z0,len=>{c.save();c.beginPath();c.rect(0,-z,len,z);c.clip();matP(c,mat,len,z,q,s);c.restore();if(o.decL)o.decL(c,len,z)});
  pl(c,[D0,B0,B1,D1],lg(c,0,D1[1],0,D0[1],[[0,RGB(q,.78)],[1,RGB(q,.64)]]));
  faceTf(c,'R',x,y,w,h,z0,len=>{c.save();c.beginPath();c.rect(0,-z,len,z);c.clip();c.globalAlpha=.9;matP(c,mat,len,z,q,s+5);c.globalAlpha=1;c.fillStyle='rgba(10,8,20,.08)';c.fillRect(0,-z,len,z);c.restore();if(o.decR){c.save();c.globalAlpha=.82;o.decR(c,len,z);c.restore()}});
- if(!o.noTop){pl(c,[A1,B1,D1,E1],o.topCol?o.topCol:RGB(q,1.14))}
+ if(z>=8)for(const sd of['L','R'])faceTf(c,sd,x,y,w,h,z0,len=>wear(c,len,z,s+(sd=='R'?7:0)));
+if(!o.noTop){pl(c,[A1,B1,D1,E1],o.topCol?o.topCol:RGB(q,1.14))}
  line(c,mix(E1,D1,0),D1,'rgba(255,255,255,.5)',1.8);line(c,D1,B1,'rgba(255,255,255,.35)',1.8);
  c.strokeStyle=OLC;c.lineWidth=2.4;c.lineJoin='round';c.beginPath();[E0,D0,B0,B1,A1,E1].forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath();c.stroke();
  c.lineWidth=1.9;c.beginPath();c.moveTo(D0[0],D0[1]);c.lineTo(D1[0],D1[1]);c.moveTo(E1[0],E1[1]);c.lineTo(D1[0],D1[1]);c.lineTo(B1[0],B1[1]);c.stroke()}
@@ -66,13 +67,23 @@ function plateX(c,x,y,s){c.strokeStyle='rgba(190,40,30,.85)';c.lineWidth=2.2;c.l
 function patch(c,x,y,w,h,col){c.fillStyle=col||'#8f959a';c.fillRect(x,y,w,h);c.strokeStyle=OLC;c.lineWidth=1.2;c.strokeRect(x,y,w,h);c.fillStyle='rgba(255,255,255,.3)';c.fillRect(x,y,w,1.2);c.fillStyle='#2a1a11';for(const[a,b]of[[x+1.6,y+1.6],[x+w-1.6,y+1.6],[x+1.6,y+h-1.6],[x+w-1.6,y+h-1.6]]){c.beginPath();c.arc(a,b,.8,0,7);c.fill()}}
 
 /* ---- tejados ---- */
+/* desgaste de fachada: sombra al pie, sombra bajo el alero y churretes */
+function wear(c,len,z,s){c.save();c.beginPath();c.rect(0,-z,len,z);c.clip();const ao=Math.min(13,z*.45);let g=c.createLinearGradient(0,0,0,-ao);g.addColorStop(0,'rgba(18,9,3,.5)');g.addColorStop(1,'rgba(18,9,3,0)');c.fillStyle=g;c.fillRect(0,-ao,len,ao);
+ g=c.createLinearGradient(0,-z,0,-z+8);g.addColorStop(0,'rgba(18,9,3,.38)');g.addColorStop(1,'rgba(18,9,3,0)');c.fillStyle=g;c.fillRect(0,-z,len,8);
+ const n=2+Math.floor(rnd(s,1,3)*3);for(let i=0;i<n;i++){const xx=rnd(s,i,7)*len,L=z*(.3+rnd(s,i,9)*.5),ww=2+rnd(s,i,4)*4;g=c.createLinearGradient(0,-z,0,-z+L);g.addColorStop(0,'rgba(30,20,10,.22)');g.addColorStop(1,'rgba(30,20,10,0)');c.fillStyle=g;c.fillRect(xx,-z,ww,L)}
+ c.restore()}
 function plane(c,A,B,C,D,col,rows,tile,seed){/* A-B = alero, D-C = cumbrera */const q=Q(col);pl(c,[A,B,C,D],lg(c,0,Math.min(A[1],D[1],C[1],B[1]),0,Math.max(A[1],D[1],C[1],B[1]),[[0,RGB(q,1.12)],[1,RGB(q,.82)]]));
  c.save();pl(c,[A,B,C,D]);c.clip();
  for(let i=0;i<rows;i++){const t0=i/rows,t1=(i+1)/rows,a=mix(A,D,t0),b=mix(B,C,t0),a1=mix(A,D,t1),b1=mix(B,C,t1);
   const n=rnd(i,seed,5);c.fillStyle=n<.3?'rgba(0,0,0,.08)':n>.7?'rgba(255,255,255,.08)':'rgba(0,0,0,0)';pl(c,[a,b,b1,a1],c.fillStyle);
   line(c,a,b,'rgba(25,12,6,.4)',1.1);line(c,mix(a,b,0),mix(a,b,1),'rgba(255,255,255,.0)',0);
-  if(tile){const cnt=tile;for(let j=(i%2)*.5;j<cnt;j++){const t=j/cnt,p=mix(a,b,t),p1=mix(a1,b1,t);line(c,p,mix(p,p1,.9),'rgba(25,12,6,.3)',.9)}}}
- c.restore()}
+  {const cnt=tile||Math.max(3,Math.round(Math.hypot(b[0]-a[0],b[1]-a[1])/9));for(let j=0;j<cnt;j++){const o2=(i%2)*.5/cnt,t=j/cnt+o2,t2=Math.min(1,t+1/cnt),m=rnd(i*31+j,seed,11);
+   if(m<.25||m>.8){c.fillStyle=m<.25?'rgba(0,0,0,.10)':'rgba(255,245,220,.10)';pl(c,[mix(a,b,t),mix(a,b,t2),mix(a1,b1,t2),mix(a1,b1,t)],c.fillStyle)}
+   const p=mix(a,b,t),p1=mix(a1,b1,t);line(c,p,mix(p,p1,.85),'rgba(25,12,6,.32)',.9)}}
+  line(c,mix(a,b,.02),mix(b,a,.02),'rgba(255,240,200,.18)',.8)}
+ /* musgo y manchas cerca del alero */
+ for(let k=0;k<4;k++){const u=rnd(seed,k,21),v=rnd(seed,k,23)*.35,p=mix(mix(A,B,u),mix(D,C,u),v),r=4+rnd(seed,k,25)*6;c.fillStyle=k%2?'rgba(90,112,48,.22)':'rgba(30,22,12,.16)';c.beginPath();c.ellipse(p[0],p[1],r,r*.5,0,0,7);c.fill()}
+ c.restore();line(c,D,C,'rgba(255,240,205,.5)',1.4)}
 function eaveShadow(c,A,B,k){line(c,A,B,'rgba(0,0,0,.25)',k||3)}
 /* tejado a dos aguas: caballete a lo largo de Y (el piñón da a la cara frontal izquierda) */
 function gableY(c,o){const{x,y,w,h,z,rh,col,oh=.18,wallCol,mat,seed}=o,zE=z-1;
@@ -103,7 +114,7 @@ function gableX(c,o){const{x,y,w,h,z,rh,col,oh=.18,wallCol,mat,seed}=o,zE=z-1,q=
 function hip(c,o){const{x,y,w,h,z,rh,col,oh=.2,rows=6}=o,q=Q(col),E=V(x-oh,y+h+oh,z),D=V(x+w+oh,y+h+oh,z),B=V(x+w+oh,y-oh,z),A=V(x+w/2,y+h/2,z+rh);
  {const Ab=V(x-oh,y-oh,z);pl(c,[E,Ab,A],RGB(q,.95),OLC,2);pl(c,[Ab,B,A],RGB(q,.78),OLC,2)}
  pl(c,[E,D,A],lg(c,0,A[1],0,E[1],[[0,RGB(q,1.15)],[1,RGB(q,.88)]]));pl(c,[D,B,A],lg(c,0,A[1],0,D[1],[[0,RGB(q,.85)],[1,RGB(q,.6)]]));
- c.save();pl(c,[E,D,B,A]);c.clip();for(let i=1;i<rows;i++){const t=i/rows;line(c,mix(E,A,t),mix(D,A,t),'rgba(25,12,6,.32)',1);line(c,mix(D,A,t),mix(B,A,t),'rgba(25,12,6,.38)',1)}c.restore();
+ c.save();pl(c,[E,D,B,A]);c.clip();for(let i=0;i<rows;i++)for(const [P0,P1] of [[E,D],[D,B]]){const t0=i/rows,t1=(i+1)/rows,a=mix(P0,A,t0),b=mix(P1,A,t0),a1=mix(P0,A,t1),cnt=Math.max(2,Math.round(Math.hypot(b[0]-a[0],b[1]-a[1])/9));for(let j=1;j<cnt;j++){const t=(j+(i%2)*.5)/cnt;if(t>=1)continue;const p=mix(a,b,t);line(c,p,mix(p,mix(a1,mix(P1,A,t1),t),.85),'rgba(25,12,6,.28)',.8)}}for(let k=0;k<3;k++){const p=mix(mix(E,D,rnd(x*7+y,k,31)),A,rnd(x,k,33)*.3),r=4+rnd(y,k,35)*5;c.fillStyle=k%2?'rgba(90,112,48,.2)':'rgba(30,22,12,.15)';c.beginPath();c.ellipse(p[0],p[1],r,r*.5,0,0,7);c.fill()}for(let i=1;i<rows;i++){const t=i/rows;line(c,mix(E,A,t),mix(D,A,t),'rgba(25,12,6,.32)',1);line(c,mix(D,A,t),mix(B,A,t),'rgba(25,12,6,.38)',1)}c.restore();
  c.strokeStyle=OLC;c.lineWidth=2.4;c.lineJoin='round';c.beginPath();c.moveTo(E[0],E[1]);c.lineTo(D[0],D[1]);c.lineTo(B[0],B[1]);c.lineTo(A[0],A[1]);c.closePath();c.moveTo(D[0],D[1]);c.lineTo(A[0],A[1]);c.stroke();line(c,E,A,'rgba(255,255,255,.35)',1.3)}
 /* azotea plana con parapeto macizo: devuelve funciones para dibujar contenido entre parapetos traseros y delanteros */
 function flatRoof(c,o,mid){const{x,y,w,h,z,col,t=.18,ph=3}=o,q=Q(col);
