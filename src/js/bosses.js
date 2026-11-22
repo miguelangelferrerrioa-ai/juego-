@@ -71,7 +71,7 @@ const ACC={
 ZX.dh=function(c,z){const B=BO[z.t];if(!B)return oDh(c,z);const q=P(z.x,z.y),f=z.dx<0?-1:1,s=B.s;
  c.save();aura(c,q,B,T,s);c.translate(q[0],q[1]);c.scale(s,s);
  const fz=Object.create(z);fz.t=B.base;
- try{ZX._dr(c,fz,[0,0],f,T);ACC[z.t](c,f,T,z)}finally{c.restore()}
+ try{const tt=z.el!=null?z.el:T;ZX._dr(c,fz,[0,0],f,tt);ACC[z.t](c,f,tt,z)}finally{c.restore()}
  const roar=T-(z.roar||-9);if(roar<1){c.save();c.strokeStyle=B.col;c.lineWidth=2;c.globalAlpha=Math.max(0,.6-roar*.6);c.beginPath();c.ellipse(q[0],q[1]-20,20+roar*90,9+roar*40,0,0,7);c.stroke();c.restore()}
  c.save();c.fillStyle='#fff';c.strokeStyle='#000';c.lineWidth=3;c.font='bold 10px sans-serif';c.textAlign='center';const y=q[1]-B.bh-8*s/1.6;c.strokeText(B.n,q[0],y-6);c.fillText(B.n,q[0],y-6);c.restore()};
 /* se necesita acceso a los dibujos base de zombis2: los exponemos desde allí */

@@ -152,7 +152,7 @@ v(c,z,q,f,tt){const p=tt*4+ph(z);sh(c,q,13,3.6);
   head(c,q[0]+10*f,q[1]-11,5,SK,'#e8e07a',1)}};
 const BH=t=>ZN[t]?ZN[t].bh:46;
 window.ZX={_dr:(c,z,q,f,tt)=>DR[z.t](c,z,q,f,tt),has:t=>SP.has(t),bh:t=>BH(t),comp:COMP,mix:MIX,
- dh(c,z){const q=P(z.x,z.y),f=z.dx<0?-1:1;c.save();try{DR[z.t](c,z,q,f,T)}finally{c.restore()}}};
+ dh(c,z){const q=P(z.x,z.y),f=z.dx<0?-1:1;c.save();try{DR[z.t](c,z,q,f,z.el!=null?z.el:T)}finally{c.restore()}}};
 })();
 /* ---------- misiones de exploración (mapa cenital) ---------- */
 (function(){
