@@ -54,8 +54,10 @@ function pump(){const t0=performance.now();let guard=0;
  while(performance.now()-t0<BUDGET&&guard++<8){
   if(JOB&&JOB.ok()){if(work(JOB,t0)){put(JOB.k,JOB.cv);JOB=null}continue}
   JOB=null;let pick=null;
-  for(const [i,j] of vis(USE,0)){const k=key(USE,i,j);if(need(C.get(k))){pick=[k,USE,i,j];break}}
-  if(!pick&&PEND){let all=true;for(const [i,j] of vis(PEND,0)){const k=key(PEND,i,j);if(need(C.get(k))){pick=[k,PEND,i,j];all=false;break}}if(all){USE=PEND;PEND=0;continue}}
+  /* tras un zoom grande, primero la escala nueva: antes se esperaba a tener entera la vieja y, al alejar mucho, la vieja necesitaba ~36 trozos y solo caben 22
+     (se tiraban unos a otros sin acabar nunca y el suelo se dibujaba por el camino lento en cada fotograma; medido en el móvil al mover la cámara) */
+  if(PEND){let all=true;for(const [i,j] of vis(PEND,0)){const k=key(PEND,i,j);if(need(C.get(k))){pick=[k,PEND,i,j];all=false;break}}if(all){USE=PEND;PEND=0;continue}}
+  if(!pick&&(!PEND||vis(USE,0).length<=MAXC-2))for(const [i,j] of vis(USE,0)){const k=key(USE,i,j);if(need(C.get(k))){pick=[k,USE,i,j];break}}
   /* los de alrededor solo si caben sin tirar trozos visibles (antes, con poca memoria, se pisaban unos a otros) */if(!pick&&C.size<MAXC-2)for(const [i,j] of vis(USE,1)){const k=key(USE,i,j);if(need(C.get(k))){pick=[k,USE,i,j];break}}
   if(!pick)return;const [k,sc,i,j]=pick;const J=newJob(k,sc,i,j);const sg=BS+'|'+TS;J.ok=()=>BS+'|'+TS===sg&&(J.sc===USE||J.sc===PEND);JOB=J}}
 window.groundDraw=function(c){ready=new Set();check();
