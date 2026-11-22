@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v296</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v298</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -2240,17 +2240,27 @@ function groundB(c,b){const k=b.type;if(k=='road'||k=='bridge'||k=='dock'||k=='w
 function shB(c,b){if(BT[b.type]&&BT[b.type].deco)return;groundB(c,b);if(c.canvas&&c.canvas.id!=='c'&&c.filter!==undefined){/* en la caché: sombra más larga con el borde difuminado (se pinta una vez) */const z=BT[b.type].z*.75,a=P(b.x,b.y),b2=P(b.x+b.w,b.y),d=P(b.x+b.w,b.y+b.h),e=P(b.x,b.y+b.h),o=[z*.95,z*.48];
  c.save();c.filter='blur(2.5px)';c.fillStyle='rgba(18,10,4,.38)';c.beginPath();[e,d,[d[0]+o[0],d[1]+o[1]],[b2[0]+o[0],b2[1]+o[1]],b2,a].forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1]));c.closePath();c.fill();
  c.filter='blur(4px)';c.fillStyle='rgba(10,6,2,.28)';c.beginPath();[a,b2,d,e].forEach((q,i)=>i?c.lineTo(q[0],q[1]+3):c.moveTo(q[0],q[1]+3));c.closePath();c.fill();c.restore();return}const z=BT[b.type].z*.6,a=P(b.x,b.y),b2=P(b.x+b.w,b.y),d=P(b.x+b.w,b.y+b.h),e=P(b.x,b.y+b.h),o=[z*.9,z*.45];poly(c,[a,b2,d,e],'rgba(0,0,0,.2)');poly(c,[[e[0],e[1]],[d[0],d[1]],[d[0]+o[0],d[1]+o[1]],[e[0]+o[0],e[1]+o[1]]],'rgba(0,0,0,.17)');poly(c,[[b2[0],b2[1]],[d[0],d[1]],[d[0]+o[0],d[1]+o[1]],[b2[0]+o[0],b2[1]+o[1]]],'rgba(0,0,0,.17)')}
-/* luz del día: degradados de color (arriba/abajo) en vez de un color plano; atardecer naranja→morado con resplandor de sol; noche azul de luna con las luces del pueblo */
+/* luz del día: degradados de color (arriba/abajo); atardecer naranja→morado con resplandor de sol; noche azul de luna con las luces del pueblo.
+   El tinte de color, la viñeta y el suelo mojado de la lluvia van juntos en UNA capa 'multiply' pintada en un lienzo pequeño (128 px) que se estira a
+   pantalla completa y solo se rehace cuando cambia la hora (cada 1/300 del día) o el tiempo: antes eran 2-3 capas a pantalla completa (la GPU del móvil pinta cada una entera). */
+let LUT=null,LUTK='';function lightLUT(top,bot,a,vc,va,wet,W,H){const h=Math.max(8,Math.round(128*H/W)),k=[top,bot,a.toFixed(3),vc,va,wet,h].join('|');if(LUT&&LUTK===k)return LUT;LUTK=k;
+ const cv=LUT||document.createElement('canvas');cv.width=128;cv.height=h;const x=cv.getContext('2d');x.globalCompositeOperation='source-over';x.globalAlpha=1;x.fillStyle='#fff';x.fillRect(0,0,128,h);
+ if(a>0){x.globalAlpha=a;const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,top);g.addColorStop(1,bot);x.fillStyle=g;x.fillRect(0,0,128,h);x.globalAlpha=1}
+ if(wet){x.globalCompositeOperation='multiply';x.fillStyle=wet;x.fillRect(0,0,128,h);x.globalCompositeOperation='source-over'}
+ const g=x.createRadialGradient(64,h/2,Math.min(128,h)*.4,64,h/2,Math.max(128,h)*.85);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba('+vc+','+va+')');x.fillStyle=g;x.fillRect(0,0,128,h);return LUT=cv}
 function lightFX(c,cv){const t=S.dayT/600,W=cv.width,H=cv.height,NB=!!window.PERF_NOBLEND;c.setTransform(1,0,0,1,0,0);
-const mul=(top,bot,a)=>{if(NB||a<=0)return;c.globalCompositeOperation='multiply';c.globalAlpha=a;const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,top);g.addColorStop(1,bot);c.fillStyle=g;c.fillRect(0,0,W,H);c.globalAlpha=1;c.globalCompositeOperation='source-over'};
 const add=(x,y,r,col,a)=>{if(a<=0)return;c.globalCompositeOperation='lighter';const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba('+col+','+a+')');g.addColorStop(1,'rgba('+col+',0)');c.fillStyle=g;c.fillRect(0,0,W,H);c.globalCompositeOperation='source-over'};
-let nf=0;
-if(t<.08){const k=1-t/.08;mul('rgb(255,170,150)','rgb(200,170,210)',.5*k);add(0,0,W*.8,'255,170,110',.18*k)}
-else if(t<.62){mul('rgb(255,246,225)','rgb(235,240,255)',.35)}
-else if(t<.8){const k=(t-.62)/.18;mul('rgb(255,135,80)','rgb(150,90,160)',.5+.35*k);add(0,-H*.1,W*.95,'255,150,70',.3*(1-k*.4))}
-else{const k=Math.min(1,(t-.8)/.1);nf=k;mul('rgb(70,90,160)','rgb(45,50,110)',.65+.15*k);add(W*.9,-H*.1,W*.7,'110,140,220',.10*k)}
+const q=Math.round(t*300)/300;let top='#fff',bot='#fff',a=0,nf=0;
+if(q<.08){const k=1-q/.08;top='rgb(255,170,150)';bot='rgb(200,170,210)';a=.5*k}
+else if(q<.62){top='rgb(255,246,225)';bot='rgb(235,240,255)';a=.35}
+else if(q<.8){const k=(q-.62)/.18;top='rgb(255,135,80)';bot='rgb(150,90,160)';a=.5+.35*k}
+else{const k=Math.min(1,(q-.8)/.1);nf=k;top='rgb(62,86,178)';bot='rgb(40,48,128)';a=.65+.15*k}
+const w=(S.adv&&S.adv.weather)||0,wet=w===3?'rgb(150,160,180)':w===1?'rgb(185,195,210)':'',night=q>=.8;
+if(NB){const g=c.createRadialGradient(W/2,H/2,Math.min(W,H)*.4,W/2,H/2,Math.max(W,H)*.85);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,night?'rgba(5,5,25,.35)':'rgba(22,10,0,.26)');c.fillStyle=g;c.fillRect(0,0,W,H)}
+else{c.globalCompositeOperation='multiply';c.drawImage(lightLUT(top,bot,a,night?'5,5,25':'22,10,0',night?.35:.26,wet,W,H),0,0,W,H);c.globalCompositeOperation='source-over'}
+if(q>=.62&&q<.8)add(0,-H*.1,W*.95,'255,150,70',.3*(1-(q-.62)/.18*.4));
 if(nf>0||t>=.7){const f=Math.min(1,Math.max(nf,(t-.7)/.1));c.setTransform(cam.z*dpr,0,0,cam.z*dpr,-cam.x*cam.z*dpr,-cam.y*cam.z*dpr);c.globalCompositeOperation='lighter';const LWc=glowLayer();if(LWc&&LWc.cv){c.globalAlpha=f;c.drawImage(LWc.cv,LWc.x0,LWc.y0,LWc.cv.width/LWc.s,LWc.cv.height/LWc.s)}c.globalAlpha=1;c.globalCompositeOperation='source-over'}
-c.setTransform(1,0,0,1,0,0);const g=c.createRadialGradient(W/2,H/2,Math.min(W,H)*.4,W/2,H/2,Math.max(W,H)*.85);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,t>=.8?'rgba(5,5,25,.35)':'rgba(22,10,0,.26)');c.fillStyle=g;c.fillRect(0,0,W,H)}
+c.setTransform(1,0,0,1,0,0)}
 function buildingPolish(c,b){
  const d=BT[b.type],k=b.type,x=b.x,y=b.y,w=b.w,h=b.h,z=d.z,pt=(u,v,zz=0)=>{const q=P(x+u,y+v);return[q[0],q[1]-zz]};
  if(k==='road'||k==='bridge')return;
@@ -2431,7 +2441,7 @@ function advDaily(){advInit();if(Math.random()<.72)advEvent();const a=S.adv;a.la
 /* mal tiempo: lluvia en 3 capas (lejos/medio/cerca) con salpicaduras y suelo mojado; niebla con nubes que se desplazan (textura pintada una vez); tormenta con relámpagos */
 let FOGT=null;function fogTex(){if(FOGT)return FOGT;FOGT=document.createElement('canvas');FOGT.width=512;FOGT.height=256;const x=FOGT.getContext('2d');for(let i=0;i<70;i++){const px=hh(i,1)*512,py=hh(i,2)*256,r=30+hh(i,3)*70;for(const ox of[-512,0,512])for(const oy of[-256,0,256]){if(px+ox+r<0||px+ox-r>512||py+oy+r<0||py+oy-r>256)continue;const g=x.createRadialGradient(px+ox,py+oy,0,px+ox,py+oy,r);g.addColorStop(0,'rgba(215,222,228,.22)');g.addColorStop(1,'rgba(215,222,228,0)');x.fillStyle=g;x.fillRect(px+ox-r,py+oy-r,r*2,r*2)}}return FOGT}
 function advWeatherFX(c,cv){advInit();const w=S.adv.weather||0;if(w===0)return;const W=cv.width,H=cv.height,d=dpr||1;c.save();c.setTransform(1,0,0,1,0,0);
- if(w===1||w===3){if(!window.PERF_NOBLEND){c.globalCompositeOperation='multiply';c.fillStyle=w===3?'rgb(150,160,180)':'rgb(185,195,210)';c.fillRect(0,0,W,H);c.globalCompositeOperation='source-over'}
+ if(w===1||w===3){/* el suelo mojado (más oscuro) va dentro de la capa de luz de lightFX */
   const sp=w===3?1.6:1;for(const [z,a,len,n] of [[.35,.12,7,140],[.6,.2,11,100],[1,.34,18,50]]){c.strokeStyle='rgba(200,215,230,'+a+')';c.lineWidth=d*(.6+z*.8);c.beginPath();const cnt=Math.floor(n*W/(1000*d)*1.6);for(let i=0;i<cnt;i++){const x=(i*97.3+T*420*z*sp)%(W+80)-40,y=(i*151.7+T*900*z*sp)%(H+60)-30;c.moveTo(x,y);c.lineTo(x-len*.35*d*z,y+len*d*z*1.6)}c.stroke()}
   c.strokeStyle='rgba(220,232,245,.36)';c.lineWidth=d*.8;c.beginPath();for(let i=0;i<60;i++){const ph=(T*2.2+i*.618)%1,x=(i*271.3)%W,y=(i*167.9+Math.floor(T*2.2+i*.618)*331)%H,r=(2+ph*6)*d;c.moveTo(x+r,y);c.ellipse(x,y,r,r*.4,0,0,7)}c.stroke();
   if(w===3){const fl=Math.max(0,Math.sin(T*.9)*Math.sin(T*7.3));if(fl>.85){c.fillStyle='rgba(230,240,255,'+((fl-.85)*3)+')';c.fillRect(0,0,W,H)}}}
@@ -8623,7 +8633,7 @@ function mount(){ov=document.createElement('div');ov.id='vlMap';ov.innerHTML='<c
 const HWr=(GW+GH+4*OM)*16,HHr=(GW+GH+4*OM)*8,CXr=(GW-GH)*16,CYr=(GW+GH)*8,LIM=.93;
 const okPt=(x,y)=>Math.abs(x-CXr)/HWr+Math.abs(y-CYr)/HHr<=LIM;
 const fitsV=(cx,cy,w,h,top)=>{const t=cy-h/2+top;return okPt(cx-w/2,t)&&okPt(cx+w/2,t)&&okPt(cx-w/2,cy+h/2)&&okPt(cx+w/2,cy+h/2)};
-function fit(init){const cv=VS.cv,W=cv.clientWidth||innerWidth,H=cv.clientHeight||innerHeight,dpr=Math.min(2,devicePixelRatio||1);if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}VS.W=W;VS.H=H;VS.dpr=dpr;
+function fit(init){const cv=VS.cv,W=cv.clientWidth||innerWidth,H=cv.clientHeight||innerHeight,dpr=Math.min(1.5,devicePixelRatio||1)/* como en el pueblo: a 2× la GPU del móvil pintaba 1,8 veces más píxeles */;if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}VS.W=W;VS.H=H;VS.dpr=dpr;
  if(init){const bw=(GW+GH)*32,bh=(GW+GH)*16+110,z=Math.min(1.5,Math.max(.5,Math.min(W/bw*1.25,(H-60)/bh*1.25)));VS.cam.z=z;const c=P(15,12);VS.cam.x=c[0]-W/2/z;VS.cam.y=c[1]-H/2/z+10}}
 function clampCam(){const c=VS.cam,top=50;let w=VS.W/c.z,h=VS.H/c.z,g=0;while(!fitsV(CXr,CYr,w,h,top/c.z)&&g++<40){c.z*=1.04;w=VS.W/c.z;h=VS.H/c.z}
  let cx=c.x+w/2,cy=c.y+h/2;if(!fitsV(cx,cy,w,h,top/c.z)){let lo=0,hi=1;for(let i=0;i<16;i++){const m=(lo+hi)/2;if(fitsV(CXr+(cx-CXr)*m,CYr+(cy-CYr)*m,w,h,top/c.z))lo=m;else hi=m}cx=CXr+(cx-CXr)*lo;cy=CYr+(cy-CYr)*lo;c.x=cx-w/2;c.y=cy-h/2}}
@@ -8872,7 +8882,7 @@ function mount(){ov=document.createElement('div');ov.id='vlMap';ov.innerHTML='<c
 const HWr=(GW+GH+4*OM)*16,HHr=(GW+GH+4*OM)*8,CXr=(GW-GH)*16,CYr=(GW+GH)*8,LIM=.93;
 const okPt=(x,y)=>Math.abs(x-CXr)/HWr+Math.abs(y-CYr)/HHr<=LIM;
 const fitsV=(cx,cy,w,h,top)=>{const t=cy-h/2+top;return okPt(cx-w/2,t)&&okPt(cx+w/2,t)&&okPt(cx-w/2,cy+h/2)&&okPt(cx+w/2,cy+h/2)};
-function fit(init){const cv=VS.cv,W=cv.clientWidth||innerWidth,H=cv.clientHeight||innerHeight,dpr=Math.min(2,devicePixelRatio||1);if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}VS.W=W;VS.H=H;VS.dpr=dpr;
+function fit(init){const cv=VS.cv,W=cv.clientWidth||innerWidth,H=cv.clientHeight||innerHeight,dpr=Math.min(1.5,devicePixelRatio||1)/* como en el pueblo: a 2× la GPU del móvil pintaba 1,8 veces más píxeles */;if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}VS.W=W;VS.H=H;VS.dpr=dpr;
  if(init){const bw=(GW+GH)*32,bh=(GW+GH)*16+110,z=Math.min(1.5,Math.max(.5,Math.min(W/bw*1.25,(H-60)/bh*1.25)));VS.cam.z=z;const c=P(23,18);VS.cam.x=c[0]-W/2/z;VS.cam.y=c[1]-H/2/z+10}}
 function clampCam(){const c=VS.cam,top=50;let w=VS.W/c.z,h=VS.H/c.z,g=0;while(!fitsV(CXr,CYr,w,h,top/c.z)&&g++<40){c.z*=1.04;w=VS.W/c.z;h=VS.H/c.z}
  let cx=c.x+w/2,cy=c.y+h/2;if(!fitsV(cx,cy,w,h,top/c.z)){let lo=0,hi=1;for(let i=0;i<16;i++){const m=(lo+hi)/2;if(fitsV(CXr+(cx-CXr)*m,CYr+(cy-CYr)*m,w,h,top/c.z))lo=m;else hi=m}cx=CXr+(cx-CXr)*lo;cy=CYr+(cy-CYr)*lo;c.x=cx-w/2;c.y=cy-h/2}}
@@ -9435,7 +9445,7 @@ function say(w,t){AS.msg.unshift({w,t,at:AS.t});if(AS.msg.length>4)AS.msg.pop()}
 function mount(){ov=document.createElement('div');ov.id='asIso';ov.innerHTML='<canvas id="asIc"></canvas><div id="asItop"></div><div id="asIbar"></div><div id="asImsg"></div>';document.body.appendChild(ov);
  const st=document.createElement('style');st.id='asIsoCss';st.textContent='#asIso{position:fixed;inset:0;z-index:10000;background:#0b0907;touch-action:none}#asIc{position:absolute;inset:0;width:100%;height:100%;display:block}#asItop{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;gap:8px;padding:8px 10px;font:700 12px sans-serif;color:#e8c27a;text-shadow:0 1px 3px #000;background:linear-gradient(#0b0907e0,#0b090700);pointer-events:none}#asIbar{position:absolute;left:0;right:0;bottom:8px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}#asIbar button{padding:9px 13px;border-radius:9px;border:1px solid #6a5a3a;background:#2a2218ee;color:#f2d99a;font:700 12px sans-serif}#asIbar button.on{background:#7a5a18;color:#fff}#asIbar button:disabled{opacity:.4}#asImsg{position:absolute;left:10px;bottom:56px;display:flex;flex-direction:column-reverse;gap:3px;pointer-events:none;font:700 12px sans-serif}#asImsg div{background:#000a;color:#f2d99a;padding:3px 8px;border-radius:5px;max-width:80%}body.as-on #top,body.as-on #rail,body.as-on #bot,body.as-on #log,body.as-on #alert{display:none!important}';document.head.appendChild(st);document.body.classList.add('as-on');
  const cv=ov.querySelector('#asIc');AS.cv=cv;fit();bind(cv);last=performance.now();AS.raf=requestAnimationFrame(loop);ui()}
-function fit(){const cv=AS.cv,W=innerWidth,H=innerHeight,dpr=Math.min(2,devicePixelRatio||1);if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}AS.Wd=W;AS.Ht=H;AS.dpr=dpr}
+function fit(){const cv=AS.cv,W=innerWidth,H=innerHeight,dpr=Math.min(1.5,devicePixelRatio||1)/* como en el pueblo: a 2× la GPU del móvil pintaba 1,8 veces más píxeles */;if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}AS.Wd=W;AS.Ht=H;AS.dpr=dpr}
 function clampCam(){const c=AS.cam,w=AS.Wd/c.z,h=AS.Ht/c.z,cx0=P(GW/2,GH/2),lim=.95;const hw=(GW+GH+2*OM)*16,hh=(GW+GH+2*OM)*8;c.x=clamp(c.x,cx0[0]-hw-w*.2,cx0[0]+hw-w*.8);c.y=clamp(c.y,cx0[1]-hh-h*.3,cx0[1]+hh-h*.7)}
 function bind(cv){const pts=new Map();let dr=null;
  cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);if(pts.size===2){const[a,b]=[...pts.values()];dr={pinch:1,d:Math.hypot(a[0]-b[0],a[1]-b[1])};return}dr={sx:e.clientX,sy:e.clientY,cx:AS.cam.x,cy:AS.cam.y,mv:0}};
@@ -11698,7 +11708,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'296';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'298';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
