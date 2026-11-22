@@ -40,7 +40,8 @@ window.diarioMenu=function(){const d=D(),tab=window.dTab;let h=`<div class="prow
   if(!L.length)h+=`<p class="bsub">El diario empezó el día ${d.d0}. Aquí se irán apuntando nacimientos, llegadas, muertes, hordas, capítulos y logros.</p>`;
   let last=null;h+='<div class="dj-l">'+L.slice(0,200).map(e=>{const hd=e.d!==last?`<div class="dj-d">Día ${e.d}</div>`:'';last=e.d;return hd+`<div class="dj-e ${e.k}"><span>${e.ic}</span>${e.t.replace(/[<>&]/g,'')}</div>`}).join('')+'</div>'}
  show('📜 Diario del pueblo',h);if(tab==='gr')setTimeout(drawCharts,30)};
-function addBtn(){const rl=document.getElementById('rl');if(!rl||document.getElementById('djBtn'))return;const b=document.createElement('button');b.id='djBtn';b.innerHTML='<i class="ib">📜</i>Diario';b.onclick=()=>{try{tg(0)}catch(e){}diarioMenu()};rl.insertBefore(b,rl.children[6]||null)}
+/* sin botón propio: Opciones ya tiene '📓 Diario', que abre lo mismo (diarioMenu); salían dos 'Diario' */
+function addBtn(){return;const rl=document.getElementById('rl');if(!rl||document.getElementById('djBtn'))return;const b=document.createElement('button');b.id='djBtn';b.innerHTML='<i class="ib">📜</i>Diario';b.onclick=()=>{try{tg(0)}catch(e){}diarioMenu()};rl.insertBefore(b,rl.children[6]||null)}
 setTimeout(addBtn,1500);setTimeout(addBtn,4000);
 const st=document.createElement('style');st.textContent=`.dj-f{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 6px}#pan .dj-f button{min-height:0;padding:3px 9px;font-size:11px;border-radius:12px;border:1px solid #6a7a4a;background:#1d2618;color:#d8dfcc}#pan .dj-f button.on{background:#5a4a12;border-color:#c9a23a;color:#ffe9a8}
 .dj-d{margin:8px 0 3px;font-weight:900;color:#f2d27a;font-size:12px;border-bottom:1px solid #3a4434;padding-bottom:2px}.dj-e{display:flex;gap:8px;align-items:flex-start;padding:3px 4px;font-size:12.5px;color:#e0dccb}.dj-e span{width:20px;text-align:center}.dj-e.muerte{color:#e8a49a}
