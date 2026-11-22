@@ -19,10 +19,10 @@ function tick(n){requestAnimationFrame(tick);if(!on){if(el)el.style.display='non
  F.length=0;A.upd.length=0;A.render.length=0;A.hud.length=0}
 
 /* interruptores de capas para encontrar qué cuesta en la GPU: se apaga una capa y se mira cuánto suben los fps (no se guardan) */
-const KILL={},LAY=[['atlas','Sin atlas',null],['trozos','Sin trozos',null],['mezclas','Mezclas',null],['ambiente','Ambiente',['apoFX']],['luz','Luz día/noche',['lightFX']],['clima','Clima',['advWeatherFX','advDamageFX']],['terreno','Terreno',['drawTiled','drawOuter']],['arboles','Árboles',['obsSpr']],['edif','Edificios',['bCache']],['pers','Personas',['fig']],['part','Partículas',['drawPT','ambientFX']]];
+const KILL={},LAY=[['atlas','Sin atlas',null],['trozos','Sin trozos',null],['mezclas','Mezclas',null],['ambiente','Ambiente',['apoFX']],['luz','Luz día/noche',['lightFX']],['clima','Clima',['advWeatherFX','advDamageFX']],['terreno','Terreno',['drawTiled','drawOuter']],['arboles','Árboles',['obsSpr']],['edif','Edificios',['bCache']],['figc','Personas sin caché',null],['pers','Personas',['fig']],['part','Partículas',['drawPT','ambientFX']]];
 LAY.forEach(([id,,fs])=>{if(!fs)return;fs.forEach(k=>{const o=window[k];if(typeof o!=='function')return;const w=function(){if(KILL[id])return k==='bCache'?true:undefined;return o.apply(this,arguments)};window[k]=w;try{(0,eval)(k+'=window.'+k)}catch(e){}})});
 let kp=null;
-function setK(id,v){KILL[id]=v;if(id==='mezclas')window.PERF_NOBLEND=v;if(id==='trozos')window.GROUND_ON=!v;if(id==='atlas'){window.ATLAS_OFF=v;if(window.atlasToggle)atlasToggle(!v)}const b=kp&&kp.querySelector('[data-k="'+id+'"]');if(b){b.style.background=v?'#7a2a22':'#1d2618';b.style.textDecoration=v?'line-through':'none'}F.length=0;lastShow=0}
+function setK(id,v){KILL[id]=v;if(id==='mezclas')window.PERF_NOBLEND=v;if(id==='figc')window.FIGC_ON=!v;if(id==='trozos')window.GROUND_ON=!v;if(id==='atlas'){window.ATLAS_OFF=v;if(window.atlasToggle)atlasToggle(!v)}const b=kp&&kp.querySelector('[data-k="'+id+'"]');if(b){b.style.background=v?'#7a2a22':'#1d2618';b.style.textDecoration=v?'line-through':'none'}F.length=0;lastShow=0}
 /* diagnóstico automático: con la cámara quieta, apaga cada capa por separado 4 s (1,5 de espera + 2,5 midiendo) y muestra una tabla */
 let DG=null;
 function diag(){if(DG)return;const out=[],ids=[['','Normal']].concat(LAY.map(l=>[l[0],l[1]])),res=document.createElement('div');DG=res;
