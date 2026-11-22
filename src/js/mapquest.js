@@ -280,7 +280,9 @@ function step(dt){
     if(!tg){let bd=r+.01,hpB=1e9;M.en.forEach(z=>{if(M.vis[Math.floor(z.y)*COLS+Math.floor(z.x)]!=2)return;const d=Math.hypot(z.x-u.x,z.y-u.y);if(d<=r&&los(u.x,u.y,z.x,z.y)){const sc=d+(z.st?0:3)+z.hp/80;if(sc<bd+hpB&&(tg==null||sc<tg._sc)){tg=z;z._sc=sc}}})}
     if(tg)u.fa=Math.atan2(tg.y-u.y,tg.x-u.x);
     // movimiento autónomo en combate (solo si no tiene una orden de movimiento del jugador)
-    if(!u.path.length&&u.ait<=0&&!(u.pin>0)){u.ait=.5;
+    /* en la zona de salida, con la evacuación en marcha o la misión cumplida, no se mueven solos (antes se apartaban o salían a por el enemigo y no dejaban evacuar): disparan o pelean desde ahí */
+    const hold=inExit(u)&&((M.evac&&M.evac.on&&!M.evac.done)||(S.exp&&S.exp.complete));
+    if(!u.path.length&&u.ait<=0&&!(u.pin>0)&&!hold){u.ait=.5;
       const th=M.en.filter(z=>z.st&&M.vis[Math.floor(z.y)*COLS+Math.floor(z.x)]==2&&Math.hypot(z.x-u.x,z.y-u.y)<10).sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y));
       if(th.length){const n=th[0],dn=Math.hypot(n.x-u.x,n.y-u.y),hd=Math.hypot(u.home[0]-u.x,u.home[1]-u.y);
         if(arm=='medico'){const hurt=al.filter(o=>o!==u).sort((a,b)=>a.p.hp/mhp(a.p)-b.p.hp/mhp(b.p))[0];if(hurt&&Math.hypot(hurt.x-u.x,hurt.y-u.y)>2.4)moveTo(M,u,hurt.x,hurt.y)}
