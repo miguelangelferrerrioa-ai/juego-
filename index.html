@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v302</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v304</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -6332,8 +6332,10 @@ function pump(){const t0=performance.now();let guard=0;
  while(performance.now()-t0<BUDGET&&guard++<8){
   if(JOB&&JOB.ok()){if(work(JOB,t0)){put(JOB.k,JOB.cv);JOB=null}continue}
   JOB=null;let pick=null;
-  for(const [i,j] of vis(USE,0)){const k=key(USE,i,j);if(need(C.get(k))){pick=[k,USE,i,j];break}}
-  if(!pick&&PEND){let all=true;for(const [i,j] of vis(PEND,0)){const k=key(PEND,i,j);if(need(C.get(k))){pick=[k,PEND,i,j];all=false;break}}if(all){USE=PEND;PEND=0;continue}}
+  /* tras un zoom grande, primero la escala nueva: antes se esperaba a tener entera la vieja y, al alejar mucho, la vieja necesitaba ~36 trozos y solo caben 22
+     (se tiraban unos a otros sin acabar nunca y el suelo se dibujaba por el camino lento en cada fotograma; medido en el móvil al mover la cámara) */
+  if(PEND){let all=true;for(const [i,j] of vis(PEND,0)){const k=key(PEND,i,j);if(need(C.get(k))){pick=[k,PEND,i,j];all=false;break}}if(all){USE=PEND;PEND=0;continue}}
+  if(!pick&&(!PEND||vis(USE,0).length<=MAXC-2))for(const [i,j] of vis(USE,0)){const k=key(USE,i,j);if(need(C.get(k))){pick=[k,USE,i,j];break}}
   /* los de alrededor solo si caben sin tirar trozos visibles (antes, con poca memoria, se pisaban unos a otros) */if(!pick&&C.size<MAXC-2)for(const [i,j] of vis(USE,1)){const k=key(USE,i,j);if(need(C.get(k))){pick=[k,USE,i,j];break}}
   if(!pick)return;const [k,sc,i,j]=pick;const J=newJob(k,sc,i,j);const sg=BS+'|'+TS;J.ok=()=>BS+'|'+TS===sg&&(J.sc===USE||J.sc===PEND);JOB=J}}
 window.groundDraw=function(c){ready=new Set();check();
@@ -11719,7 +11721,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'302';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'304';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
@@ -11787,7 +11789,7 @@ window.fig=function(x,y,col,sc,wkg,hd,gun,dx,role,act,id){
   const tf=c.getTransform(),s0=Math.hypot(tf.a,tf.b);if(Math.abs(s0-ZS)>1e-4){ZS=s0;ZT=T}
   /* con el zoom muy alejado (personas de ~8 px) la caché no compensa: medido en el móvil (zoom 0,35, noche con lluvia) la GPU bajaba de 99 a 28 ms sin ella y el dibujo solo subía 2 ms.
      Se dibujan como antes y, con el zoom quieto 2 s, se sueltan las páginas (32 MB de memoria de la GPU que se peleaban con las de los edificios) */
-  if(s0<.7){if(PG.length&&T-ZT>2)freePages();window.__figLod=s0<.55;try{return orig.apply(this,arguments)}finally{window.__figLod=false}}
+  if(s0<.7){if(PG.length&&T-ZT>2)freePages();window.__figLod=true;try{return orig.apply(this,arguments)}finally{window.__figLod=false}}
   const want=[1,1.5,2].find(v=>v>=s0-1e-6)||2;if(!SQ||(want!==SQ&&T-ZT>=.3))reset(want);
   const a=arguments,k=[role,col,sc,wkg?1:0,hd,gun?String(gun).slice(0,24):0,dx<0?1:0,act,id0,a[11],a[12]?1:0,a[13]?1:0,ix,EXP,SXF,OLDF,KIDF,WPN,(typeof ZV!=='undefined'?ZV:0),window.BCOL||'',look(id)].join('~');
   const q=P(x,y);let e=C.get(k);
