@@ -51,7 +51,7 @@ window.fig=function(x,y,col,sc,wkg,hd,gun,dx,role,act,id){
   /* con el zoom muy alejado (personas de ~8 px) la caché no compensa: medido en el móvil (zoom 0,35, noche con lluvia) la GPU bajaba de 99 a 28 ms sin ella y el dibujo solo subía 2 ms.
      Se dibujan como antes y, con el zoom quieto 2 s, se sueltan las páginas (32 MB de memoria de la GPU que se peleaban con las de los edificios) */
   if(s0<.7){if(PG.length&&T-ZT>2)freePages();window.__figLod=true;try{return orig.apply(this,arguments)}finally{window.__figLod=false}}
-  const want=[1,1.5,2].find(v=>v>=s0-1e-6)||2;if(!SQ||(want!==SQ&&T-ZT>=.3))reset(want);
+  const want=[1,1.5,2].find(v=>v>=s0-1e-6)||2;/* con margen como los edificios: subir si pasa un 25 % por encima, bajar por debajo del 60 % (cada cambio repinta a todas las personas) */if(!SQ||(want!==SQ&&T-ZT>=.3&&((want>SQ&&s0>SQ*1.25)||(want<SQ&&s0<SQ*.6))))reset(want);
   const a=arguments,k=[role,col,sc,wkg?1:0,hd,gun?String(gun).slice(0,24):0,dx<0?1:0,act,id0,a[11],a[12]?1:0,a[13]?1:0,ix,EXP,SXF,OLDF,KIDF,WPN,(typeof ZV!=='undefined'?ZV:0),window.BCOL||'',look(id)].join('~');
   const q=P(x,y);let e=C.get(k);
   /* se refresca cada ~60 s por si algo del aspecto no está en la clave */
