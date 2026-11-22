@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v262</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v264</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -10577,6 +10577,9 @@ window.pregBadge=function(x,cx,cy,r){x.save();x.translate(cx,cy);const s=r/10;x.
  window.notify=function(ic,t,x,cat){try{const b=box();if(b.some(n=>n.t===t&&n.x===x&&n.d===S.day))return;b.unshift({ic,t,x:x||'',d:S.day,c:cat||'base',r:0});if(b.length>80)b.length=80;upd_()}catch(e){}};
  const unread=()=>box().filter(n=>!n.r).length;
  let btn=null;function mk(){if(btn)return;btn=document.createElement('button');btn.id='inbBtn';btn.innerHTML='🔔<b id="inbN"></b>';btn.onclick=()=>window.inboxOpen();document.body.appendChild(btn);
+  /* la campana va a la derecha del botón Opciones: arriba a la derecha tapaba 'Recursos ▾' (la barra de arriba ya llega al borde en el móvil) */
+  const place=()=>{const o=document.querySelector('#rail>button');if(!o)return;const r=o.getBoundingClientRect();if(!r.width)return;btn.style.right='auto';btn.style.left=Math.round(r.right+8)+'px';btn.style.top=Math.round(r.top+r.height/2-18)+'px';const lg=document.getElementById('log');if(lg){lg.style.left=Math.round(r.right+52)+'px';lg.style.maxWidth='calc(100% - '+Math.round(r.right+60)+'px)'}};
+  place();addEventListener('resize',()=>setTimeout(place,60));setInterval(place,1500);
   const st=document.createElement('style');st.textContent="#inbBtn{position:fixed;right:5px;top:5px;z-index:4;width:36px;height:36px;border-radius:50%;border:1px solid #5a6a50;background:rgba(14,18,16,.88);color:#ffd877;font-size:19px;padding:0;display:flex;align-items:center;justify-content:center}#inbBtn b{position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;border-radius:9px;background:#e03a3a;color:#fff;font:700 10px system-ui;display:none;align-items:center;justify-content:center;padding:0 4px}#inbBtn.has{box-shadow:0 0 10px #e03a3a88}.inb{display:flex;gap:9px;align-items:flex-start;padding:8px;border:1px solid #3a4a50;border-radius:9px;margin:5px 0;background:rgba(10,14,16,.55)}.inb.new{border-color:#c9a24a;background:rgba(60,50,24,.45)}.inb .ii{font-size:20px;width:30px;text-align:center}.inb b{display:block;font-size:13px}.inb small{color:#9fb0b6;font-size:11px;display:block}.inb em{font-style:normal;color:#7d8b91;font-size:10px}";document.head.appendChild(st)}
  function upd_(){mk();const n=unread(),e=document.getElementById('inbN');if(e){e.textContent=n>9?'9+':n;e.style.display=n?'flex':'none'}btn.classList.toggle('has',n>0);btn.style.display=(window.VILLA||(typeof S!=='undefined'&&S&&S.over)||document.getElementById('titleScreen')&&document.getElementById('titleScreen').style.display!=='none')?'none':'flex'}
  setInterval(()=>{try{upd_()}catch(e){}},600);
@@ -11422,7 +11425,21 @@ const st=document.createElement('style');st.textContent=`
 .binf::after{content:"";position:absolute;inset:-12px}
 #rbCol small{font-size:10px}
 .fi-lab{font-size:10.5px!important}.fi-h small{font-size:10.5px}
-.bz-n{font-size:10px}`;document.head.appendChild(st);
+.bz-n{font-size:10px}
+/* revisión de interfaz en el móvil (932×415): más zona de toque, sin cambiar el dibujo */
+#snChip::after,#top .ch[onclick]::after{content:"";position:absolute;left:-2px;right:-2px;top:-9px;bottom:-9px}
+#pan .panel-x::after{content:"";position:absolute;inset:-8px}
+#pan .cps::after,#pan .panel-footer button::after,#pan .panel-body>p>button::after,#pan .panel-body>button::after{content:"";position:absolute;left:0;right:0;top:-5px;bottom:-5px}
+#dockToggle::after{content:"";position:absolute;inset:-7px}
+/* letra mínima 11 px (antes 9,5-10,5) */
+#qhn .qh-t small{font-size:11px!important}#qhn .qh-a{font-size:11.5px!important}
+#pan .pgf .pc small{font-size:11px!important}
+#pan .bcard .bci small{font-size:11px!important}
+#pan .invr{font-size:11px!important}
+@media (orientation:landscape) and (max-height:520px){#top .ch:nth-child(-n+5),#top .ch:nth-child(-n+5) b{font-size:11px!important;letter-spacing:.2px!important}}
+#rl{max-height:calc(100vh - 108px)!important}
+/* barra de energía algo más corta para que quepa la letra de 11 px sin que 'Recursos' salte a otra línea */
+@media (orientation:landscape) and (max-height:520px){#top .ch>span:has(>i){width:50px!important;min-width:0!important}}`;document.head.appendChild(st);
 /* barra de arriba: un toque en el hueco de la barra, en la vertical de una etiqueta tocable, cuenta como tocarla */
 function hook(){const t=document.getElementById('top');if(!t||t._tap)return;t._tap=1;t.addEventListener('click',e=>{if(e.target!==t)return;const x=e.clientX;
  const c=[...t.querySelectorAll('button,[onclick]')].find(b=>{const r=b.getBoundingClientRect();return r.width&&x>=r.left-2&&x<=r.right+2});if(c)c.click()})}
@@ -11606,7 +11623,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'262';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'264';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
@@ -12247,7 +12264,8 @@ window.diarioMenu=function(){const d=D(),tab=window.dTab;let h=`<div class="prow
   if(!L.length)h+=`<p class="bsub">El diario empezó el día ${d.d0}. Aquí se irán apuntando nacimientos, llegadas, muertes, hordas, capítulos y logros.</p>`;
   let last=null;h+='<div class="dj-l">'+L.slice(0,200).map(e=>{const hd=e.d!==last?`<div class="dj-d">Día ${e.d}</div>`:'';last=e.d;return hd+`<div class="dj-e ${e.k}"><span>${e.ic}</span>${e.t.replace(/[<>&]/g,'')}</div>`}).join('')+'</div>'}
  show('📜 Diario del pueblo',h);if(tab==='gr')setTimeout(drawCharts,30)};
-function addBtn(){const rl=document.getElementById('rl');if(!rl||document.getElementById('djBtn'))return;const b=document.createElement('button');b.id='djBtn';b.innerHTML='<i class="ib">📜</i>Diario';b.onclick=()=>{try{tg(0)}catch(e){}diarioMenu()};rl.insertBefore(b,rl.children[6]||null)}
+/* sin botón propio: Opciones ya tiene '📓 Diario', que abre lo mismo (diarioMenu); salían dos 'Diario' */
+function addBtn(){return;const rl=document.getElementById('rl');if(!rl||document.getElementById('djBtn'))return;const b=document.createElement('button');b.id='djBtn';b.innerHTML='<i class="ib">📜</i>Diario';b.onclick=()=>{try{tg(0)}catch(e){}diarioMenu()};rl.insertBefore(b,rl.children[6]||null)}
 setTimeout(addBtn,1500);setTimeout(addBtn,4000);
 const st=document.createElement('style');st.textContent=`.dj-f{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 6px}#pan .dj-f button{min-height:0;padding:3px 9px;font-size:11px;border-radius:12px;border:1px solid #6a7a4a;background:#1d2618;color:#d8dfcc}#pan .dj-f button.on{background:#5a4a12;border-color:#c9a23a;color:#ffe9a8}
 .dj-d{margin:8px 0 3px;font-weight:900;color:#f2d27a;font-size:12px;border-bottom:1px solid #3a4434;padding-bottom:2px}.dj-e{display:flex;gap:8px;align-items:flex-start;padding:3px 4px;font-size:12.5px;color:#e0dccb}.dj-e span{width:20px;text-align:center}.dj-e.muerte{color:#e8a49a}
