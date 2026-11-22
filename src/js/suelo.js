@@ -63,7 +63,7 @@ function pump(){const t0=performance.now();let guard=0;
 window.groundDraw=function(c){ready=new Set();check();
  /* la escala de los trozos no depende del ajuste automático de calidad (QS) */const s=cam.z*dpr,sc=q3(cam.z*Math.min(1.5,devicePixelRatio||1));if(Math.abs(sc-ZS)>1e-6){ZS=sc;ZT=T}
  /* margen de zoom (~40 %); tras un zoom mayor, la escala nueva se prepara en segundo plano y se cambia cuando está entera */
- if(!USE)USE=sc;if(sc!==USE&&T-ZT>=.3&&(sc/USE>1.42||sc/USE<.7))PEND=sc;else if(sc===USE)PEND=0;
+ if(!USE)USE=sc;if(sc!==USE&&T-ZT>=.8&&(sc/USE>1.42||sc/USE<.7))PEND=sc;else if(sc===USE)PEND=0;
  if(T!==lastT){lastT=T;try{pump()}catch(e){JOB=null}}
  const W=PW/USE,H=PH/USE,ov=1.2/s;
  for(const [i,j] of vis(USE,0)){const k=key(USE,i,j),e=C.get(k),x0=i*W,y0=j*H;
