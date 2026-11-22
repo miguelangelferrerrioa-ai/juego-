@@ -6,7 +6,10 @@ const oCont=window.continueGame,oMode=window.showModeSelect;
 let mode='load',armed=-1,view='list',rec=-1,imp=-1;
 function raw(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function parse(t){try{const s=JSON.parse(t);return s&&s.bld&&s.ppl&&s.res?s:null}catch(e){return null}}
-function info(k){const s=parse(raw(k));if(!s)return null;const h=s.bld.find(b=>b.type=='hall');return{day:s.day,pop:s.ppl.length,hall:h?h.lvl:1,mode:s.mode||'normal',story:s.story||0,bld:s.bld.length}}
+/* partida principal dañada (cortada, ilegible) pero con copias buenas: la ranura muestra la copia que se cargará (mismo orden que la recuperación de guardado.js).
+   Antes salía 'Vacía' con el botón Nueva y, al pulsarlo, se sobrescribía la partida (la protección no podía leer el día de la dañada). */
+function good(k){const r=raw(k),s=parse(r);if(s)return [r,s,0];if(r===null||KEYS.indexOf(k)<0)return [r,null,0];for(const suf of['_bk1','b','_best','_bk2']){const t=raw(k+suf),c=parse(t);if(c)return [t,c,1]}return [r,null,0]}
+function info(k){const [,s,dmg]=good(k);if(!s)return null;const h=s.bld.find(b=>b.type=='hall');return{day:s.day,pop:s.ppl.length,hall:h?h.lvl:1,mode:s.mode||'normal',story:s.story||0,bld:s.bld.length,dmg}}
 const line=d=>'Día '+d.day+' · '+d.pop+' superv. · Ayunt. '+d.hall+' · Cap. '+d.story+'/48 · '+d.mode;
 function ui(m){mode=m;armed=-1;view='list';draw()}
 function backups(i){const k=KEYS[i];return[[k+'_best','Partida más avanzada'],[k+'_bk1','Copia reciente'],[k+'_bk2','Copia anterior'],[k+'b','Inicio del último día'],[k+'_guard','Guardado bloqueado (protegido)']].map(([key,n])=>({key,n,d:info(key)})).filter(x=>x.d)}
@@ -19,7 +22,7 @@ function draw(){
     $('impF').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('impT').value=String(r.result||'')};r.readAsText(f)};return}
   let h='<p>'+(mode=='load'?'Elige la partida que quieres continuar.':'Elige una ranura para la nueva partida.')+'</p><div class="slots">';
   KEYS.forEach((k,i)=>{const d=info(k),nb=backups(i).length;
-    h+='<div class="slot'+(KEY===k?' cur':'')+'"><div class="si"><b>Ranura '+(i+1)+'</b><span>'+(d?line(d):'Vacía')+'</span></div><div class="sb">';
+    h+='<div class="slot'+(KEY===k?' cur':'')+'"><div class="si"><b>Ranura '+(i+1)+'</b><span>'+(d?line(d)+(d.dmg?'<br><small style="color:#e8c25a">Partida dañada: se cargará la última copia buena.</small>':''):'Vacía')+'</span></div><div class="sb">';
     if(mode=='load')h+=d?'<button class="primary" onclick="slotPick('+i+')">Cargar</button>':'<button disabled>Vacía</button>';
     else h+='<button class="primary" onclick="slotPick('+i+')">'+(d?(armed==i?'¿Sobrescribir?':'Sobrescribir'):'Nueva')+'</button>';
     if(d)h+='<button onclick="slotExport('+i+')">Exportar</button>';
@@ -48,7 +51,7 @@ window.slotRestore=key=>{const k=KEYS[rec],t=raw(key);if(!parse(t))return;try{bk
 function download(name,txt){try{const b=new Blob([txt],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(a.href)},1500);return true}catch(e){return false}}
 window.exportSlotKey=key=>{
   let t=raw(key);if(window.LIVE&&key===KEY&&typeof S!=='undefined'&&S&&!S.over){try{save();t=raw(key)}catch(e){}}
-  const d=info(key);if(!d)return toast('No hay partida que exportar.');
+  const d=info(key);if(!d)return toast('No hay partida que exportar.');if(d.dmg)t=good(key)[0];
   const name='afterthesilence_dia'+d.day+'_'+(KEYS.indexOf(key)>=0?'ranura'+(KEYS.indexOf(key)+1):key)+'.json';
   download(name,t);
   try{navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>toast('Partida exportada y copiada al portapapeles.'),()=>toast('Partida exportada como archivo.'))}catch(e){toast('Partida exportada como archivo.')}};

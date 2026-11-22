@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v260</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v262</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -985,7 +985,7 @@ function vis(x,y,m){const q=P(x,y),vwz=vw()/cam.z,vhz=vh()/cam.z;return q[0]>cam
 function mkZ(t,x,y,act){const s=1+Math.min(.9,.045*hEff())*(act?1:0),hp=ZT[t].hp*s;const z={t,x,y,hp,mhp:hp,act,tg:0,tx:0,ty:0,wear:[]};if(t==='z'){const count=Math.random()<.18?2:Math.random()<.62?1:0;const pool=ZCLOTH.slice();for(let i=0;i<count;i++){const k=ri(0,pool.length-1);z.wear.push(pool.splice(k,1)[0])}}return z}
 var LIVE=false,bkT=0;
 /* Copias de seguridad: bk1 = la más reciente, bk2 = la anterior. Se rotan como mucho cada 3 minutos o al cambiar de día. */
-function bkRotate(key,txt,force){try{const old=txt||localStorage.getItem(key);if(!old)return;const n=Date.now(),d=(JSON.parse(old).day)||0,last=+localStorage.getItem(key+'_bkd')||0;if(!force&&n-bkT<180000&&d===last)return;const b1=localStorage.getItem(key+'_bk1');if(b1&&b1!==old)localStorage.setItem(key+'_bk2',b1);localStorage.setItem(key+'_bk1',old);localStorage.setItem(key+'_bkd',String(d));bkT=n}catch(e){}}
+function bkRotate(key,txt,force,d0){try{const old=txt||localStorage.getItem(key);if(!old)return;const n=Date.now(),d=d0!=null?d0:(JSON.parse(old).day)||0,last=+localStorage.getItem(key+'_bkd')||0;if(!force&&n-bkT<180000&&d===last)return;const b1=localStorage.getItem(key+'_bk1');if(b1&&b1!==old)localStorage.setItem(key+'_bk2',b1);localStorage.setItem(key+'_bk1',old);localStorage.setItem(key+'_bkd',String(d));bkT=n}catch(e){}}
 /* Guardado seguro: si el almacenamiento está lleno, borra copias prescindibles (nunca la partida principal de una ranura) y reintenta. Si aun así no cabe, avisa en pantalla. */
 const SLOTK=['dtls1','dtls_s2','dtls_s3'];
 function lsFree(cur){const g=k=>{try{return localStorage.getItem(k)}catch(e){return null}},oth=SLOTK.filter(k=>k!==cur),all=[cur,...oth];
@@ -1006,9 +1006,13 @@ function saveFail(on){const id='saveFail';let el=document.getElementById(id);if(
  el.innerHTML='<span style="flex:1">No se pudo guardar: el almacenamiento del navegador está lleno. Exporta la partida para no perder el progreso.</span><button style="padding:4px 8px">Exportar</button><button style="padding:4px 8px">✕</button>';
  const [bx,bc]=el.querySelectorAll('button');bx.onclick=()=>{try{exportSlotKey(KEY)}catch(e){}};bc.onclick=()=>el.remove();document.body.appendChild(el)}
 /* force=true solo para partidas nuevas / reintentos. Nunca se guarda mientras estás en el título (LIVE=false). */
-function save(force){if(S.over||!LIVE)return;const ob=S.obs;try{S.obs=ob.map(o=>o.t=='v'?N*N*2+(o.y*N+o.x)*2+(o.l?1:0):(o.y*N+o.x)*2+(o.t=='t'?0:1));const j=JSON.stringify(S);S.obs=ob;const old=localStorage.getItem(KEY);
- if(old&&!force){try{const o=JSON.parse(old);if(((o.day||0)>=3&&S.day<=1)||(o.day||0)>S.day+1){try{localStorage.setItem(KEY+'_guard',j)}catch(e){}console.warn('Guardado bloqueado: protege una partida más avanzada');return}}catch(e){}}
- if(old&&old!==j)bkRotate(KEY,old,force);if(!lsPut(KEY,j)){console.warn('No se pudo guardar: almacenamiento lleno');saveFail(1);return false}saveFail(0);try{if(S.day>=(+localStorage.getItem(KEY+'_bestd')||0)){localStorage.setItem(KEY+'_best',j);localStorage.setItem(KEY+'_bestd',String(S.day))}}catch(e){}return true}catch(e){S.obs=ob}}
+/* SV: lo último que se guardó (texto y día). Si lo guardado sigue siendo eso, no hace falta volver a leer el día con JSON.parse (antes cada guardado analizaba dos veces ~200 KB y escribía otra copia entera: ~5 ms en PC, unos 20-30 ms en el móvil cada 8 s) */
+const SV={k:'',j:null,d:0},dayOf=t=>{try{return JSON.parse(t).day||0}catch(e){return -1}};let bestT=0;
+function save(force){if(S.over||!LIVE)return;const ob=S.obs;try{S.obs=ob.map(o=>o.t=='v'?N*N*2+(o.y*N+o.x)*2+(o.l?1:0):(o.y*N+o.x)*2+(o.t=='t'?0:1));const j=JSON.stringify(S);S.obs=ob;const old=localStorage.getItem(KEY),od=old?(SV.k===KEY&&old===SV.j?SV.d:dayOf(old)):0;
+ if(old&&!force&&od>=0){try{const o={day:od};if(((o.day||0)>=3&&S.day<=1)||(o.day||0)>S.day+1){try{localStorage.setItem(KEY+'_guard',j)}catch(e){}console.warn('Guardado bloqueado: protege una partida más avanzada');return}}catch(e){}}
+ if(old&&old!==j)bkRotate(KEY,old,force,od>=0?od:undefined);if(!lsPut(KEY,j)){console.warn('No se pudo guardar: almacenamiento lleno');saveFail(1);return false}saveFail(0);SV.k=KEY;SV.j=j;SV.d=S.day||0;
+ /* 'Partida más avanzada': se copia al llegar a un día nuevo y, dentro del mismo día, como mucho cada 3 min (antes en cada guardado: 200 KB más por escritura) */
+ try{const bd=+localStorage.getItem(KEY+'_bestd')||0,n=Date.now();if(S.day>bd||(S.day===bd&&(force||n-bestT>180000||SV.bk!==KEY))){localStorage.setItem(KEY+'_best',j);localStorage.setItem(KEY+'_bestd',String(S.day));bestT=n;SV.bk=KEY}}catch(e){}return true}catch(e){S.obs=ob}}
 function saveIdle(){(window.requestIdleCallback||setTimeout)(save)}
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(!s||!s.bld)return false;S=s;delete S.res.fuel;S.bld.forEach(b=>{if(b.type=='barricade'){b.type='wall';b.lvl=1;b.hp=Math.min(b.hp||160,160)}});S.res.chem=S.res.chem||0;S.res.comp=S.res.comp||0;(S.ppl||[]).forEach(p=>{p.gear={armor:0,pack:0}});S.res.scrap=S.res.scrap||0;migrateParc();(S.ppl||[]).forEach(p=>{const sx=sexOfName(p.n);if(sx)p.sex=sx});S.obs=(S.obs||[]).map(o=>typeof o=='number'?(o>=N*N*2?{x:((o-N*N*2)>>1)%N,y:Math.floor(((o-N*N*2)>>1)/N),t:'v',l:o&1}:{x:(o>>1)%N,y:Math.floor((o>>1)/N),t:(o&1)?'s':'t'}):o).filter(o=>obsOK(o.x,o.y));S.cx=S.cx||0;S.story=S.story||0;S.cleaners=S.cleaners||0;S.pregnancies=S.pregnancies||[];{const refd=new Set(S.pregnancies.map(q=>q.mother).filter(Boolean)),loose=S.ppl.filter(p=>p.preg&&!refd.has(p.id));S.pregnancies.forEach(q=>{if(!q.mother&&!q.born){const w=loose.shift();if(w)q.mother=w.id}});loose.forEach(p=>p.preg=0)}delete S.vehicles;delete S.veh;delete S.vehicleId;if(S.mode==='creativo'){S.mode='normal';try{const cp=cap();for(const k in S.res)if(S.res[k]>cp)S.res[k]=cp}catch(e){}}(S.bld||[]).filter(b=>b.type=='gar').forEach(g=>{S.res.wood+=250;S.res.metal+=150;(S.ppl||[]).forEach(q=>{if(q.job==g.id)q.job=0})});S.bld=(S.bld||[]).filter(b=>b.type!='gar');S.solo=S.solo||null;S.tm=S.tm||{};S.dayT=S.dayT||0;horde=null;U=[];Z=[];if(S.solo&&!byId(S.solo.id))S.solo=null;if(S.exp){S.exp.team=(S.exp.team||[]).filter(i=>byId(i));if(!S.exp.team.length)S.exp=null}S.ppl.forEach(p=>{p.fl=0;p.inside=0;p.php=undefined;p.away=((S.solo&&S.solo.id===p.id)||(S.exp&&S.exp.team.includes(p.id)))?1:0;if(!p.sex)p.sex=Math.random()<.5?'M':'F';if(!p.ps){p.ps={};p.ps[p.prof]=p.sk}p.hunger=p.hunger??100;p.thirst=p.thirst??100;p.fatigue=0;p.resting=0;p.injury=p.injury??0;p.illness=p.illness||'';p.trait=p.trait||pk(TRAITS);p.rel=p.rel||{};p.gear=p.gear||{armor:0,pack:0};p.clothes=p.clothes||{};p.look=p.look||{skin:pk(SKINS),hair:pk(HAIRS),shirt:PC[p.prof]||'#647d4b'};});S.exp=S.exp||null;S.over=0;rebuild();if(S.hs)startHorde(S.hs.name||undefined,S.hs.over||undefined);return true}catch(e){console.error('load',e);return false}}
 /* ================= RECURSOS / ECONOMÍA ================= */
@@ -5419,7 +5423,10 @@ const oCont=window.continueGame,oMode=window.showModeSelect;
 let mode='load',armed=-1,view='list',rec=-1,imp=-1;
 function raw(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function parse(t){try{const s=JSON.parse(t);return s&&s.bld&&s.ppl&&s.res?s:null}catch(e){return null}}
-function info(k){const s=parse(raw(k));if(!s)return null;const h=s.bld.find(b=>b.type=='hall');return{day:s.day,pop:s.ppl.length,hall:h?h.lvl:1,mode:s.mode||'normal',story:s.story||0,bld:s.bld.length}}
+/* partida principal dañada (cortada, ilegible) pero con copias buenas: la ranura muestra la copia que se cargará (mismo orden que la recuperación de guardado.js).
+   Antes salía 'Vacía' con el botón Nueva y, al pulsarlo, se sobrescribía la partida (la protección no podía leer el día de la dañada). */
+function good(k){const r=raw(k),s=parse(r);if(s)return [r,s,0];if(r===null||KEYS.indexOf(k)<0)return [r,null,0];for(const suf of['_bk1','b','_best','_bk2']){const t=raw(k+suf),c=parse(t);if(c)return [t,c,1]}return [r,null,0]}
+function info(k){const [,s,dmg]=good(k);if(!s)return null;const h=s.bld.find(b=>b.type=='hall');return{day:s.day,pop:s.ppl.length,hall:h?h.lvl:1,mode:s.mode||'normal',story:s.story||0,bld:s.bld.length,dmg}}
 const line=d=>'Día '+d.day+' · '+d.pop+' superv. · Ayunt. '+d.hall+' · Cap. '+d.story+'/48 · '+d.mode;
 function ui(m){mode=m;armed=-1;view='list';draw()}
 function backups(i){const k=KEYS[i];return[[k+'_best','Partida más avanzada'],[k+'_bk1','Copia reciente'],[k+'_bk2','Copia anterior'],[k+'b','Inicio del último día'],[k+'_guard','Guardado bloqueado (protegido)']].map(([key,n])=>({key,n,d:info(key)})).filter(x=>x.d)}
@@ -5432,7 +5439,7 @@ function draw(){
     $('impF').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('impT').value=String(r.result||'')};r.readAsText(f)};return}
   let h='<p>'+(mode=='load'?'Elige la partida que quieres continuar.':'Elige una ranura para la nueva partida.')+'</p><div class="slots">';
   KEYS.forEach((k,i)=>{const d=info(k),nb=backups(i).length;
-    h+='<div class="slot'+(KEY===k?' cur':'')+'"><div class="si"><b>Ranura '+(i+1)+'</b><span>'+(d?line(d):'Vacía')+'</span></div><div class="sb">';
+    h+='<div class="slot'+(KEY===k?' cur':'')+'"><div class="si"><b>Ranura '+(i+1)+'</b><span>'+(d?line(d)+(d.dmg?'<br><small style="color:#e8c25a">Partida dañada: se cargará la última copia buena.</small>':''):'Vacía')+'</span></div><div class="sb">';
     if(mode=='load')h+=d?'<button class="primary" onclick="slotPick('+i+')">Cargar</button>':'<button disabled>Vacía</button>';
     else h+='<button class="primary" onclick="slotPick('+i+')">'+(d?(armed==i?'¿Sobrescribir?':'Sobrescribir'):'Nueva')+'</button>';
     if(d)h+='<button onclick="slotExport('+i+')">Exportar</button>';
@@ -5461,7 +5468,7 @@ window.slotRestore=key=>{const k=KEYS[rec],t=raw(key);if(!parse(t))return;try{bk
 function download(name,txt){try{const b=new Blob([txt],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(a.href)},1500);return true}catch(e){return false}}
 window.exportSlotKey=key=>{
   let t=raw(key);if(window.LIVE&&key===KEY&&typeof S!=='undefined'&&S&&!S.over){try{save();t=raw(key)}catch(e){}}
-  const d=info(key);if(!d)return toast('No hay partida que exportar.');
+  const d=info(key);if(!d)return toast('No hay partida que exportar.');if(d.dmg)t=good(key)[0];
   const name='afterthesilence_dia'+d.day+'_'+(KEYS.indexOf(key)>=0?'ranura'+(KEYS.indexOf(key)+1):key)+'.json';
   download(name,t);
   try{navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>toast('Partida exportada y copiada al portapapeles.'),()=>toast('Partida exportada como archivo.'))}catch(e){toast('Partida exportada como archivo.')}};
@@ -11599,7 +11606,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'260';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'262';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';

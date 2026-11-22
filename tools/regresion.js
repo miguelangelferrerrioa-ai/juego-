@@ -80,6 +80,13 @@ scenarios.push(['Soldado sin arma','dia3.json',async pg=>pg.evaluate(async()=>{c
 scenarios.push(['Guardar y cargar','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{await __run(20);const IGN=new Set(['php','fl','inside','mv','path','pk','pg','pv','pT','dx','tx','ty','x','y','thru','nopath','vtx','vty','vw','_px','_py','_dx']);
  const norm=o=>{const c=JSON.parse(JSON.stringify(o));c.obs=(c.obs||[]).map(q=>q.x+','+q.y+','+q.t).sort();return c};const a=norm(S);save(true);load();const b=norm(S);let d=0,ex='';
  const walk=(x,y,p)=>{if(IGN.has(p.split('.').pop()))return;if(x&&typeof x==='object'&&y&&typeof y==='object'){for(const k of new Set([...Object.keys(x),...Object.keys(y)]))walk(x[k],y[k],p+'.'+k)}else if(x!==y&&!(typeof x==='number'&&Math.abs(x-y)<1e-9)){d++;ex=ex||p}};walk(a,b,'S');return {diffs:d,ex}})]);
+/* 5b) partida principal dañada (cortada): la ranura no sale 'Vacía', se carga la última copia buena y la dañada se guarda aparte; guardar no reescribe la copia 'más avanzada' en cada guardado */
+scenarios.push(['Ranura dañada','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{const k=KEY;save(true);const day=S.day,pop=S.ppl.length;if(!localStorage.getItem(k+'_bk1'))localStorage.setItem(k+'_bk1',localStorage.getItem(k));
+ const bt0=localStorage.getItem(k+'_best');S.res.wood+=1;save();const bestSame=localStorage.getItem(k+'_best')===bt0;
+ LIVE=false;localStorage.setItem(k,localStorage.getItem(k).slice(0,5000));localStorage.removeItem(k+'_corrupt');
+ continueGame();const ui=(document.getElementById('titleContent')||{}).innerHTML||'';slotPick(['dtls1','dtls_s2','dtls_s3'].indexOf(k));await new Promise(r=>setTimeout(r,1500));
+ let back=null;try{back=JSON.parse(localStorage.getItem(k)).day}catch(e){}
+ return {ui:/dañada/.test(ui),day:S.day,pop:S.ppl.length,day0:day,pop0:pop,corrupt:(localStorage.getItem(k+'_corrupt')||'').length,back,bestSame}})]);
 /* 6) expedición solitaria y de equipo */
 scenarios.push(['Expediciones','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{window.show=()=>{};window.save=()=>{};
  const p=S.ppl.filter(q=>!q.away&&q.age>=18&&!q.preg).sort((a,b)=>upow(b)-upow(a))[0];const f0=S.res.food,w0=S.res.water,g0=S.res.gas||0;soloGo(p.id);const started=!!S.solo;const cost=(f0-S.res.food)+(w0-S.res.water)+(g0-(S.res.gas||0));
@@ -148,6 +155,7 @@ scenarios.push(['Plazas del ejército','dia3.json',async pg=>pg.evaluate(async()
   if(name==='Horda con territorio en el borde'){ok(tag+': ningún zombi aparece dentro del territorio ni junto a edificios',r.nbad===0&&r.n>0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Plazas del ejército'){ok(tag+': sin barracones no se puede alistar',r.sin===0,JSON.stringify(r));ok(tag+': un barracón de nivel 1 da 4 plazas y no se pasa',r.cap===4&&r.con===4,JSON.stringify(r))}
   if(name==='Soldado sin arma'){ok(tag+': no dispara',r.shots===0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
+  if(name==='Ranura dañada'){ok(tag+': la ranura avisa y no sale vacía',r.ui,JSON.stringify(r));ok(tag+': carga la copia buena (mismo día y gente)',r.day===r.day0&&r.pop===r.pop0&&r.back===r.day0,JSON.stringify(r));ok(tag+': guarda aparte la dañada',r.corrupt===5000,JSON.stringify(r));ok(tag+': un guardado normal no reescribe la copia más avanzada',r.bestSame,JSON.stringify(r))}
   if(name==='Guardar y cargar')ok(tag+': partida idéntica',r.diffs===0,r.ex);
   if(name==='Expediciones'){ok(tag+': solitaria arranca sin coste (comida, agua ni gasolina)',r.started&&r.cost<=0,JSON.stringify(r));ok(tag+': vuelve y queda en casa',r.back,JSON.stringify(r))}
   ok(tag+': sin errores de página',!pe.length,pe.slice(0,2).join(' | '));await pg.close()}
