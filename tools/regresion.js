@@ -87,6 +87,18 @@ scenarios.push(['Ranura dañada','partida_larga_dia248.json',async pg=>pg.evalua
  continueGame();const ui=(document.getElementById('titleContent')||{}).innerHTML||'';slotPick(['dtls1','dtls_s2','dtls_s3'].indexOf(k));await new Promise(r=>setTimeout(r,1500));
  let back=null;try{back=JSON.parse(localStorage.getItem(k)).day}catch(e){}
  return {ui:/dañada/.test(ui),day:S.day,pop:S.ppl.length,day0:day,pop0:pop,corrupt:(localStorage.getItem(k+'_corrupt')||'').length,back,bestSame}})]);
+/* 5c) atascos y vaivenes (skill game-ai): en una horda grande ningún zombi (salvo el inválido, que se arrastra) ni soldado se queda >4 s sin avanzar sin estar atacando,
+   los soldados no van y vuelven sin parar, y en un día normal nadie del pueblo se queda >20 s queriendo ir a un sitio sin moverse */
+scenarios.push(['Atascos y vaivenes','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{const zH=new Map(),uH=new Map(),zSt=new Set(),uSt=new Set(),rev=new Map();let acc=0;startHorde();
+ await __run(60,()=>{acc+=.05;if(acc<.5-1e-9)return false;acc=0;
+  Z.forEach(z=>{if(!z.act||z.hp<=0||z.t==='v')return;const h=zH.get(z)||[];h.push([z.x,z.y,!!z.at]);if(h.length>9)h.shift();zH.set(z,h);if(h.length>=9&&Math.hypot(h[8][0]-h[0][0],h[8][1]-h[0][1])<.3&&!h.some(x=>x[2]))zSt.add(z)});
+  U.forEach(u=>{if(u.hp<=0)return;const h=uH.get(u)||[];h.push([u.x,u.y,u.mv]);if(h.length>7)h.shift();uH.set(u,h);const n=h.length;
+   if(n>=3){const d1=[h[n-2][0]-h[n-3][0],h[n-2][1]-h[n-3][1]],d2=[h[n-1][0]-h[n-2][0],h[n-1][1]-h[n-2][1]],l1=Math.hypot(...d1),l2=Math.hypot(...d2);if(l1>.15&&l2>.15&&(d1[0]*d2[0]+d1[1]*d2[1])/(l1*l2)<-.7)rev.set(u,(rev.get(u)||0)+1)}
+   if(n>=7&&h.every(x=>x[2])&&Math.hypot(h[6][0]-h[0][0],h[6][1]-h[0][1])<.3)uSt.add(u)});return false});
+ const nZ=zH.size,maxRev=Math.max(0,...rev.values());while(horde)await __run(5);
+ const P0=new Map();let pMax=0,who='';acc=0;await __run(120,()=>{acc+=.05;if(acc<.25-1e-9)return false;acc=0;S.ppl.forEach(p=>{if(p.away||p.inside||!isFinite(p.x))return;const w=Math.hypot((p.tx??p.x)-p.x,(p.ty??p.y)-p.y);const s=P0.get(p);
+  if(w>.8){if(!s||Math.hypot(p.x-s[1],p.y-s[2])>.25)P0.set(p,[T,p.x,p.y]);else if(T-s[0]>pMax){pMax=T-s[0];who=p.n}}else P0.delete(p)});return false});
+ return {nZ,zSt:zSt.size,uSt:uSt.size,maxRev,pMax:+pMax.toFixed(1),who}})]);
 /* 6) expedición solitaria y de equipo */
 scenarios.push(['Expediciones','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{window.show=()=>{};window.save=()=>{};
  const p=S.ppl.filter(q=>!q.away&&q.age>=18&&!q.preg).sort((a,b)=>upow(b)-upow(a))[0];const f0=S.res.food,w0=S.res.water,g0=S.res.gas||0;soloGo(p.id);const started=!!S.solo;const cost=(f0-S.res.food)+(w0-S.res.water)+(g0-(S.res.gas||0));
@@ -155,6 +167,7 @@ scenarios.push(['Plazas del ejército','dia3.json',async pg=>pg.evaluate(async()
   if(name==='Horda con territorio en el borde'){ok(tag+': ningún zombi aparece dentro del territorio ni junto a edificios',r.nbad===0&&r.n>0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Plazas del ejército'){ok(tag+': sin barracones no se puede alistar',r.sin===0,JSON.stringify(r));ok(tag+': un barracón de nivel 1 da 4 plazas y no se pasa',r.cap===4&&r.con===4,JSON.stringify(r))}
   if(name==='Soldado sin arma'){ok(tag+': no dispara',r.shots===0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
+  if(name==='Atascos y vaivenes'){ok(tag+': zombis atascados sin atacar ≤2 %',r.zSt<=Math.max(1,.02*r.nZ),JSON.stringify(r));ok(tag+': ningún soldado atascado',r.uSt===0,JSON.stringify(r));ok(tag+': soldados sin vaivén (≤4 idas y vueltas por minuto)',r.maxRev<=4,JSON.stringify(r));ok(tag+': nadie del pueblo parado >20 s queriendo moverse',r.pMax<=20,JSON.stringify(r))}
   if(name==='Ranura dañada'){ok(tag+': la ranura avisa y no sale vacía',r.ui,JSON.stringify(r));ok(tag+': carga la copia buena (mismo día y gente)',r.day===r.day0&&r.pop===r.pop0&&r.back===r.day0,JSON.stringify(r));ok(tag+': guarda aparte la dañada',r.corrupt===5000,JSON.stringify(r));ok(tag+': un guardado normal no reescribe la copia más avanzada',r.bestSame,JSON.stringify(r))}
   if(name==='Guardar y cargar')ok(tag+': partida idéntica',r.diffs===0,r.ex);
   if(name==='Expediciones'){ok(tag+': solitaria arranca sin coste (comida, agua ni gasolina)',r.started&&r.cost<=0,JSON.stringify(r));ok(tag+': vuelve y queda en casa',r.back,JSON.stringify(r))}
