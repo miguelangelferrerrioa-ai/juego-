@@ -69,7 +69,7 @@ function paint(cv,t,el,st){if(!cv||!ZT[t])return;const r=cv.getBoundingClientRec
  /* suelo */
  x.setTransform(d,0,0,d,0,0);const gx=r.width/2,gy=r.height*.84;x.fillStyle='rgba(0,0,0,.4)';x.beginPath();x.ellipse(gx,gy,r.width*.3,r.height*.06,0,0,7);x.fill();
  x.setTransform(d*sc,0,0,d*sc,gx*d,gy*d);
- const atk=(el%4)>2.6,z=st.z||(st.z={t,x:0,y:0,hp:1,mhp:1,act:1,wear:[],sd:7,pl:1,pl0:1});z.t=t;z.at=atk?1:0;z.dx=Math.sin(el*.5)>-.3?1:-1;
+ const atk=(el%4)>2.6,z=st.z||(st.z={t,x:0,y:0,hp:1,mhp:1,act:1,wear:[],sd:7,pl:1,pl0:1});z.t=t;z.el=el;z.at=atk?1:0;z.dx=Math.sin(el*.5)>-.3?1:-1;
  const og=window.g;window.g=x;
  try{FL=0;x.save();
   if(HUMC[t]){EXP='angry';SXF=0;OLDF=0;KIDF=0;window.BCOL=HUMC[t];fig(0,0,HUMC[t],t==='k'?1.1:1,1,'#d8a878',1,z.dx,'ban',atk?4:0,z.sd);window.BCOL=null;if(t==='b'||t==='k'||t==='p'){try{window.drawBandit&&drawBandit(x,z)}catch(e){}}}

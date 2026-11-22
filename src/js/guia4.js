@@ -26,3 +26,20 @@ W('Construir',h=>h+P('<b>🌳 Decoración:</b> piezas baratas para adornar el pu
 W('Guardado y controles',h=>h+P('<b>Copia de seguridad:</b> la partida solo vive dentro del navegador o la app; si se borra, se pierde. Cada 10 días de juego sin exportar sale un recordatorio con el botón <b>Exportar ahora</b>. Para recuperarla: Nueva partida → Importar partida.')
  +P('<b>Versión nueva:</b> cuando hay una actualización publicada sale un aviso abajo con <b>Actualizar</b> (guarda antes y recarga). El número de versión aparece en la portada, debajo del título.'));
 })();
+/* Guía: lo de la segunda mitad (zombis nuevos, muros 6-10, asedios). Lo no descubierto sale como «???». */
+(function(){
+'use strict';
+if(typeof GD==='undefined')return;
+const W=(name,fn)=>{const i=GD.findIndex(g=>g[0]===name);if(i<0)return;const o=GD[i][1];GD[i][1]=()=>{let h='';try{h=o()}catch(e){}try{return fn(h)}catch(e){return h}}};
+const P=t=>'<p>'+t+'</p>',seen=t=>{try{return !!(S.zseen&&S.zseen[t])}catch(e){return false}};
+const ZD=[['x','<b>Excavador</b>: cava por debajo de los muros de nivel 1 a 6 y sale dentro; bajo tierra no se le puede herir. Los muros de nivel 7 o más tienen cimientos y tiene que romperlos'],
+ ['w','<b>Ariete</b>: muy lento y muy duro; va derecho al muro o puerta más cercano y lo destroza con una viga'],
+ ['i','<b>Incendiario</b>: arde; al morir deja fuego unos segundos que quema edificios y gente cercana. Mejor abatirlo lejos'],
+ ['l','<b>Alfa</b>: líder de manada; mientras viva, los zombis de su círculo rojo pegan más y se curan. Mátalo el primero']];
+W('Zombis especiales',h=>h+P('Más adelante aparecen otros cuatro:')+'<ul>'+ZD.map(([t,d])=>'<li>'+(seen(t)?d:'<b>???</b>: aún no lo has visto')+'.</li>').join('')+'</ul>');
+const LK=k=>{try{return window.resLocked&&resLocked(k)}catch(e){return false}};
+const MT=[['concrete'],['concrete','steel'],['steel'],['glass'],['comp']];
+W('Muros, vallas y puertas',h=>h+P('Hay <b>10 niveles</b> de muro y de puerta. Del 6 al 10 piden materiales avanzados: '+MT.map((m,i)=>'<b>'+(i+6)+' '+(m.some(LK)?'???':((window.WALLN||[])[i+5]||'').toLowerCase())+'</b>').join(', ')+'. Cuanto más alto el nivel, más alto el muro, más vida y más detalles (troneras, focos, blindaje, alambre).'));
+W('Zombis y defensa',h=>{let a=0;try{a=!!(S.sg||(S.stat&&S.stat.sieges))}catch(e){}
+ return h+P(a?'<b>⚔ Asedios:</b> con el ayuntamiento de nivel 12 o más, cada pocas hordas llega un asedio: <b>3 oleadas</b> seguidas, cada una más fuerte, con 2 minutos y medio de respiro entre ellas (lo marca la ficha ⚔ de arriba). Al resistir las tres llega un botín extra y la siguiente horda tarda un día más.':'<b>⚔ ???</b>: algo más grande que una horda llegará cuando el pueblo crezca.')});
+})();
