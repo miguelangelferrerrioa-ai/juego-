@@ -6,7 +6,7 @@ const rnd=(a,b)=>a+Math.random()*(b-a),ri_=(a,b)=>Math.floor(rnd(a,b+1)),pick=a=
 let game='slot',bet=10,anim=0,msg='',lastRes={},rpick={t:'red'},hpick=0,hcard=null,rnum=17;
 /* ---------- audio ---------- */
 let ac=null,nbuf=null,mute=localStorage.getItem('dt_cas_mute')==='1';
-const AC_=()=>{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();return ac};
+const AC_=()=>{if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();try{window.masterLimit&&masterLimit(ac)}catch(e){}}if(ac.state==='suspended')ac.resume();return ac};
 const sOn=()=>!mute&&!(typeof SND!=='undefined'&&!SND);
 function tone(f,d,ty,v,at,f2){try{if(!sOn())return;const a=AC_(),o=a.createOscillator(),g=a.createGain(),t=a.currentTime+(at||0);o.type=ty||'square';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v||.04,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
 function nz(d,fc,q,v,at,ty){try{if(!sOn())return;const a=AC_();if(!nbuf){nbuf=a.createBuffer(1,a.sampleRate*1.5,a.sampleRate);const D=nbuf.getChannelData(0);for(let i=0;i<D.length;i++)D[i]=Math.random()*2-1}const s=a.createBufferSource();s.buffer=nbuf;s.loop=true;const f=a.createBiquadFilter();f.type=ty||'bandpass';f.frequency.value=fc;f.Q.value=q||1;const g=a.createGain(),t=a.currentTime+(at||0);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v||.05,t+Math.min(.03,d/3));g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(g);g.connect(a.destination);s.start(t,Math.random());s.stop(t+d+.02)}catch(e){}}
