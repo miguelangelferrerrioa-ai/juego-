@@ -35,7 +35,7 @@ requestAnimationFrame(tick);
 const chip=(ic,t)=>`<span class="bch">${ic} ${t}</span>`;
 window.soloView=function(){const s=S.solo,p=s&&byId(s.id);if(!p){S.solo=null;return}
   const lootC=Object.keys(s.loot).filter(k=>s.loot[k]>0).map(k=>chip(`<img src="${ICO[k]||''}" width=13>`,'+'+Math.round(s.loot[k]))).concat(s.items.map(i=>chip('⚔',i.n)),s.surv?[chip('👤','+'+s.surv)]:[],s.kit?[chip('💉',s.kit)]:[],s.tech.map(i=>chip('📐',TECH.find(q=>q[0]==i)[2])),s.dog?[chip('🐕','')]:[]);
-  const pd=s.pend?CH[s.pend.i]:null,chance=Math.max(0,100-Math.floor(s.step/5)*10),canHeal=(s.kit>0||S.res.meds>0)&&p.hp<mhp(p)-1&&!s.returning,hpP=p.hp/mhp(p)*100;
+  const pd=s.pend?CH[s.pend.i]:null,chance=soloRetChance(s,p),canHeal=(s.kit>0||S.res.meds>0)&&p.hp<mhp(p)-1&&!s.returning,hpP=p.hp/mhp(p)*100;
   let ctl='';
   if(s.returning)ctl=`<div class="dcard">🚶 <b>Regresando a la ciudad…</b><br><small>Llegará al empezar el día ${s.returnDay}. Seguirá fuera hasta entonces.</small></div>`;
   else if(pd)ctl=`<div class="sbtn"><button class="bup" onclick="soloPick(0)">${pd.a}</button><button onclick="soloPick(1)">${pd.b}</button>${canHeal?`<button onclick="soloUse()">💉 Curar</button>`:''}</div>`;
