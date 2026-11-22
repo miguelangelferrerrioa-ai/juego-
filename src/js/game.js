@@ -1402,10 +1402,12 @@ function shB(c,b){if(BT[b.type]&&BT[b.type].deco)return;groundB(c,b);if(c.canvas
 /* luz del día: degradados de color (arriba/abajo); atardecer naranja→morado con resplandor de sol; noche azul de luna con las luces del pueblo.
    El tinte de color, la viñeta y el suelo mojado de la lluvia van juntos en UNA capa 'multiply' pintada en un lienzo pequeño (128 px) que se estira a
    pantalla completa y solo se rehace cuando cambia la hora (cada 1/300 del día) o el tiempo: antes eran 2-3 capas a pantalla completa (la GPU del móvil pinta cada una entera). */
-let LUT=null,LUTK='';function lightLUT(top,bot,a,vc,va,wet,W,H){const h=Math.max(8,Math.round(128*H/W)),k=[top,bot,a.toFixed(3),vc,va,wet,h].join('|');if(LUT&&LUTK===k)return LUT;LUTK=k;
+let LUT=null,LUTK='';function lightLUT(top,bot,a,vc,va,wet,W,H){const hn=!!(horde&&horde.night),h=Math.max(8,Math.round(128*H/W)),k=[top,bot,a.toFixed(3),vc,va,wet,h,hn].join('|');if(LUT&&LUTK===k)return LUT;LUTK=k;
  const cv=LUT||document.createElement('canvas');cv.width=128;cv.height=h;const x=cv.getContext('2d');x.globalCompositeOperation='source-over';x.globalAlpha=1;x.fillStyle='#fff';x.fillRect(0,0,128,h);
  if(a>0){x.globalAlpha=a;const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,top);g.addColorStop(1,bot);x.fillStyle=g;x.fillRect(0,0,128,h);x.globalAlpha=1}
- if(wet){x.globalCompositeOperation='multiply';x.fillStyle=wet;x.fillRect(0,0,128,h);x.globalCompositeOperation='source-over'}
+ /* tinte sepia del ambiente (antes una pasada 'multiply' en apoFX), suelo mojado y oscuridad de la horda nocturna (antes otra capa) */
+ x.globalCompositeOperation='multiply';x.fillStyle='rgb(246,245,241)';x.fillRect(0,0,128,h);if(wet){x.fillStyle=wet;x.fillRect(0,0,128,h)}if(hn){x.fillStyle='rgb(181,181,194)';x.fillRect(0,0,128,h)}x.globalCompositeOperation='source-over';
+ {const v=x.createRadialGradient(64,h/2,Math.min(128,h)*.35,64,h/2,Math.max(128,h)*.75);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(8,8,4,.5)');x.fillStyle=v;x.fillRect(0,0,128,h)}
  const g=x.createRadialGradient(64,h/2,Math.min(128,h)*.4,64,h/2,Math.max(128,h)*.85);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba('+vc+','+va+')');x.fillStyle=g;x.fillRect(0,0,128,h);return LUT=cv}
 function lightFX(c,cv){const t=S.dayT/600,W=cv.width,H=cv.height,NB=!!window.PERF_NOBLEND;c.setTransform(1,0,0,1,0,0);
 const add=(x,y,r,col,a)=>{if(a<=0)return;c.globalCompositeOperation='lighter';const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba('+col+','+a+')');g.addColorStop(1,'rgba('+col+',0)');c.fillStyle=g;c.fillRect(0,0,W,H);c.globalCompositeOperation='source-over'};
@@ -1508,11 +1510,12 @@ function ambientFX(c){
 /* ambiente apocalíptico: la desaturación y el tinte van como filtro CSS del lienzo (la GPU lo aplica en una pasada; antes eran dos fusiones 'saturation'/'multiply' a pantalla completa en cada fotograma) y la bruma + viñeta se pintan una vez */
 const APOF='saturate(.8) brightness(.955) sepia(.04)';let APOV=null;
 function apoFX(c,cv){const W=cv.width,H=cv.height;if(cv.style.filter)cv.style.filter='';c.save();c.setTransform(1,0,0,1,0,0);
- if(!window.PERF_NOBLEND){c.globalCompositeOperation='saturation';c.globalAlpha=.2;c.fillStyle='#7a7a7a';c.fillRect(0,0,W,H);c.globalCompositeOperation='multiply';c.globalAlpha=1;c.fillStyle='rgba(190,180,152,.15)';c.fillRect(0,0,W,H);c.globalCompositeOperation='source-over'}
- if(!APOV||APOV.width!==W||APOV.height!==H){APOV=APOV||document.createElement('canvas');APOV.width=W;APOV.height=H;const o=APOV.getContext('2d');o.clearRect(0,0,W,H);
+ const NB=!!window.PERF_NOBLEND;if(!NB){c.globalCompositeOperation='saturation';c.globalAlpha=.2;c.fillStyle='#7a7a7a';c.fillRect(0,0,W,H);c.globalCompositeOperation='source-over';c.globalAlpha=1}
+ /* el tinte sepia y la viñeta van dentro de la capa de luz de lightFX (una pasada menos cada uno); aquí solo la bruma de arriba (55 % de la pantalla) */
+ if(!APOV||APOV.width!==W||APOV.height!==H||APOV.nb!==NB){APOV=APOV||document.createElement('canvas');APOV.nb=NB;APOV.width=W;APOV.height=H;const o=APOV.getContext('2d');o.clearRect(0,0,W,H);
   const hz=o.createLinearGradient(0,0,0,H*.55);hz.addColorStop(0,'rgba(104,96,76,.30)');hz.addColorStop(1,'rgba(104,96,76,0)');o.fillStyle=hz;o.fillRect(0,0,W,H*.55);
-  const vg=o.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(8,8,4,.5)');o.fillStyle=vg;o.fillRect(0,0,W,H)}
- c.drawImage(APOV,0,0);
+  if(NB){const vg=o.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(8,8,4,.5)');o.fillStyle=vg;o.fillRect(0,0,W,H)}}
+ if(NB)c.drawImage(APOV,0,0);else c.drawImage(APOV,0,0,W,Math.ceil(H*.55),0,0,W,Math.ceil(H*.55));
  /* motas de polvo: agrupadas por transparencia (5 rellenos en vez de 44) */
  if(QS>=.7){const t=T,n=44;c.fillStyle='rgba(205,200,185,.5)';for(let a=0;a<5;a++){c.globalAlpha=.25+.3*a/5;c.beginPath();for(let i=0;i<n;i++){if((i*7)%5!==a)continue;const x=((i*131.7+t*(8+i%5*3))%(W+40))-20,y=((i*77.3+t*(14+i%4*5))%(H+40))-20,r=(.8+(i%3)*.5)*(cv.width/900);c.moveTo(x+r,y);c.arc(x,y,r,0,7)}c.fill()}c.globalAlpha=1}
  c.restore()}
@@ -1554,7 +1557,7 @@ cleanerUnits.forEach(u=>{if(!vis(u.x,u.y,100))return;L.push([u.x+u.y+.02,()=>{SX
 L.sort((a,b)=>a[0]-b[0]).forEach(l=>l[1]());drawPT(c);
 FX.forEach(f=>{if(f.boom){const q=P(f.x,f.y);const rr=60*(.6-f.t)+14,gr=c.createRadialGradient(q[0],q[1]-10,1,q[0],q[1]-10,rr);gr.addColorStop(0,'rgba(255,255,200,'+Math.min(1,f.t*2)+')');gr.addColorStop(.4,'rgba(255,150,40,'+f.t+')');gr.addColorStop(1,'rgba(120,40,0,0)');c.fillStyle=gr;c.beginPath();c.arc(q[0],q[1]-10,rr,0,7);c.fill()}else{const a=P(...f.a),b=P(...f.b);c.shadowColor=f.col;c.shadowBlur=10;c.strokeStyle=f.col;c.lineWidth=2.5;c.beginPath();c.moveTo(a[0],a[1]-16);c.lineTo(b[0],b[1]-10);c.stroke();c.shadowBlur=0}});
 if(placing){const p=placing,ok=placeValid(),a=P(p.x,p.y),b=P(p.x+p.w,p.y),d=P(p.x+p.w,p.y+p.h),e=P(p.x,p.y+p.h);c.save();poly(c,[a,b,d,e],ok?'rgba(55,225,85,.24)':'rgba(245,55,55,.28)');c.strokeStyle=ok?'#53ff72':'#ff514d';c.lineWidth=3;c.setLineDash([7,4]);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.lineTo(d[0],d[1]);c.lineTo(e[0],e[1]);c.closePath();c.stroke();c.setLineDash([]);mir(c,{type:p.t,x:p.x,y:p.y,w:p.w,h:p.h,lvl:1,hp:1,rot:(p.rot||0)%4,cl:p.cl||0,rf:p.rf||0,ex:p.ex||0},(c,bb)=>drawB(c,bb,.72));c.restore();if(allCells(p).length>(p.drag&&p.drag.length==1&&!(p.plan||[]).length?1:0))dragPrev(c,p)}
-apoFX(c,cv);lightFX(c,cv);advDamageFX(c);advWeatherFX(c,cv);if(horde&&horde.night){c.setTransform(1,0,0,1,0,0);c.fillStyle='rgba(10,10,50,.3)';c.fillRect(0,0,cv.width,cv.height)}}
+apoFX(c,cv);lightFX(c,cv);advDamageFX(c);advWeatherFX(c,cv);if(horde&&horde.night&&window.PERF_NOBLEND){c.setTransform(1,0,0,1,0,0);c.fillStyle='rgba(10,10,50,.3)';c.fillRect(0,0,cv.width,cv.height)}/* sin PERF_NOBLEND la oscuridad de la horda nocturna va en la capa de luz */}
 /* ================= ENTRADA ================= */
 const scr2g=(sx,sy)=>{const wx=sx/cam.z+cam.x,wy=sy/cam.z+cam.y;return{x:(wx/32+wy/16)/2,y:(wy/16-wx/32)/2}};
 /* Orden de dibujo: quien está justo delante (este o sur) de un edificio se pinta encima de él aunque x+y sea menor que la clave del edificio */
