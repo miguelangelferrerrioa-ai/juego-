@@ -2,6 +2,10 @@
 (function(){
 'use strict';
 const INFO={
+ x:['Infectado especial','Cava por debajo de los muros de nivel 1 a 6 y aparece dentro del pueblo. Bajo tierra no se le puede herir.','Los muros de nivel 7 o más tienen cimientos: ahí tiene que romperlos. Ten tiradores también dentro.'],
+ w:['Infectado especial','Enorme y lentísimo, carga una viga de hierro. Casi no ataca a la gente: va a por tus muros y puertas y los destroza.','Que las torres cubran la muralla: hay que tumbarlo antes de que llegue.'],
+ i:['Infectado especial','Arde por dentro. Al morir deja fuego unos segundos que quema edificios y gente cercana.','Mátalo lejos de las casas: mejor con torres que lleguen lejos.'],
+ l:['Infectado especial','Líder de manada. Los zombis a su alrededor pegan más fuerte y se curan mientras él siga en pie.','Es la prioridad: sin él, la manada se debilita.'],
  z:['Infectado','Lento y torpe, pero nunca viene solo. Ataca cuerpo a cuerpo a personas y edificios.','Las torres con tiradores los frenan antes de que lleguen.'],
  f:['Infectado','Aguanta más del triple que un zombi normal y avanza despacio hacia tus edificios.','Concentra el fuego en él: tarda en llegar, pero derriba lo que toca.'],
  s:['Infectado','Un antiguo militar. Conserva parte del equipo y resiste mucho más castigo.','Necesitas armas mejores que la pistola para tumbarlo rápido.'],
