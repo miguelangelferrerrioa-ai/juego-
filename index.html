@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v312</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v313</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -6819,6 +6819,43 @@ const st=document.createElement('style');st.textContent=`
 .hz-leg{position:relative;height:34px;color:#9aa58c;margin:3px 0 4px}.hz-leg small{position:absolute;top:0;transform:translateX(-50%)}.hz-leg .hz-you{position:absolute;top:15px;transform:translateX(-50%);color:#fff;font-size:12px}.hz-tip{color:#e8dcb0}`;document.head.appendChild(st);
 })();
 </script>
+<script>/* Asedios (segunda mitad del juego): con el ayuntamiento a nivel 12 o más, una de cada 4 hordas es un ASEDIO de 3 oleadas.
+   Entre oleadas hay un respiro de 2:30 (tiempo de juego) para reparar muros y recargar; cada oleada trae un 15 % más de enemigos y con un 15 % más de vida.
+   Al resistir las tres llega un botín extra y la siguiente horda tarda un día más. Estado en S.sg = {w: oleada, tot: 3, t: segundos de respiro}. */
+(function(){
+'use strict';
+const TOT=3,REST=150,MINH=12;
+const due=()=>{try{return !S.sg&&realHall()>=MINH&&(S.sinceSg|0)>=3}catch(e){return false}};
+const oS=window.startHorde;
+window.startHorde=function(name,over){
+ if(!name&&!over&&due()){S.sg={w:1,tot:TOT,t:0};name='Asedio · oleada 1 de '+TOT}
+ const r=oS.call(this,name,over);
+ try{if(S.sg&&horde){const w=S.sg.w,k=1+.15*(w-1);if(w>1){const act=Z.filter(z=>z.act);act.forEach(z=>{z.hp*=k;z.mhp*=k});const extra=Math.floor(act.length*.15*(w-1));
+   for(let i=0;i<extra&&act.length;i++){const s=act[Math.floor(Math.random()*act.length)],z=mkZ(s.t,Math.max(.5,Math.min(N-.5,s.x+(Math.random()-.5)*2)),Math.max(.5,Math.min(N-.5,s.y+(Math.random()-.5)*2)),1);z.hp*=k;z.mhp*=k;Z.push(z)}}
+  toast('⚔ ASEDIO · oleada '+w+' de '+S.sg.tot+(w>1?' (más fuerte)':'')+'.')}}catch(e){}
+ return r};
+try{startHorde=window.startHorde}catch(e){}
+const oE=window.endHorde;
+window.endHorde=function(){const sg=S.sg;const r=oE.apply(this,arguments);
+ try{if(!sg){S.sinceSg=(S.sinceSg|0)+1;return r}
+  if(sg.w<sg.tot){sg.t=REST;toast('Oleada '+sg.w+' de '+sg.tot+' resistida. La siguiente llega en 2:30: repara los muros y recarga munición.')}
+  else{const k=S.hordeN,b={metal:60+k*10,ammo:30+k*5,steel:6+Math.floor(k/4),concrete:4+Math.floor(k/5)};for(const q in b)S.res[q]=(S.res[q]||0)+b[q];
+   S.sg=null;S.sinceSg=0;S.nextH=Math.max(S.nextH||0,S.day+4);S.stat.sieges=(S.stat.sieges||0)+1;
+   toast('🏆 ¡Asedio resistido! Botín extra: '+Object.keys(b).map(q=>b[q]+' '+((RK.find(x=>x[0]===q)||[0,q])[1]).toLowerCase()).join(', ')+'. La próxima horda tardará más.');try{save()}catch(e){}}}catch(e){}
+ return r};
+try{endHorde=window.endHorde}catch(e){}
+/* estimación de la próxima horda: avisa de que será un asedio */
+const oEst=window.hordeEst;if(typeof oEst==='function'){window.hordeEst=function(){const e=oEst.apply(this,arguments);try{if(e&&due())e.kind='ASEDIO de '+TOT+' oleadas'}catch(x){}return e};try{hordeEst=window.hordeEst}catch(e){}}
+/* respiro entre oleadas (tiempo de juego) */
+const oU=window.upd;let warned=-1;
+window.upd=function(dt){const r=oU.apply(this,arguments);try{if(!S||!S.bld)return r;
+ if(S.sg&&!horde){if(!(S.sg.t>0))S.sg.t=REST;S.sg.t-=dt;S.nextH=Math.max(S.nextH||0,S.day+1);if(S.sg.t<=0){S.sg.w++;S.sg.t=0;startHorde('Asedio · oleada '+S.sg.w+' de '+S.sg.tot)}}
+ if(!horde&&due()&&S.day===(S.nextH|0)-1&&warned!==S.day){warned=S.day;toast('⚠ Los vigías avisan: mañana llega un ASEDIO de '+TOT+' oleadas. Refuerza los muros y guarda munición.')}}catch(e){}return r};
+try{upd=window.upd}catch(e){}
+/* chip de arriba durante el respiro: oleadas y cuenta atrás */
+setInterval(()=>{try{if(!S||!S.sg||horde)return;const c=document.getElementById('hzChip');if(!c)return;const t=Math.max(0,Math.ceil(S.sg.t||0));c.className='ch hz bad';c.innerHTML='⚔ '+(S.sg.w+1)+'/'+S.sg.tot+' · '+Math.floor(t/60)+':'+String(t%60).padStart(2,'0');c.title='Asedio: siguiente oleada en '+Math.floor(t/60)+':'+String(t%60).padStart(2,'0')}catch(e){}},250);
+})();
+</script>
 <script>/* ===== Lista de supervivientes con filtros: rol, sexo, edad, estado y orden ===== */
 (function(){
 'use strict';
@@ -11747,7 +11784,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'312';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'313';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
