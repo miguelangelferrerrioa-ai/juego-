@@ -34,32 +34,35 @@ function animated(b,bx){const k=b.type+'|'+b.lvl+'|'+b.w+'|'+b.h+'|'+(b.rot||0)+
 function tbox(b,bx){const t=TRIM.get(b.type+'|'+b.lvl+'|'+b.w+'|'+b.h+'|'+(b.rot||0)+'|'+(window.NBK&&NBK.stagePaint?1:0));if(!t)return bx;return[bx[0]+Math.max(0,t[0]),bx[1]+Math.max(0,t[1]),Math.min(bx[2],bx[0]+t[2]),Math.min(bx[3],bx[0]*0+bx[1]+t[3])]}
 /* cola de repintados del atlas: se vacía al empezar a dibujar cada fotograma (como mucho 4) */
 const Q=new Map();
+function trimPx(keep){if(px>MAXPX)for(const[fk,fv]of C){if(px<=MAXPX)break;if(fk===keep||!fv.cv)continue;C.delete(fk);px-=fv.cv.width*fv.cv.height}}
 window.bcFlush=function(){if(!Q.size)return;let n=0;const t0=performance.now();for(const [id,j] of Q){Q.delete(id);let e=C.get(id);const {b,k,kb,sq,bx,tb,W,H,an}=j;if(!bm[id])continue;if(e&&e.k===k&&e.bx[0]===bx[0]&&e.bx[1]===bx[1])continue;
  if(window.PERFC)PERFC.ed++;let sl=e&&e.sl&&e.W===W&&e.H===H?e.sl:null;if(!sl){if(e&&e.sl)e.sl=null;sl=alloc(W,H);if(!sl&&T-(window.__cmpT||-9)>1){window.__cmpT=T;compact();sl=alloc(W,H)}}
  if(sl){paintAtlas(b,sq,tb,sl);if(e&&e.cv)px-=e.cv.width*e.cv.height;C.set(id,{k,kb,sq,bx,tb,sl,W,H,t:T,an})}
- else{const cv=paint(b,sq,tb,e&&e.cv);if(e&&e.cv)px-=e.cv.width*e.cv.height;C.set(id,{k,kb,sq,bx,tb,cv,W:cv.width,H:cv.height,t:T,an});px+=cv.width*cv.height}
+ else{const cv=paint(b,sq,tb,e&&e.cv);if(e&&e.cv)px-=e.cv.width*e.cv.height;C.set(id,{k,kb,sq,bx,tb,cv,W:cv.width,H:cv.height,t:T,an});px+=cv.width*cv.height;trimPx(id)}
  /* tope de tiempo: ~3 ms por fotograma (como mínimo 1 edificio) */if(++n>=6||performance.now()-t0>3)break}};
 function blit(c,e){if(e.sl)c.drawImage(e.sl.cv,e.sl.x,e.sl.y,e.W,e.H,e.tb[0],e.tb[1],e.W/e.sq,e.H/e.sq);else c.drawImage(e.cv,e.tb[0],e.tb[1],e.cv.width/e.sq,e.cv.height/e.sq)}
 /* limpieza: las imágenes de páginas de una escala anterior se sueltan cuando el zoom lleva 2 s quieto (antes los edificios fuera de pantalla las retenían: cada página son 16 MB de memoria gráfica y el móvil iba cada vez más lento) */
 function sweep(){if(T-SWT<2||T-ZT<2)return;SWT=T;for(const [id,e] of C){if(e.sl&&e.sl.gen!==GEN)C.delete(id)}let n=0;for(const e of C.values())if(e.cv)n+=e.cv.width*e.cv.height;px=n}
 window.bCache=function(c,b){try{if(!window.BC_ON)return false;if(T!==lastT){lastT=T;budget=4;sweep()}
  const th=TH.get(b.id);if(th&&th.off>T)return false;
- const tf=c.getTransform(),s=Math.hypot(tf.a,tf.b)/((typeof QS==='number'&&QS>0)?QS:1);/* sin el ajuste automático de calidad: si no, cada ajuste repintaba todos los edificios */if(Math.abs(s-ZS)>1e-4){ZS=s;ZT=T}/* margen de zoom: se reutiliza la escala mientras el zoom no se aleje más de un ~40 %; solo se cambia con la cámara parada 0,3 s *//* escalas ×0,25/0,5/1/2 (redondeando hacia arriba: nunca se ve borroso). Al cambiar, se empieza un atlas nuevo: el viejo se suelta cuando ya no se usa (antes se acumulaban imágenes viejas hasta 4 páginas y el móvil iba a ~18 fps) */const want=Math.min(2,Math.pow(2,Math.ceil(Math.log2(Math.max(.25,s)-1e-6))));if(!BSQ)BSQ=want;else if(want!==BSQ&&T-ZT>=.3){BSQ=want;PG.length=0;Q.clear();GEN++}const sq=BSQ;
+ const tf=c.getTransform(),s=Math.hypot(tf.a,tf.b)/((typeof QS==='number'&&QS>0)?QS:1);/* sin el ajuste automático de calidad: si no, cada ajuste repintaba todos los edificios */if(Math.abs(s-ZS)>1e-4){ZS=s;ZT=T}/* margen de zoom: se reutiliza la escala mientras el zoom no se aleje más de un ~40 %; solo se cambia con la cámara parada 0,3 s *//* escalas ×0,25/0,5/1/2 (redondeando hacia arriba: nunca se ve borroso). Al cambiar, se empieza un atlas nuevo: el viejo se suelta cuando ya no se usa (antes se acumulaban imágenes viejas hasta 4 páginas y el móvil iba a ~18 fps) *//* escalón ×1,5: es la escala normal del móvil (zoom 1, dpr 1,5); antes subía a ×2 y cada edificio gastaba 1,8× más píxeles, el atlas se llenaba y ~50 edificios se dibujaban enteros cada fotograma */const want=[.25,.5,1,1.5,2].find(v=>v>=Math.max(.25,s)-1e-6)||2;if(!BSQ)BSQ=want;else if(want!==BSQ&&T-ZT>=.3){BSQ=want;PG.length=0;Q.clear();GEN++}const sq=BSQ;
  const bx=box(b),k=sig(b,sq),kb=sig(b,0);let e=C.get(b.id);
  /* solo cuenta claves NUEVAS: antes contaba cada fotograma de espera (sin presupuesto) y tras cambiar la calidad marcaba todo el pueblo como 'inestable' y lo dibujaba sin caché 12 s */
  /* el zoom (sq) no cuenta: antes, al pellizcar, casi todo el pueblo quedaba 12 s sin caché */if(e&&e.kb!==kb&&!(th&&th.lk===kb)){const t=th||{n:0,t:T,off:0};t.lk=kb;if(T-t.t>4){t.n=0;t.t=T}if(++t.n>6){t.off=T+12;TH.set(b.id,t);return false}TH.set(b.id,t)}
  const per=e&&e.an?.13+(b.id%5)*.02:e&&e.sl?1e9:3+(b.id%7)*.25;
  /* mientras el zoom cambia (pellizco) se reutiliza la imagen anterior escalada; se repinta al parar 0,3 s */if(Math.abs(s-ZS)>1e-4){ZS=s;ZT=T}if(e&&e.sq!==sq&&T-ZT<.3&&e.kb===kb&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]){blit(c,e);return true}
  const fresh=e&&e.k===k&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]&&(T-e.t<per||budget<=0);
- if(!fresh&&budget<=0&&e&&e.kb===kb&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]){/* sin cupo de repintado este fotograma: se usa la imagen anterior (otro zoom o fotograma de animación) en vez de dibujarlo entero */blit(c,e);return true}
- if(!fresh){const an=animated(b,bx),tb=tbox(b,bx);
+ /* el último hueco de repintado del fotograma queda para edificios que aún no tienen imagen: antes los ~50 animados ya hechos lo gastaban todo en su animación y el resto (pozos, torres) se dibujaba entero cada fotograma */if(!fresh&&budget<=1&&e&&e.kb===kb&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]){/* sin cupo de repintado este fotograma: se usa la imagen anterior (otro zoom o fotograma de animación) en vez de dibujarlo entero */blit(c,e);return true}
+ /* con los lienzos propios llenos (pueblo grande: ~80 pozos/torres/torretas a la vista y solo caben ~54), los animados nuevos van al atlas como imagen quieta; antes se dibujaban enteros cada fotograma */
+ if(!fresh){const an=animated(b,bx)&&!(ATL_ON&&px>MAXPX*.9&&!(e&&e.cv)),tb=tbox(b,bx);
   const W=Math.ceil((tb[2]-tb[0])*sq),H=Math.ceil((tb[3]-tb[1])*sq);
   /* edificios quietos: el repintado en el atlas se apunta y se hace al principio del fotograma siguiente, antes de dibujar nada
      (pintar en una página que ya se ha dibujado en el fotograma obliga a Chrome a copiarla entera: medido en el móvil, bajones a ~30 fps tras el zoom) */
   if(ATL_ON&&!an){Q.set(b.id,{b,k,kb,sq,bx,tb,W,H,an});if(e&&(e.sl||e.cv)&&e.kb===kb&&e.bx[0]===bx[0]&&e.bx[1]===bx[1]){blit(c,e);return true}return false}
   if(budget<=0)return false;budget--;if(window.PERFC)PERFC.ed++;
   {const cv=paint(b,sq,tb,e&&e.cv);if(e&&e.cv)px-=e.cv.width*e.cv.height;e={k,kb,sq,bx,tb,cv,W:cv.width,H:cv.height,t:T,an};C.delete(b.id);C.set(b.id,e);px+=cv.width*cv.height;
-   while(px>MAXPX&&C.size>1){const[fk,fv]=C.entries().next().value;if(fk===b.id)break;C.delete(fk);if(fv.cv)px-=fv.cv.width*fv.cv.height}}}
+   /* solo se sueltan lienzos propios (los más antiguos): antes también borraba edificios del atlas, que no liberan nada, y en pueblos grandes vaciaba el atlas cada fotograma (>50 % de edificios dibujados sin caché) */
+   trimPx(b.id)}}
  else if(!e.sl){C.delete(b.id);C.set(b.id,e)}
  blit(c,e);return true}catch(er){return false}};
 window.bCacheClear=()=>{atlasReset();C.clear();px=0;ANIM.clear();TH.clear()};
