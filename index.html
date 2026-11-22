@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v280</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v285</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -5549,6 +5549,7 @@ function genDefault(e,T){
   const conn=()=>{const f=floor(),seen=new Set(['3,5']),q=[[3,5]];while(q.length){const[x,y]=q.pop();[[1,0],[-1,0],[0,1],[0,-1]].forEach(([a,b])=>{const k=(x+a)+','+(y+b);if(!g[y+b][x+a]&&!seen.has(k)){seen.add(k);q.push([x+a,y+b])}})}return seen.size===f.length};
   for(let i=0;i<(T?6:14);i++){const x=ri(4,COLS-2),y=ri(1,ROWS-2);if(g[y][x]||(!T&&(x==9||x==17)))continue;g[y][x]=2;if(!conn())g[y][x]=0}
   const ex=[];for(let y=4;y<=6;y++)for(let x=1;x<=3;x++){g[y][x]=0;ex.push(x+','+y)}
+  /* zona de la derecha libre: paso a la zona siguiente (zona 1) o salida/evacuación (zonas siguientes) */for(let y=4;y<=6;y++)for(let x=COLS-4;x<=COLS-2;x++){g[y][x]=0;ex.push(x+','+y)}
   const used=new Set(ex),cand=floor().filter(([x,y])=>x>=5&&!g[y][x]).sort((a,b)=>a[0]-b[0]);
   const pick=(arr)=>{const t=arr.splice(ri(0,arr.length-1),1)[0];return t};
   const remain=Math.max(0,nR(e)-e.step),pois=[];
@@ -5731,12 +5732,15 @@ function drawMo(){const m=M.mo;if(!m||m.done)return;const pulse=(x,y,col,lab,pro
   else if(m.k==='sabotage')m.ch.forEach(c=>{if(c.p<3)pulse(c.x,c.y,'#ff6a4a','CARGA',c.p/3)})}
 function gen(e){
   let th=themeOf(e);let T=null;const story=e.z.chap!==undefined;
+  /* zonas 2 y 3: otro escenario (antes se repetía el mismo plano y parecía que se volvía atrás por el mismo sitio) */if((e.zn||1)>1){const pool=['highway','market','office','warehouse','metro','port','house','police','casa'].filter(k=>k!==th&&PAL[k]&&!(th==='casa'&&k==='house')&&!(th==='house'&&k==='casa'));if(pool.length){const R0=rngS(e.z.n+':pz'+e.zn);th=pool[Math.floor(R0()*pool.length)]}}
   if(!story&&e.seed===undefined)e.seed=Math.floor(Math.random()*1e9);
   if(th&&PAL[th]){const sk=e.z.n+':'+(e.dist||1)+':'+e.step+(story?'':':'+e.seed)+((e.zn||1)>1?':z'+e.zn:'');
     if(story){const R=rngS(sk);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)))}
     else{if(th=='house')th='casa';for(let i=0;i<14&&!T;i++){const R=rngS(sk+':'+i);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)),vtpl(th,R,e.z.sub))}if(!T){th=themeOf(e);if(th=='casa')th='house';const R=rngS(sk);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)))}}}
   const M0=genDefault(e,T);unPocket(M0);M0.theme=T?th:null;M0.pal=T?PAL[th]:null;if(T){M0.fv=T.fv;M0.pr=T.pr;M0.dc=T.dc}
-  setMode(M0,e);try{dangerInit(M0,e)}catch(er){}try{if((e.zn||1)>1)prepCross(M0,e)}catch(er){}return M0}
+  setMode(M0,e);try{dangerInit(M0,e)}catch(er){}try{if((e.zn||1)>1)prepCross(M0,e)}catch(er){}
+  /* la zona de la derecha (paso / evacuación) queda despejada: fuera cajas, coches, botiquines y barriles */try{const inR=o=>o.x>COLS-4.6&&o.y>3.4&&o.y<7.6;['crates','cars','meds','barrels'].forEach(k=>{if(M0[k])M0[k]=M0[k].filter(o=>!inR(o))})}catch(er){}
+  return M0}
 /* Huecos cerrados por paredes: lo que cae dentro (coches, cajas, enemigos…) se mueve a la casilla alcanzable más cercana, para que todo se pueda coger o abatir */
 function unPocket(M){try{const R=new Uint8Array(COLS*ROWS),q=[];const sol=(x,y)=>x<0||y<0||x>=COLS||y>=ROWS||M.g[y][x]>0;
   (M.units||[]).forEach(u=>{const x=Math.floor(u.x),y=Math.floor(u.y);if(!sol(x,y)&&!R[y*COLS+x]){R[y*COLS+x]=1;q.push([x,y])}});if(!q.length)return;
@@ -5860,19 +5864,22 @@ window._qmPick=agg=>{const e=S.exp;if(!e||!M)return;const t=tm(e),dn=M.units.fil
   if(S.exp&&S.exp===e&&!e.complete&&e.step===before)e.step=before+1;
 }
 /* ---------- salida ---------- */
-const inExit=u=>u.x<4&&u.y>3.6&&u.y<7.4;
+const inExit=u=>(M&&M.exR?u.x>COLS-4:u.x<4)&&u.y>3.6&&u.y<7.4;
+const inPass=u=>u.x>COLS-4&&u.y>3.6&&u.y<7.4;
+/* zona 1: al cumplir el objetivo (o todos los eventos si no tiene) se abre el paso de la derecha; las ❗ que queden son opcionales */
+function openPass(){if(!M||M.pass)return;M.pass=1;toast('🚪 Se ha abierto el paso a la zona 2: llevad al equipo a la derecha (→). Las ❗ que queden dan botín extra.');try{sfx('done')}catch(er){}}
 function atExit(){return M.units.filter(isAl).every(inExit)}
 function hasDown(){return M.units.some(u=>!u.dead&&u.p.hp<=0)}
 function leave(){const e=S.exp;if(!e)return;e.log.push('Enemigos abatidos: '+(M.kills||0)+(M.revived?' · Compañeros reanimados: '+M.revived:''));e.fin=1;shown=false;ov.style.display='none';cancelAnimationFrame(raf);exEnd()}
 window.exEnd=function(){const e=S.exp;
-  if(e&&!e.fin&&tm(e).length){if(!e.complete&&M&&!M.pv&&(e.zn||1)<(e.zt||1)&&(e.zn||1)===1){nextZone(e);return}if(!e.complete){e.complete=1;toast('✅ Objetivo cumplido. Vuelve a la salida con tu equipo.');setTimeout(()=>{giveGear(lvlOf(e.z),1);givePlan(lvlOf(e.z))},900)}return}
+  if(e&&!e.fin&&tm(e).length){if(!e.complete&&M&&!M.pv&&(e.zn||1)<(e.zt||1)&&(e.zn||1)===1){openPass();return}if(!e.complete){e.complete=1;toast('✅ Objetivo cumplido. Vuelve a la salida con tu equipo.');setTimeout(()=>{giveGear(lvlOf(e.z),1);givePlan(lvlOf(e.z))},900)}return}
   shown=false;if(ov)ov.style.display='none';cancelAnimationFrame(raf);M=null;return oEnd.apply(this,arguments)};
 /* ---------- peligro de las misiones: barra de peligro, patrullas, trampas, emboscadas y evacuación ---------- */
 const HZ={wire:['Alambre de espino','#9aa0a4'],acid:['Charco de ácido','#8adf3a'],mine:['Mina','#c23a2e'],floor:['Suelo que cede','#7a5a3a']};
 function freeTiles(M0,x0){const f=[],busy=new Set();['pois','crates','cars','meds','barrels','en'].forEach(k=>(M0[k]||[]).forEach(o=>busy.add(Math.floor(o.x)+','+Math.floor(o.y))));(M0.units||[]).forEach(u=>busy.add(Math.floor(u.x)+','+Math.floor(u.y)));
  for(let y=1;y<ROWS-1;y++)for(let x=x0;x<COLS-1;x++)if(!M0.g[y][x]&&!busy.has(x+','+y))f.push([x,y]);return f}
 function dangerInit(M0,e){if(M0.pv)return;const L=lvlOf(e.z);if(!e.zt){e.zn=1;e.zt=(L>=14||(M0.mo&&M0.mo.k==='boss'))?3:2}M0.zk=e.zn||1;M0.dg=0;M0.dgT=0;M0.dgN=0;M0.evac={need:Math.min(35,20+Math.floor(L/2)),t:0,on:0,done:0,w:3};
- /* trampas */const f=freeTiles(M0,6),n=Math.min(f.length,8,4+Math.floor(L/6)),ks=Object.keys(HZ);M0.hz=[];for(let i=0;i<n;i++){const t=f.splice(Math.floor(Math.random()*f.length),1)[0];M0.hz.push({k:ks[Math.floor(Math.random()*ks.length)],x:t[0]+.5,y:t[1]+.5,on:1})}
+ /* trampas */const f=freeTiles(M0,6).filter(([x,y])=>!(x>=COLS-5&&y>=3&&y<=7)),n=Math.min(f.length,8,4+Math.floor(L/6)),ks=Object.keys(HZ);M0.hz=[];for(let i=0;i<n;i++){const t=f.splice(Math.floor(Math.random()*f.length),1)[0];M0.hz.push({k:ks[Math.floor(Math.random()*ks.length)],x:t[0]+.5,y:t[1]+.5,on:1})}
  /* patrullas: un tercio de los enemigos camina por el mapa */M0.en.forEach(z=>{if(z.boss||Math.random()>.33)return;z.pat=1});
  /* emboscadas: una de cada cuatro cajas esconde enemigos */(M0.crates||[]).forEach(c=>{if(Math.random()<.25)c.amb=1})}
 function spawnAt(x,y,n,wake){const e=S.exp,lvl=lvlOf(e.z),hpM=.85+.035*lvl,dmM=.85+.025*lvl,t=nearTiles(M,x,y,n+6).filter(q=>!M.units.some(u=>isAl(u)&&Math.hypot(u.x-q[0],u.y-q[1])<1.5));
@@ -5880,12 +5887,12 @@ function spawnAt(x,y,n,wake){const e=S.exp,lvl=lvlOf(e.z),hpM=.85+.035*lvl,dmM=.
 function ambush(c){const lvl=lvlOf(S.exp.z),n=2+Math.floor(lvl/6);spawnAt(c.x,c.y,n,1);M.shake=.4;addFl(M,c.x,c.y,'¡Emboscada!','#ff4a3a');toast('⚠ ¡Emboscada! Salen infectados escondidos.');M.dg=Math.min(100,(M.dg||0)+8)}
 /* oleada desde los bordes del mapa, lejos del equipo */
 function prepCross(M0,e){M0.pois=[];M0.mo=null;
- /* el equipo entra por la derecha: la salida queda al otro lado del mapa */const st=nearTiles(M0,COLS-2.5,5.5,M0.units.length+4);M0.units.forEach((u,i)=>{const q=st[i]||[COLS-2.5,5.5];u.x=q[0];u.y=q[1];u.home=[q[0],q[1]];u.path=[]});
+ /* el equipo entra por la izquierda y avanza: la salida (o el paso a la zona siguiente) queda a la derecha */M0.exR=1;const st=nearTiles(M0,2.5,5.5,M0.units.length+4);M0.units.forEach((u,i)=>{const q=st[i]||[2.5,5.5];u.x=q[0];u.y=q[1];u.home=[q[0],q[1]];u.path=[]});
  M0.en=M0.en.filter(z=>!M0.units.some(u=>Math.hypot(u.x-z.x,u.y-z.y)<5));
  M0.units.forEach(u=>{for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if(Math.hypot(x+.5-u.x,y+.5-u.y)<=3)M0.vis[y*COLS+x]=2})}
 function nextZone(e){const dg=M.dg||0,kills=M.kills||0,rev=M.revived||0;e.zn=(e.zn||1)+1;const nm=gen(e);nm.step0=e.z.n;nm.dg=Math.max(0,dg-15);nm.dgN=Math.floor(nm.dg/34);nm.kills=kills;nm.revived=rev;M=nm;evOpen=false;
- toast(e.zn===2?'✅ Objetivo cumplido. Ahora el camino de vuelta: cruzad '+(e.zt-1)+' zona'+(e.zt-1>1?'s':'')+' hasta el punto de evacuación.':'➡ Zona '+e.zn+'/'+e.zt+': seguid hacia la salida.');try{sfx('done')}catch(er){}}
-function wave(n){const al=M.units.filter(isAl);const f=[];for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++){if(M.g[y][x])continue;const edge=x>=COLS-3||y<=1||y>=ROWS-2;if(!edge||x<8)continue;if(al.some(u=>Math.hypot(u.x-x,u.y-y)<6))continue;f.push([x,y])}
+ toast('➡ Zona '+e.zn+'/'+e.zt+': avanzad hacia la derecha'+(e.zn<e.zt?' hasta el siguiente paso.':' hasta el punto de evacuación.'));try{sfx('done')}catch(er){}}
+function wave(n){const al=M.units.filter(isAl);const f=[];for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++){if(M.g[y][x])continue;const edge=M.exR?(x<=2||y<=1||y>=ROWS-2):(x>=COLS-3||y<=1||y>=ROWS-2);if(!edge||(M.exR?x>COLS-9:x<8))continue;if(al.some(u=>Math.hypot(u.x-x,u.y-y)<6))continue;f.push([x,y])}
  if(!f.length)return;const c=f[Math.floor(Math.random()*f.length)];spawnAt(c[0]+.5,c[1]+.5,n,1)}
 function dangerStep(dt,al){if(M.pv||M.dg===undefined)return;const e=S.exp,lvl=lvlOf(e.z);
  /* barra de peligro: sube sola y con el ruido; cada tercio trae una oleada; llena, oleadas cada 25 s */
@@ -5899,7 +5906,8 @@ function dangerStep(dt,al){if(M.pv||M.dg===undefined)return;const e=S.exp,lvl=lv
    else if(h.k==='mine'){h.on=0;M.shake=.6;M.vis[Math.floor(h.y)*COLS+Math.floor(h.x)]=2;M.units.filter(isAl).forEach(o=>{if(Math.hypot(o.x-h.x,o.y-h.y)<1.7){o.p.hp-=32;addFl(M,o.x,o.y,'-32','#ff7b6b')}});M.en.forEach(z=>{if(Math.hypot(z.x-h.x,z.y-h.y)<1.7)z.hp-=60});M.tr.push({a:{x:h.x,y:h.y},b:{x:h.x+.01,y:h.y},l:.3,m:true,c:'#ffb040'});addFl(M,h.x,h.y,'¡BOOM!','#ff9a30');toast('💥 ¡Una mina!');M.dg=Math.min(100,M.dg+10)}
    else if(h.k==='floor'){h.on=0;p.hp-=16;u.slow=3;M.shake=.3;addFl(M,u.x,u.y,'¡El suelo cede! -16','#ff7b6b')}});
   if(h.on&&h.k==='mine')M.en.forEach(z=>{if(z.st&&tile(z)){h.on=0;M.en.forEach(q=>{if(Math.hypot(q.x-h.x,q.y-h.y)<1.7)q.hp-=60});addFl(M,h.x,h.y,'¡BOOM!','#ff9a30');M.shake=.4}})});
- /* camino de vuelta: al llegar a la salida, siguiente zona o evacuación */if(M.zk>1&&!e.complete&&atExit()&&!hasDown()&&al.length){if(e.zn<e.zt){nextZone(e);return}e.complete=1;toast('🏁 ¡Habéis llegado al punto de evacuación! Pulsa «Pedir evacuación» y aguantad.');setTimeout(()=>{giveGear(lvlOf(e.z),1);givePlan(lvlOf(e.z))},900)}
+ /* zona 1: paso a la derecha */if(M.zk===1&&(e.zn||1)<(e.zt||1)&&!e.complete){if(!M.pass&&M.mo&&M.mo.done)openPass();if(M.pass&&al.length&&al.every(inPass)&&!hasDown()){nextZone(e);return}}
+ /* zonas siguientes: al llegar a la salida (derecha), siguiente zona o evacuación */if(M.zk>1&&!e.complete&&atExit()&&!hasDown()&&al.length){if(e.zn<e.zt){nextZone(e);return}e.complete=1;toast('🏁 ¡Habéis llegado al punto de evacuación! Pulsa «Pedir evacuación» y aguantad.');setTimeout(()=>{giveGear(lvlOf(e.z),1);givePlan(lvlOf(e.z))},900)}
  /* evacuación */const v=M.evac;if(v&&v.on&&!v.done){if(atExit()&&!hasDown())v.t+=dt;v.w-=dt;if(v.w<=0){v.w=8;wave(1+Math.floor(lvl/8))}
   if(v.t>=v.need){v.done=1;toast('🚁 ¡Ha llegado la ayuda! Salís de la zona.');setTimeout(()=>{if(S.exp&&M)leave()},700)}}}
 function drawHz(){(M.hz||[]).forEach(h=>{if(!h.on||M.vis[Math.floor(h.y)*COLS+Math.floor(h.x)]!==2)return;const x=h.x*ts,y=h.y*ts,r=ts*.38;
@@ -5997,8 +6005,11 @@ function draw(){
   try{drawHz()}catch(er){}
   (M.blood||[]).forEach(b=>{if(!seen(b.x,b.y))return;cx.fillStyle='#5a1210aa';cx.beginPath();cx.ellipse(b.x*ts,b.y*ts,ts*.3,ts*.18,b.a,0,7);cx.fill()});
   // salida
-  cx.fillStyle='#e0a12433';cx.fillRect(1*ts,4*ts,3*ts,3*ts);cx.save();cx.beginPath();cx.rect(1*ts,4*ts,3*ts,3*ts);cx.clip();cx.strokeStyle='#e0a12440';cx.lineWidth=5;for(let i=-4;i<8;i++){cx.beginPath();cx.moveTo(1*ts+i*ts*.5,4*ts);cx.lineTo(1*ts+i*ts*.5+3*ts,7*ts);cx.stroke()}cx.restore();
-  cx.strokeStyle='#e0a124';cx.lineWidth=2;cx.setLineDash([7,5]);cx.strokeRect(1*ts+1,4*ts+1,3*ts-2,3*ts-2);cx.setLineDash([]);cx.fillStyle='#ffd877';cx.font='bold '+Math.round(ts*.3)+'px sans-serif';cx.textAlign='center';cx.fillText('SALIDA',2.5*ts,7.55*ts);
+  {const box=(x0,lab,c1,c2,c3)=>{cx.fillStyle=c1;cx.fillRect(x0*ts,4*ts,3*ts,3*ts);cx.save();cx.beginPath();cx.rect(x0*ts,4*ts,3*ts,3*ts);cx.clip();cx.strokeStyle=c2;cx.lineWidth=5;for(let i=-4;i<8;i++){cx.beginPath();cx.moveTo(x0*ts+i*ts*.5,4*ts);cx.lineTo(x0*ts+i*ts*.5+3*ts,7*ts);cx.stroke()}cx.restore();
+   cx.strokeStyle=c3;cx.lineWidth=2;cx.setLineDash([7,5]);cx.strokeRect(x0*ts+1,4*ts+1,3*ts-2,3*ts-2);cx.setLineDash([]);cx.fillStyle=c3;cx.font='bold '+Math.round(ts*.3)+'px sans-serif';cx.textAlign='center';cx.fillText(lab,(x0+1.5)*ts,7.55*ts)};
+   const ez=S.exp,last=!ez||(M.zk||1)>=(ez.zt||1);
+   if(M.exR)box(COLS-4,last?'EVACUACIÓN':'PASO →','#e0a12433','#e0a12440','#ffd877');else box(1,'SALIDA','#e0a12433','#e0a12440','#ffd877');
+   if(!M.exR&&M.pass)box(COLS-4,'PASO →','#5fd06a33','#5fd06a40','#9ff0a6')}
   // cajones
   M.meds.forEach(m=>{if(!m.on||!seen(m.x,m.y))return;const x=m.x*ts,y=m.y*ts;cx.fillStyle='#0006';cx.fillRect(x-ts*.22+2,y-ts*.18+3,ts*.44,ts*.36);cx.fillStyle='#f0f0ec';cx.fillRect(x-ts*.22,y-ts*.18,ts*.44,ts*.36);cx.fillStyle='#d33';cx.fillRect(x-ts*.04,y-ts*.13,ts*.08,ts*.26);cx.fillRect(x-ts*.13,y-ts*.04,ts*.26,ts*.08)});
   M.barrels.forEach(b=>{if(!seen(b.x,b.y))return;cx.strokeStyle='rgba(255,90,60,'+(.35+.3*Math.sin(M.t*5))+')';cx.lineWidth=2;cx.beginPath();cx.arc(b.x*ts,b.y*ts,ts*.42,0,7);cx.stroke();if(M.focus===b){cx.strokeStyle='#ff4a3a';cx.lineWidth=3;cx.beginPath();cx.arc(b.x*ts,b.y*ts,ts*.5,0,7);cx.stroke()}});
@@ -6040,8 +6051,8 @@ function draw(){
   const gr2=dc.createRadialGradient(2.5*ts,5.5*ts,ts,2.5*ts,5.5*ts,ts*4);gr2.addColorStop(0,'rgba(0,0,0,.8)');gr2.addColorStop(1,'rgba(0,0,0,0)');dc.fillStyle=gr2;dc.beginPath();dc.arc(2.5*ts,5.5*ts,ts*4,0,7);dc.fill();
   cx.drawImage(dark,0,0,ts*COLS,ts*ROWS)}
   cx.restore();try{drawDanger(W,H)}catch(er){}
-  const e=S.exp;if(e){$('qm_t').textContent=e.z.n+' · amenaza '+threatOf(lvlOf(e.z));$('qm_o').textContent=(M.zk>1&&!e.complete)?('Camino de vuelta · zona '+M.zk+'/'+e.zt+' · cruzad hasta la salida'):e.complete?'Objetivo cumplido · vuelve a la salida':(M.mo&&!M.mo.done)?moTxt():'Eventos '+Math.min(e.step,nR(e))+'/'+nR(e)+' · botín '+(Object.keys(e.loot).map(k=>k+' '+Math.round(e.loot[k])).join(', ')||'—');
-    const ex=atExit(),ev=M.evac&&M.evac.on&&!M.evac.done;$('qm_ret').textContent=ev?('Evacuando… '+Math.ceil(M.evac.need-M.evac.t)+' s'):ex?(e.complete?(M.evac&&!M.evac.done&&!M.pv?'📻 Pedir evacuación':'Salir ✓'):'Salir (abandonar)'):'Ir a la salida';$('qm_ret').className=ex&&e.complete?'good':'';
+  const e=S.exp;if(e){$('qm_t').textContent=e.z.n+' · amenaza '+threatOf(lvlOf(e.z));$('qm_o').textContent=(M.zk>1&&!e.complete)?('Zona '+M.zk+'/'+e.zt+' · avanzad hacia la '+(M.zk<e.zt?'siguiente zona':'evacuación')+' (→)'):(M.zk===1&&M.pass&&!e.complete)?'Paso abierto · llevad al equipo a la derecha (→) · ❗ opcionales':e.complete?'Objetivo cumplido · pedid la evacuación en la salida':(M.mo&&!M.mo.done)?moTxt():'Eventos '+Math.min(e.step,nR(e))+'/'+nR(e)+' · botín '+(Object.keys(e.loot).map(k=>k+' '+Math.round(e.loot[k])).join(', ')||'—');
+    const ex=atExit(),ev=M.evac&&M.evac.on&&!M.evac.done;$('qm_ret').textContent=ev?('Evacuando… '+Math.ceil(M.evac.need-M.evac.t)+' s'):(M.zk===1&&M.pass&&!e.complete)?'Ir al paso →':ex?(e.complete?(M.evac&&!M.evac.done&&!M.pv?'📻 Pedir evacuación':'Salir ✓'):'Salir (abandonar)'):(M.exR?'Ir a la salida →':(M.zk===1&&M.pass)?'Ir al paso →':'Ir a la salida');$('qm_ret').className=ex&&e.complete?'good':'';
     $('qm_med').disabled=S.res.meds<2}
 }
 function loop(t){if(!shown||!M)return;const dt=Math.min(.1,(t-lastT)/1000||0);lastT=t;if(!evOpen&&!M.pause){for(let i=0;i<(M.spd||1);i++)step(dt)}else M.fl.forEach(f=>f.l-=dt*.5);if(M&&shown){draw();strip();updIn()}raf=requestAnimationFrame(loop)}
@@ -6054,7 +6065,7 @@ function build(){
   $('qm_pz').onclick=()=>{if(!M)return;M.pause=!M.pause;$('qm_pz').textContent=M.pause?'▶':'II'};
   $('qm_sp').onclick=()=>{if(!M)return;M.spd=M.spd==2?1:2;$('qm_sp').textContent='×'+M.spd};
   $('qm_med').onclick=()=>{const e=S.exp;if(!e||S.res.meds<2)return;S.res.meds-=2;tm(e).forEach(p=>{p.hp=Math.min(mhp(p),Math.max(0,p.hp)+25)});M.units.forEach(u=>{if(!u.dead)addFl(M,u.x,u.y,'+25','#8dbb69')})};
-  $('qm_ret').onclick=()=>{const e=S.exp;if(!e||!M)return;if(atExit()){if(hasDown()){toast('Un compañero ha caído: reanímalo antes de salir.');return}if(!e.complete&&!confirm_ok()){return}if(e.complete&&M.evac&&!M.evac.done&&!M.pv){if(!M.evac.on){M.evac.on=1;toast('📻 Pides la evacuación: aguanta '+M.evac.need+' s en la salida hasta que llegue la ayuda.')}return}leave()}else{M.focus=null;order(2,5)}};
+  $('qm_ret').onclick=()=>{const e=S.exp;if(!e||!M)return;if(M.zk===1&&M.pass&&!e.complete){M.focus=null;order(COLS-3,5);return}if(atExit()){if(hasDown()){toast('Un compañero ha caído: reanímalo antes de salir.');return}if(!e.complete&&!confirm_ok()){return}if(e.complete&&M.evac&&!M.evac.done&&!M.pv){if(!M.evac.on){M.evac.on=1;toast('📻 Pides la evacuación: aguanta '+M.evac.need+' s en la salida hasta que llegue la ayuda.')}return}leave()}else{M.focus=null;order((M.exR||(M.zk===1&&M.pass))?COLS-3:2,5)}};
   $('qm_u').addEventListener('pointerdown',ev=>{const c=ev.target.closest('[data-i]');if(!c||!M)return;ev.stopPropagation();const i=+c.dataset.i;if(i<0)M.sel=null;else{const u=M.units[i];if(!u||u.dead)return;M.sel=(M.sel&&M.sel.size==1&&M.sel.has(u))?null:new Set([u])}});
   cv.addEventListener('pointerdown',ev=>{if(evOpen||!M)return;const r=cv.getBoundingClientRect(),fx=(ev.clientX-r.left-ox)/ts,fy=(ev.clientY-r.top-oy)/ts;tap(fx,fy)})}
 let uSig='';
@@ -11338,7 +11349,7 @@ W('Ejército',h=>h+P('<b>Ronda:</b> fuera de las hordas, los soldados sin puesto
 W('Zombis y defensa',h=>h+P('<b>Muros en grupo:</b> en la ficha de un muro, <b>Tramo recto</b> mejora solo la línea recta hasta una esquina, puerta o hueco, y <b>Mover tramo recto</b> la mueve entera. Con <b>Seleccionar varios</b> arrastra el dedo para marcar una zona o toca muros para añadirlos o quitarlos; abajo puedes mejorarlos, repararlos, moverlos en grupo (verde = cabe) o destruirlos, con el coste total. Con dos dedos sigues moviendo la cámara.')+P('<b>Zombis sueltos:</b> desde el día 3 llegan merodeadores fuera de las hordas, marcados con un triángulo rojo (y una flecha en el borde si están fuera de pantalla). Los soldados van a por ellos cuando entran en la zona del pueblo; quien tiene arma se defiende; los adultos sanos sin arma pelean a puñetazos (entre varios lo tumban) y los niños, embarazadas, mayores de 65 y heridos se apartan.')
  +P('<b>Refugio en las hordas:</b> los civiles sin arma se meten en el ayuntamiento; si un enemigo llega a la puerta, los adultos sanos salen a pelear a puñetazos y vuelven a entrar. Los civiles con arma se quedan fuera, junto al ayuntamiento, y atacan a lo que se acerque.')+P('<b>Rezagados:</b> si al final de una horda quedan muy pocos zombis (3 o menos, o el 10 % de la horda) y durante 20 segundos ninguno se acerca al pueblo, se dispersan y la horda termina con su recompensa normal.')
  +P('Mira el <b>🧟 aviso de horda</b> de la barra superior para saber si tu defensa basta antes de que lleguen.'));
-W('Clima y expediciones',h=>h+P('<b>Misiones con peligro:</b> la barra <b>☣ Peligro</b> sube con el tiempo y con cada disparo; al pasar cada tercio llega una oleada desde los bordes, y al llenarse siguen llegando. Algunos zombis <b>patrullan</b>. Al explorar verás <b>trampas</b> (alambre, ácido, minas, suelo que cede) marcadas en rojo. Algunas cajas esconden una <b>emboscada</b>: avisan antes («Se oye algo dentro…»).')+P('<b>Camino de vuelta:</b> al cumplir el objetivo hay que cruzar 1 zona más (2 en misiones difíciles o de jefe) hasta el punto de evacuación. Allí pulsa <b>Pedir evacuación</b> y aguantad en la salida hasta que llegue la ayuda (el contador se para si hay caídos o alguien sale de la zona).')+P('<b>Explorador solitario:</b> es gratis. Su fuerza (arma, nivel, tipo de soldado) decide si gana los combates del camino, y su protección (atuendo y prendas) reduce las heridas. Al elegir, cada tarjeta dice si es <b>Fuerte</b>, <b>Normal</b> o <b>Débil</b>, y los más recomendados salen primero; durante la expedición ves cómo le irán los combates en el próximo tramo. Cuanto más lejos llega, más arriesgada es la vuelta (🏠); si es fuerte para ese tramo, el riesgo de no volver baja mucho. El rol <b>Explorador</b> encuentra más botín.')
+W('Clima y expediciones',h=>h+P('<b>Misiones con peligro:</b> la barra <b>☣ Peligro</b> sube con el tiempo y con cada disparo; al pasar cada tercio llega una oleada desde los bordes, y al llenarse siguen llegando. Algunos zombis <b>patrullan</b>. Al explorar verás <b>trampas</b> (alambre, ácido, minas, suelo que cede) marcadas en rojo. Algunas cajas esconden una <b>emboscada</b>: avisan antes («Se oye algo dentro…»).')+P('<b>Avanzar hasta la evacuación:</b> al cumplir el objetivo se abre el <b>paso</b> a la derecha (las ❗ que queden son opcionales y dan botín); por él se entra en otra zona, y hay que cruzar 1 zona más (2 en misiones difíciles o de jefe), siempre hacia la derecha, hasta el punto de evacuación. Allí pulsa <b>Pedir evacuación</b> y aguantad en la salida hasta que llegue la ayuda (el contador se para si hay caídos o alguien sale de la zona).')+P('<b>Explorador solitario:</b> es gratis. Su fuerza (arma, nivel, tipo de soldado) decide si gana los combates del camino, y su protección (atuendo y prendas) reduce las heridas. Al elegir, cada tarjeta dice si es <b>Fuerte</b>, <b>Normal</b> o <b>Débil</b>, y los más recomendados salen primero; durante la expedición ves cómo le irán los combates en el próximo tramo. Cuanto más lejos llega, más arriesgada es la vuelta (🏠); si es fuerte para ese tramo, el riesgo de no volver baja mucho. El rol <b>Explorador</b> encuentra más botín.')
  +P('Al elegir el <b>equipo</b> de una expedición o misión, los más recomendados (fuerza, vida y protección) salen primero.')+P('Además, en la <b>tormenta</b> los zombis de las hordas van un <b>12 % más rápido</b>, y en la <b>niebla</b> los zombis errantes van un 10 % más lentos. En <b>Operaciones</b> ves el clima actual en movimiento, cuánto falta para que cambie y todos sus efectos en tu pueblo.'));
 W('Construir',h=>h+P('<b>Edificios únicos:</b> algunos edificios solo se pueden construir una vez porque su efecto no se suma al repetirlos (Hospital de campaña, Garaje, Escuela militar, Antena, Taller de fortificación, Laboratorio de la cura, Monumento, Plaza mayor, Perrera, Taller de drones y Central nuclear); el Puesto avanzado y el Polvorín, como mucho dos. En el menú salen en gris con «Único · ya construido».'));
 W('Ejército',h=>h+P('<b>Fin de juego:</b> al completar el capítulo 27 se abre <b>Opciones → 🏆 Retos</b>: tres retos semanales con recompensa, récord de hordas y racha sin perder edificios, colección de planos y armas, territorio recuperado y un <b>jefe</b> que acompaña a la horda cada 5 hordas (botín especial al vencerla).'));
@@ -11642,7 +11653,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'280';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'285';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
