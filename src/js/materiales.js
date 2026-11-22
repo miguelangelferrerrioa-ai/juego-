@@ -32,17 +32,17 @@ try{ZN.forEach((z,i)=>{z.l=z.l||{};if(i%2==0&&!z.l.tarp)z.l.tarp=[6,18];if(i%3==
 const STG=new Set(['house','hosp','barr','farm','store','work','expo','fact','gen','lab','saw','kitchen','smithy','pharm','chem','ammof','elab','radio','market','refin']);
 const ALL=b=>!['wall','gate','trap','road','bridge','turret','hall'].includes(b.type);
 window.ucost=b=>{const d=BT[b.type],t=b.lvl+1,base=costOf(d.cost,t),a=Math.max(2,Math.ceil(b.w*b.h/2));let m={};
- if(b.type=='wall')m=({2:{plank:2},3:{stone:3},4:{brick:3},5:{sheet:4}})[t]||{};
- else if(b.type=='gate')m=({2:{plank:4},3:{stone:6},4:{brick:6},5:{sheet:8}})[t]||{};
+ if(b.type=='wall')m=({2:{plank:2},3:{stone:3},4:{brick:3},5:{sheet:4},6:{concrete:3},7:{concrete:4,steel:2},8:{steel:5,concrete:2},9:{concrete:6,steel:4,glass:2},10:{comp:2,steel:6,concrete:6}})[t]||{};
+ else if(b.type=='gate')m=({2:{plank:4},3:{stone:6},4:{brick:6},5:{sheet:8},6:{concrete:6},7:{concrete:8,steel:4},8:{steel:10,concrete:4},9:{concrete:12,steel:8,glass:4},10:{comp:4,steel:12,concrete:12}})[t]||{};
  else if(STG.has(b.type))m=({2:{tarp:2*a},3:{sheet:2*a,plank:2*a},4:{sheet:3*a,plank:2*a},5:{stone:3*a,brick:2*a},6:{stone:4*a,brick:3*a}})[t]||{};
  if(ALL(b)&&t>=7)m=({7:{glass:2*a,steel:2*a},8:{glass:3*a,steel:3*a},9:{concrete:3*a,glass:2*a},10:{concrete:5*a,steel:3*a},11:{concrete:6*a,steel:4*a,glass:3*a},12:{concrete:7*a,steel:5*a,glass:4*a},13:{concrete:8*a,steel:6*a,glass:5*a},14:{concrete:10*a,steel:8*a,glass:6*a},15:{concrete:12*a,steel:10*a,glass:8*a}})[t]||{};
  return Object.assign(base,costOf(m,1))};
 window.ugate=b=>{const t=b.lvl+1,y=b.type;let n=null;
- if(y=='wall'||y=='gate'){if(t==4)n='mat3';if(t==5)n='mat2'}
+ if(y=='wall'||y=='gate'){if(t==4)n='mat3';if(t==5)n='mat2';if(t==6||t==7)n='mat5';if(t==8||t==9)n='mat6';if(t==10)n='mat7'}
  else{if(STG.has(y)){if(t==3||t==4)n='mat2';if(t>=5&&t<=6)n='mat3'}if(ALL(b)){if(t==7||t==8)n='mat4';if(t==9||t==10)n='mat5';if(t==11||t==12)n='mat6';if(t>=13)n='mat7'}}
  if(n&&!th(n))return 'Requiere el estudio «'+TECH.find(q=>q[0]==n)[2]+'».';return ''};
 /* ---- panel de materiales ---- */
-window.matHtml=function(){const d=rate(),how={tarp:'Ayuntamiento (recolectores), ruinas y expediciones.',stone:'Ayuntamiento (recolectores), Cantera y expediciones.',plank:'Aserradero y expediciones.',sheet:'Taller de chapa.',brick:'Horno de ladrillos.',glass:'Horno de cristal y expediciones.',steel:'Acería y expediciones.',concrete:'Planta de hormigón y expediciones raras.'},use={tarp:'Casas, hospital y barracones en nv 1-2.',stone:'Muros de piedra y mejoras nv 5-6.',plank:'Vallas de madera y mejoras nv 3-4.',sheet:'Chabolas (nv 3-4) y muro de acero.',brick:'Muros de ladrillo y mejoras nv 5-6.',glass:'Mejoras a nivel 7-8 y 9.',steel:'Mejoras a nivel 7-8 y 10.',concrete:'Mejoras a nivel 9-10.'};
+window.matHtml=function(){const d=rate(),how={tarp:'Ayuntamiento (recolectores), ruinas y expediciones.',stone:'Ayuntamiento (recolectores), Cantera y expediciones.',plank:'Aserradero y expediciones.',sheet:'Taller de chapa.',brick:'Horno de ladrillos.',glass:'Horno de cristal y expediciones.',steel:'Acería y expediciones.',concrete:'Planta de hormigón y expediciones raras.'},use={tarp:'Casas, hospital y barracones en nv 1-2.',stone:'Muros de piedra y mejoras nv 5-6.',plank:'Vallas de madera y mejoras nv 3-4.',sheet:'Chabolas (nv 3-4) y muro de acero.',brick:'Muros de ladrillo y mejoras nv 5-6.',glass:'Mejoras a nivel 7-8 y 9.',steel:'Mejoras a nivel 7-8 y 10.',concrete:'Mejoras a nivel 9-10 y muros de hormigón (nv 6-10).'};
  return (MD.map(([k,n])=>`<div style="margin:8px 0;padding-bottom:6px;border-bottom:1px solid #2a3a2a"><b><img src="${ICO[k]}" width=16> ${n}: ${Math.floor(S.res[k]||0)}</b> <small>(${d[k]>=0?'+':''}${(d[k]/10).toFixed(1)}/min)</small><br><small>Se consigue: ${how[k]}<br>Se usa: ${use[k]}</small></div>`).join('')+'<p><small>Tramo 1: lona y piedra. Tramo 2: chapa y tablones (estudio Metalistería). Tramo 3: ladrillo y piedra de cantera (estudio Albañilería). Tramo 4: cristal y acero (estudio Vidrio y acero). Tramo 5: hormigón (estudio Hormigón armado).</small></p>')};
 window.matMenu=function(){show('Materiales',matHtml())};
 /* ---- pintar los edificios nuevos ---- */

@@ -81,7 +81,7 @@ window.upgMenu=function(){
   const sec=(t,a)=>a.length?`<div class="mu-h">${t} <small>${a.length}</small></div><div class="mu-grid2">${a.map(card).join('')}</div>`:'';
   show('Mejoras',`<div class="mu-sts">${stat('✅',ok.length,'Listas')}${stat('⏳',pend.length,'Faltan recursos')}${stat('🔒',lock.length,'Esperan al ayuntamiento')}</div>`+
    (rows.length?sec('Listas para mejorar',ok)+sec('Faltan recursos o estudios',pend)+(lock.length?`<div class="mu-h">Bloqueadas por el ayuntamiento <small>${lock.length}</small></div><small class="mu-mut">Sube el ayuntamiento al nivel ${hl+1} para mejorarlas: ${[...new Set(lock.map(r=>r.n))].join(', ')}.</small>`:''):'<div class="mu-empty"><span>🏆</span><b>Todo al máximo</b></div>')+
-   (S.bld.some(b=>b.type==='wall'&&b.lvl<5)?`<div class="mu-h">Muros</div><small class="mu-mut">Toca un muro en el mapa para mejorarlo por tramos o todos a la vez.</small>`:''))};
+   (S.bld.some(b=>b.type==='wall'&&b.lvl<10)?`<div class="mu-h">Muros</div><small class="mu-mut">Toca un muro en el mapa para mejorarlo por tramos o todos a la vez.</small>`:''))};
 
 /* ---------- ESTILOS ---------- */
 const st=document.createElement('style');st.textContent=`

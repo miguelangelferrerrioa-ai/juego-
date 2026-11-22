@@ -26,9 +26,9 @@ window.bPanel=function(id){const b=bm[id];if(!b)return;
    if(isHall)h=strip(h,/<button[^>]*onclick="upg\(\d+\)"[^>]*>[\s\S]*?<\/button>/g);
    if(!isHall)h=strip(h,/<button[^>]*onclick="(upg|moveB|destroy|repair)\(\d+\)"[^>]*>[\s\S]*?<\/button>/g);
    h=h.replace(/Entrenar al ejército \([^)]*\)/,'Entrenar al ejército');
-   const hpP=b.hp/mxhp(b)*100,isWall=b.type==='wall'||b.type==='gate',MXL=isWall?5:15,f1=n=>(Math.round(n*10)/10).toString().replace('.',',');
+   const hpP=b.hp/mxhp(b)*100,isWall=b.type==='wall'||b.type==='gate',MXL=isWall?10:15,f1=n=>(Math.round(n*10)/10).toString().replace('.',',');
    const stageOf=l=>isWall||isHall?'':(l<=2?'Campamento':l<=4?'Chabola':'Diseño completo');
-   const wn=isWall?(b.type==='wall'?(window.WALLN||[])[Math.min(4,b.lvl-1)]:['Puerta de malla','Puerta de madera','Puerta de acero y piedra','Puerta de acero y ladrillo','Puerta blindada'][Math.min(4,b.lvl-1)]):'';
+   const wn=isWall?(b.type==='wall'?(window.WALLN||[])[Math.min(9,b.lvl-1)]:(window.GATEN||[])[Math.min(9,b.lvl-1)]):'';
    const pips=Array.from({length:MXL},(_,i)=>`<i class="${i<b.lvl?'on':i===b.lvl?'nx':''}"></i>`).join('');
    let head=`<div class="bp2h"><canvas class="bp2s" id="bp2s" width="150" height="130"></canvas><div class="bp2i"><div class="bp2n">${wn||d.n}</div><div class="bp2l">Nivel ${b.lvl}<small> / ${isHall?25:MXL}</small>${stageOf(b.lvl)?'<span class="bp2st">'+stageOf(b.lvl)+'</span>':''}</div><div class="bp2p">${isHall?'':pips}</div><div class="bp2hp"><span>♥ ${Math.ceil(b.hp)}/${mxhp(b)}</span>${bar(hpP,hpP>60?'#5c5':hpP>30?'#dc4':'#d44')}${b.hp<mxhp(b)?`<button class="bp2r" onclick="repair(${id})">🔧 Reparar: ${window.repairCost?cs(repairCost(b)):'5 madera'}</button>`:''}</div></div></div>`;
    /* chips de estado */
@@ -58,7 +58,7 @@ window.bPanel=function(id){const b=bm[id];if(!b)return;
    }
    if(b.type==='wall'){
      h=strip(h,/<button[^>]*onclick="upgWalls\(\d+\)"[^>]*>[\s\S]*?<\/button>/g);
-     if(b.lvl>=5)upc=`<div class="bp2u max">★ Nivel máximo alcanzado</div>`;
+     if(b.lvl>=10)upc=`<div class="bp2u max">★ Nivel máximo alcanzado</div>`;
      else{const sc=window.wScope||'one',I=wInfo(b,sc),sel=k=>sc===k?' on':'';
        const all=wInfo(b,'all'),seg=wInfo(b,'seg'),lin=wInfo(b,'line');
        const chipsC=Object.keys(I.cost).filter(k=>I.cost[k]).map(k=>{const ok=(S.res[k]||0)>=I.cost[k];return `<span class="bp2k ${ok?'':'no'}"><img src="${ICO[k]||''}" width=13>${I.cost[k]}<small>${Math.floor(S.res[k]||0)}</small></span>`}).join('');

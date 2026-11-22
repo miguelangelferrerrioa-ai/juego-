@@ -141,7 +141,7 @@ NB.expo={up:100,paint(c,b){const lv=b.lvl,cl=b.cl||0,wall=palc('expo',b);
 live(c,b,H){const p=H.L(1.5,1.5,40),a=T;c.save();c.translate(p[0],p[1]);c.rotate(Math.sin(a)*.7);c.fillStyle='#d8dde0';c.beginPath();c.ellipse(0,-4,13,5,0,0,7);c.fill();c.strokeStyle=OLC;c.lineWidth=1.6;c.stroke();c.fillStyle='#8a9296';c.fillRect(-1,-4,2,6);c.restore()}};
 
 /* ---------------- MURALLA / PUERTA / BARRICADA / TRAMPA / ARMA ---------------- */
-NB.wall={up:40,paint(c,b){const l=Math.min(5,b.lvl||1),dm=b.hp<(BT.wall.hp||160)*l*.5;
+NB.wall={up:40,paint(c,b){const l=Math.min(10,b.lvl||1),dm=b.hp<(BT.wall.hp||160)*l*.5;
  const crack=(c,len,H)=>{if(dm){c.strokeStyle='#2a1a11';c.lineWidth=1.2;c.beginPath();c.moveTo(10,-H);c.lineTo(14,-H*.6);c.lineTo(11,-H*.25);c.stroke()}};
  if(l==1){ /* valla de malla metálica sobre zócalo de hormigón */
   vol(c,{x:-.02,y:-.02,w:1.04,h:1.04,z:5,col:'#9c9a90',mat:'block',seed:3});
