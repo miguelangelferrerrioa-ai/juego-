@@ -114,7 +114,7 @@ function heal(x,y){AS.U.forEach(u=>{if(u.hp>0&&Math.hypot(u.x-x,u.y-y)<3.6)u.hp=
 /* ---------- simulación ---------- */
 function loop(now){if(!AS)return;AS.raf=requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;fit();
  if(AS.intro){intro(dt)}else if(!AS.over){for(let i=0;i<AS.sp;i++)step(dt);if(AS.t-AS.t0>2&&AS.t-AS.t0<16&&Math.floor(AS.t-AS.t0)%5===0&&AS._cry!==Math.floor(AS.t-AS.t0)){AS._cry=Math.floor(AS.t-AS.t0);say(pk(['Soldado','Soldada','Guardia del Alba']),pk(['«¡Mantened la formación!»','«¡Escudos arriba, avanzad!»','«¡Por los que perdimos!»','«¡Hacia la puerta!»']))}}
- const cam=AS.cam;let ox=0,oy=0;if(AS.shake>0){AS.shake-=dt;const m=AS.shake*14/cam.z;ox=(Math.random()-.5)*m;oy=(Math.random()-.5)*m;cam.x+=ox;cam.y+=oy}
+ const cam=AS.cam;let ox=0,oy=0;if(AS.shake>0){AS.shake-=dt;const m=AS.shake*14/cam.z*(window.SHK_STR??1);ox=(Math.random()-.5)*m;oy=(Math.random()-.5)*m;cam.x+=ox;cam.y+=oy}
  draw();if(ox||oy){cam.x-=ox;cam.y-=oy}hud()}
 /* ---------- cinemática de entrada ---------- */
 function introEl(){let e=document.getElementById('asIntro');if(!e&&ov){e=document.createElement('div');e.id='asIntro';e.innerHTML='<div class="lb t"></div><div class="lb b"></div><div class="ttl"></div><div class="sub"></div><div class="line"></div><div class="cry"></div><button onclick="asaltoIsoSkip()">Saltar ▶</button>';ov.appendChild(e);

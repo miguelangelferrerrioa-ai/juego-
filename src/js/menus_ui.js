@@ -42,6 +42,7 @@ window.settingsMenu=function(){window._menuPause=true;
    tile(MUSIC?'🎵':'🔕','Música de fondo',MUSIC?'Activada':'Desactivada','setMusic(!MUSIC);settingsMenu()')+`</div>
    <div class="mu-sl"><span>🎵 Volumen de música</span><input type="range" min="0" max="1" step=".05" value="${Math.sqrt(musicVol)}" oninput="setMusicVol(this.value*this.value)"></div>
    <div class="mu-sl"><span>🔊 Volumen de efectos</span><input type="range" min="0" max="1" step=".05" value="${Math.sqrt(sfxVol)}" oninput="setSfxVol(this.value*this.value)"></div>
+   <div class="mu-sl"><span>📳 Temblor de pantalla</span>${chipSel('shkS',String(SHK_STR),[['1','Normal'],['0.5','Suave'],['0','No']],'setShake($V)','settingsMenu()')}</div>
    <div class="mu-tiles">`+tile('⛶','Pantalla completa','Ocupa toda la pantalla',"if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{})")+tile('↩','Volver','Menú de partida','menu()')+`</div>`)};
 
 /* ---------- OPERACIONES+ ---------- */
