@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v332</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v335</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -1296,9 +1296,9 @@ if(!t){/* sin enemigos cerca: vuelve a su puesto */if(Math.hypot(u.hx-u.x,u.hy-u
 if(td<=1.4){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.7;sfxAt('punch',u.x,u.y);t.hp-=(c.dmg*.8+(u.p.wp?u.p.wp.v*.5:0)+u.p.lvl)*(.9+Math.random()*.2);burst(t.x,t.y,2,'#b22',1,6)}}else if(td<=c.rng){u.dx=t.x-u.x;if(u.cd<=0){u.cd=.8;const m=true;{const k=({franco:'sniper',pesado:'rifle',esp:'blaster',expl:'pistol',medico:'pistol',ing:'pistol'})[u.p.arm]||'rifle';sfxAt(k,u.x,u.y);if(Math.random()<.3)setTimeout(()=>sfxAt('casing',u.x,u.y),330)}const wd=100;t.hp-=(c.dmg+(u.p.wp?u.p.wp.v:0)+u.p.lvl)*(th('arms1')?1.2:1)*(th('arms3')?1.2:1)*(th('arms4')?1.2:1)*(m?1:.6)*(.55+.45*wd/100);FX.push({a:[u.x,u.y],b:[t.x,t.y],t:.1,col:'#fff'});burst(t.x,t.y,2,'#ffd24a',1,8)}}else{u.mv=1;if(!(window.pstep&&pstep(u,t.x,t.y,2.2*dt)))step(u,t.x,t.y,2.2*dt)}}
 function combat(dt){if(horde){horde.t+=dt;if(!horde.rescueChecked&&horde.t>24){horde.rescueChecked=1;if(S.ppl.length<pcap()&&Math.random()<.38){const p=mkP();p.hp=65;p.mor=72;p.injury=12;p.x=cl((S.bld.find(b=>b.type==='hall')||{x:28}).x+rn(-3,4),OB().x0,OB().x1-1);p.y=cl((S.bld.find(b=>b.type==='hall')||{y:28}).y+rn(-3,4),OB().y0,OB().y1-1);p.tx=p.x;p.ty=p.y;p.job=0;S.ppl.push(p);S.stat.rescued++;horde.rescued++;toast('¡Rescate durante el ataque! '+p.n+' ha conseguido llegar al asentamiento.');}}}Z.forEach(z=>zUpd(z,dt));U.forEach(u=>uUpd(u,dt));
 S.bld.forEach(b=>{const f=BT[b.type].fire;if(b.type=='trap'){Z.forEach(z=>{if(Math.hypot(b.x+.5-z.x,b.y+.5-z.y)<.8){z.hp-=25*dt;b.hp-=4*dt}});if(b.hp<=0)killB(b);return}
-if(!f)return;if(BT[b.type].gun){b.cds=b.cds||{};gunners(b).forEach(g=>{const w=wpStat(g,f);b.cds[g.id]=(b.cds[g.id]||0)-dt;if(b.cds[g.id]>0)return;let t=null,td=w.r*(S.adv&&S.adv.weather===2?.8:1)*(1+(b.lvl-1)*.1)*(horde&&horde.night?.6:1);Z.forEach(z=>{const dd=Math.hypot(b.x+b.w/2-z.x,b.y+b.h/2-z.y);if(dd<td){td=dd;t=z}});
+if(!f)return;if(BT[b.type].gun){b.cds=b.cds||{};gunners(b).forEach(g=>{const w=wpStat(g,f);b.cds[g.id]=(b.cds[g.id]||0)-dt;if(b.cds[g.id]>0)return;let t=null,td=w.r*(S.adv&&S.adv.weather===2?.8:1)*(1+(b.lvl-1)*.1)*(horde&&horde.night?(window.REFL&&REFL(b)?1:.6):1);Z.forEach(z=>{const dd=Math.hypot(b.x+b.w/2-z.x,b.y+b.h/2-z.y);if(dd<td){td=dd;t=z}});
 if(t){b.cds[g.id]=w.rt;const m=true;/* disparar no gasta munición */sfxAt(w.rt<.5?'blaster':'rifle',b.x+b.w/2,b.y+b.h/2);t.hp-=w.d*(1+(b.lvl-1)*.2)*(th('arms1')?1.2:1)*(th('arms3')?1.2:1)*(th('arms4')?1.2:1)*(m?1:.5);g.xp+=.02;b.ang=Math.atan2(t.y-b.y,t.x-b.x);FX.push({a:[b.x+b.w/2,b.y+b.h/2],b:[t.x,t.y],t:.1,col:'#ffe066'});burst(t.x,t.y,2,'#ffd24a',1,8)}});return}
-b.cd=(b.cd||0)-dt;if(b.cd>0)return;let t=null,td=f.r*(1+(b.lvl-1)*.1)*(horde&&horde.night?.6:1);Z.forEach(z=>{const dd=Math.hypot(b.x+b.w/2-z.x,b.y+b.h/2-z.y);if(dd<td){td=dd;t=z}});
+b.cd=(b.cd||0)-dt;if(b.cd>0)return;let t=null,td=f.r*(1+(b.lvl-1)*.1)*(horde&&horde.night?(window.REFL&&REFL(b)?1:.6):1);Z.forEach(z=>{const dd=Math.hypot(b.x+b.w/2-z.x,b.y+b.h/2-z.y);if(dd<td){td=dd;t=z}});
 if(t){b.cd=f.rt;const m=true;/* disparar no gasta munición */sfxAt(f.rt<.5?'blaster':'rifle',b.x+b.w/2,b.y+b.h/2);t.hp-=f.d*b.lvl*(th('arms1')?1.2:1)*(th('arms3')?1.2:1)*(th('arms4')?1.2:1)*(m?1:.6);b.ang=Math.atan2(t.y-b.y,t.x-b.x);FX.push({a:[b.x+b.w/2,b.y+b.h/2],b:[t.x,t.y],t:.1,col:'#ffe066'});burst(t.x,t.y,2,'#ffd24a',1,8)}});
 Z=Z.filter(z=>{if(z.hp>0)return true;if(z.act){S.stat.kills++;if(horde)horde.kills++;if(Math.random()<.4)sfxAt((z.t==='b'||z.t==='k'||z.t==='p')?'bdie':'zdie',z.x,z.y,{v:.8,floor:.1});if(window.onBanditDeath&&(z.t==='b'||z.t==='k'||z.t==='p'))onBanditDeath(z);if(z.t!=='b'&&z.t!=='k'&&z.t!=='p'){DEAD.push({x:z.x,y:z.y,t:0,zom:1,col:ZT.z.c,skin:'#9bb27a',s:1,dx:z.dx,id:0,zv:z.t==='f'?3:z.t==='s'?4:z.t==='r'?7:0});burst(z.x,z.y,8,'#6f8f35',1.8,10);if(z.t==='z')dropZombieWear(z)}U.forEach(u=>{if(Math.hypot(u.x-z.x,u.y-z.y)<9)u.p.xp+=3})}return false});
 U=U.filter(u=>{if(u.hp>0)return true;if(u.p.ally){burst(u.x,u.y,6,'#b22',1.6,8);return false}DEAD.push({x:u.x,y:u.y,t:0,col:'#4a7a3a',skin:'#e8b88a',s:1,dx:u.dx,role:u.p.arm,id:u.p.id});burst(u.x,u.y,8,'#b22',1.8,10);if(horde)horde.lostU++;if(Math.random()<.5){u.p.nd=1;die(u.p,'en combate')}else{u.p.hp=4;toast(u.p.n+' queda gravemente herido.')}return false});
@@ -12139,7 +12139,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'332';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'335';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
@@ -13088,6 +13088,68 @@ const oB=window.bPanel;window.bPanel=function(id){const r=oB.apply(this,argument
   else{const pc=Math.floor(b.sp*100),dias=n?((1-b.sp)*1800/n/600):0;h+=`<p style="margin:4px 0"><b>${ST[b.st]}</b> · ${pc} %</p><div class="bbar"><i style="width:${pc}%;background:#d9a441"></i></div><p style="margin:4px 0">${n?'Con '+n+' trabajador'+(n>1?'es':'')+': falta'+(dias>1.05?'n unos '+dias.toFixed(1).replace('.',',')+' días':' menos de un día')+'.':'⚠ Asigna trabajadores para que avance (con 3, un día por etapa).'}</p>`}
   if(b.st<3)h+=`<p style="margin:4px 0;opacity:.85"><small>Al terminar: ${d.fx}</small></p>`;
   h+='</div>';const hd=pan.querySelector('.bp2h');const dv=document.createElement('div');dv.innerHTML=h;if(hd&&hd.parentNode)hd.parentNode.insertBefore(dv.firstElementChild,hd.nextSibling);else pan.insertAdjacentHTML('afterbegin',h)}catch(e){}return r};
+})();
+</script>
+<script>/* ===== Defensa activa: alambrada electrificada y reflectores (estudios de Defensa) =====
+   Alambrada electrificada (elec1, ayuntamiento 13): los muros y puertas de nivel 5 o más dan descargas a los zombis
+   que los tocan (18 de daño por segundo, +3 por cada nivel por encima del 5). Gasta 0,15 de energía por tramo.
+   Reflectores (refl1, ayuntamiento 12): de noche, torres, armas automáticas y puestos de tirador no pierden alcance
+   (sin ellos, de noche ven un 40 % menos). Gastan 0,3 de energía por cada uno. Si falta energía, se apagan
+   (primero la alambrada) sin apagar otros edificios. Estado: S.pw.refl / S.pw.elec (encendidos o no). */
+(function(){
+'use strict';
+if(typeof TECH==='undefined')return;
+[['refl1','Defensa','Reflectores',12,{},'De noche, torres y tiradores no pierden alcance. Gasta 0,3 de energía por torre'],
+ ['elec1','Defensa','Alambrada electrificada',13,{},'Muros y puertas de nivel 5+ dan descargas a los zombis. Gasta 0,15 de energía por tramo']].forEach(t=>{if(!TECH.some(q=>q[0]===t[0]))TECH.push(t)});
+if(window.TECH_PRE)Object.assign(TECH_PRE,{refl1:['def2'],elec1:['def3']});
+if(window.rpFix)rpFix();
+const has=id=>{try{return !!(S.tech&&S.tech[id])}catch(e){return false}};
+const isW=b=>b&&(b.type==='wall'||b.type==='gate');
+const isG=b=>{const d=b&&BT[b.type];return !!(d&&(d.gun||d.fire))&&b.type!=='trap'};
+const segs=()=>S.bld.filter(b=>isW(b)&&b.lvl>=5&&!b.pause);
+const guns=()=>S.bld.filter(b=>isG(b)&&!b.pause);
+/* ---- energía ---- */
+const oPC=window.powCalc;if(typeof oPC==='function'){window.powCalc=function(){const P=oPC.apply(this,arguments);try{
+  let av=Math.max(0,P.sup-P.used);P.refl=0;P.elec=0;P.xd=0;
+  if(has('refl1')){const d=Math.round(guns().length*.3*10)/10;P.dem+=d;P.xd+=d;if(av>=d){av-=d;P.used+=d;P.refl=1}}
+  if(has('elec1')){const d=Math.round(segs().length*.15*10)/10;P.dem+=d;P.xd+=d;if(av>=d){av-=d;P.used+=d;P.elec=1}}}catch(e){}return P};try{powCalc=window.powCalc}catch(e){}}
+const pw=()=>{try{return S.pw||{}}catch(e){return{}}};
+window.REFL=()=>has('refl1')&&!!pw().refl;
+const ELEC=()=>has('elec1')&&!!pw().elec;window.ELEC=ELEC;
+/* ---- descargas ---- */
+let acc=0;const ZAP=[];
+const near=(z)=>{const ix=Math.floor(z.x),iy=Math.floor(z.y);let best=null,bd=.95;for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++){const x=ix+i,y=iy+j;if(x<0||y<0||x>=N||y>=N)continue;const b=bm[occ[y*N+x]];if(!isW(b)||b.lvl<5||b.pause)continue;
+  const dx=Math.max(b.x-z.x,0,z.x-(b.x+b.w)),dy=Math.max(b.y-z.y,0,z.y-(b.y+b.h)),d=Math.hypot(dx,dy);if(d<bd){bd=d;best=b}}return best};
+const oU=window.upd;window.upd=function(dt){const r=oU.apply(this,arguments);try{acc+=dt;if(acc<.25)return r;const k=Math.min(acc,.5);acc=0;
+  for(let i=ZAP.length-1;i>=0;i--){ZAP[i].t-=k;if(ZAP[i].t<=0)ZAP.splice(i,1)}
+  if(!S||!Z.length||!ELEC())return r;
+  Z.forEach(z=>{if(!z.act||z.hp<=0||z.bur)return;const b=near(z);if(!b)return;z.hp-=(18+3*(b.lvl-5))*k;z.shk=T;
+   if(ZAP.length<40)ZAP.push({x:z.x,y:z.y,bx:Math.max(b.x,Math.min(b.x+b.w,z.x)),by:Math.max(b.y,Math.min(b.y+b.h,z.y)),t:.3,s:Math.random()*99})})}catch(e){}return r};
+try{upd=window.upd}catch(e){}
+window.__zap=ZAP;
+/* ---- dibujo: chispazos y haces de luz ---- */
+const night=()=>{try{const t=S.dayT/600;return t>=.78||t<.04||(window.horde&&horde.night)}catch(e){return false}};
+const oR=window.render;if(typeof oR==='function'){window.render=function(){const r=oR.apply(this,arguments);try{if(!S||!S.bld||!S.bld.length)return r;
+  const rf=window.REFL()&&night(),zp=ZAP.length;if(!rf&&!zp)return r;
+  const cv=document.getElementById('c'),c=cv.getContext('2d');c.save();c.setTransform(cam.z*dpr,0,0,cam.z*dpr,-cam.x*cam.z*dpr,-cam.y*cam.z*dpr);c.globalCompositeOperation='lighter';
+  if(rf){const G=guns().slice(0,40),vx0=cam.x-200,vx1=cam.x+innerWidth/cam.z+200,vy0=cam.y-200,vy1=cam.y+innerHeight/cam.z+260;
+   G.forEach(b=>{const cx=b.x+b.w/2,cy=b.y+b.h/2,o=P(cx,cy);if(o[0]<vx0||o[0]>vx1||o[1]<vy0||o[1]>vy1)return;const zt=Math.min(60,(BT[b.type].z||30)+6);
+    let a=T*.45+b.id*1.7,L=4.6;const tz=Z.length?Z.reduce((m,z)=>{if(!z.act||z.hp<=0)return m;const d=Math.hypot(z.x-cx,z.y-cy);return d<7&&(!m||d<m.d)?{z,d}:m},null):null;
+    if(tz){a=Math.atan2(tz.z.y-cy,tz.z.x-cx);L=Math.max(1.5,tz.d)}
+    const ex=cx+Math.cos(a)*L,ey=cy+Math.sin(a)*L,e=P(ex,ey),pe=[-(e[1]-o[1]),e[0]-o[0]],pl=Math.hypot(pe[0],pe[1])||1,w=22+L*6,s=[o[0],o[1]-zt];
+    const g=c.createLinearGradient(s[0],s[1],e[0],e[1]);g.addColorStop(0,'rgba(255,250,215,.32)');g.addColorStop(1,'rgba(255,250,215,.04)');c.fillStyle=g;
+    c.beginPath();c.moveTo(s[0],s[1]);c.lineTo(e[0]+pe[0]/pl*w,e[1]+pe[1]/pl*w*.5);c.lineTo(e[0]-pe[0]/pl*w,e[1]-pe[1]/pl*w*.5);c.closePath();c.fill();
+    const sg=c.createRadialGradient(e[0],e[1],0,e[0],e[1],w*1.1);sg.addColorStop(0,'rgba(255,250,215,.28)');sg.addColorStop(1,'rgba(255,250,215,0)');c.fillStyle=sg;c.beginPath();c.ellipse(e[0],e[1],w*1.1,w*.55,0,0,7);c.fill();
+    c.fillStyle='rgba(255,250,220,.9)';c.beginPath();c.arc(s[0],s[1],2.6,0,7);c.fill()})}
+  ZAP.forEach(q=>{const a=P(q.bx,q.by),b2=P(q.x,q.y),A=[a[0],a[1]-18],B=[b2[0],b2[1]-14],al=Math.min(1,q.t/.3);
+   c.strokeStyle='rgba(140,200,255,'+(.9*al)+')';c.lineWidth=3.2;c.beginPath();c.moveTo(A[0],A[1]);for(let i=1;i<6;i++){const t=i/6,j=(Math.sin(q.s+i*7.3+T*40)*7);c.lineTo(A[0]+(B[0]-A[0])*t+j,A[1]+(B[1]-A[1])*t+j*.5)}c.lineTo(B[0],B[1]);c.stroke();
+   c.strokeStyle='rgba(240,250,255,'+al+')';c.lineWidth=1.3;c.stroke();
+   const gl=c.createRadialGradient(B[0],B[1],0,B[0],B[1],26);gl.addColorStop(0,'rgba(150,210,255,'+(.6*al)+')');gl.addColorStop(1,'rgba(150,210,255,0)');c.fillStyle=gl;c.beginPath();c.arc(B[0],B[1],26,0,7);c.fill()});
+  c.restore()}catch(e){}return r};try{render=window.render}catch(e){}}
+/* ---- guía ---- */
+try{const i=GD.findIndex(g=>g[0]==='Zombis y defensa');if(i>=0){const o=GD[i][1];GD[i][1]=()=>{let h='';try{h=o()}catch(e){}try{const a=has('refl1'),b=has('elec1');
+  h+='<p>'+(a?'<b>🔦 Reflectores</b> (estudio de Defensa): de noche, torres, armas automáticas y tiradores no pierden alcance (sin ellos ven un 40 % menos). Gastan 0,3 de energía por torre.':'<b>🔦 ???</b>: un estudio de Defensa para ver mejor de noche.')+'</p>';
+  h+='<p>'+(b?'<b>⚡ Alambrada electrificada</b> (estudio de Defensa): los muros y puertas de nivel 5 o más dan descargas a los zombis que los tocan (18 de daño por segundo, +3 por nivel por encima del 5). Gastan 0,15 de energía por tramo.':'<b>⚡ ???</b>: un estudio de Defensa para que los muros se defiendan solos.')+'</p><p>Si falta energía se apagan, primero la alambrada, sin apagar otros edificios.</p>'}catch(e){}return h}}}catch(e){}
 })();
 </script>
 <script>/* Decoraciones: piezas baratas sin efecto para dejar el pueblo a tu gusto (pestaña 🌳 Decoración del menú Construir).
