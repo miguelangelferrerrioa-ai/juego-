@@ -145,7 +145,7 @@ function mount(){ov=document.createElement('div');ov.id='vlMap';ov.innerHTML='<c
 const HWr=(GW+GH+4*OM)*16,HHr=(GW+GH+4*OM)*8,CXr=(GW-GH)*16,CYr=(GW+GH)*8,LIM=.93;
 const okPt=(x,y)=>Math.abs(x-CXr)/HWr+Math.abs(y-CYr)/HHr<=LIM;
 const fitsV=(cx,cy,w,h,top)=>{const t=cy-h/2+top;return okPt(cx-w/2,t)&&okPt(cx+w/2,t)&&okPt(cx-w/2,cy+h/2)&&okPt(cx+w/2,cy+h/2)};
-function fit(init){const cv=VS.cv,W=cv.clientWidth||innerWidth,H=cv.clientHeight||innerHeight,dpr=Math.min(2,devicePixelRatio||1);if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}VS.W=W;VS.H=H;VS.dpr=dpr;
+function fit(init){const cv=VS.cv,W=cv.clientWidth||innerWidth,H=cv.clientHeight||innerHeight,dpr=Math.min(1.5,devicePixelRatio||1)/* como en el pueblo: a 2× la GPU del móvil pintaba 1,8 veces más píxeles */;if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}VS.W=W;VS.H=H;VS.dpr=dpr;
  if(init){const bw=(GW+GH)*32,bh=(GW+GH)*16+110,z=Math.min(1.5,Math.max(.5,Math.min(W/bw*1.25,(H-60)/bh*1.25)));VS.cam.z=z;const c=P(23,18);VS.cam.x=c[0]-W/2/z;VS.cam.y=c[1]-H/2/z+10}}
 function clampCam(){const c=VS.cam,top=50;let w=VS.W/c.z,h=VS.H/c.z,g=0;while(!fitsV(CXr,CYr,w,h,top/c.z)&&g++<40){c.z*=1.04;w=VS.W/c.z;h=VS.H/c.z}
  let cx=c.x+w/2,cy=c.y+h/2;if(!fitsV(cx,cy,w,h,top/c.z)){let lo=0,hi=1;for(let i=0;i<16;i++){const m=(lo+hi)/2;if(fitsV(CXr+(cx-CXr)*m,CYr+(cy-CYr)*m,w,h,top/c.z))lo=m;else hi=m}cx=CXr+(cx-CXr)*lo;cy=CYr+(cy-CYr)*lo;c.x=cx-w/2;c.y=cy-h/2}}

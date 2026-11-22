@@ -1399,17 +1399,27 @@ function groundB(c,b){const k=b.type;if(k=='road'||k=='bridge'||k=='dock'||k=='w
 function shB(c,b){if(BT[b.type]&&BT[b.type].deco)return;groundB(c,b);if(c.canvas&&c.canvas.id!=='c'&&c.filter!==undefined){/* en la caché: sombra más larga con el borde difuminado (se pinta una vez) */const z=BT[b.type].z*.75,a=P(b.x,b.y),b2=P(b.x+b.w,b.y),d=P(b.x+b.w,b.y+b.h),e=P(b.x,b.y+b.h),o=[z*.95,z*.48];
  c.save();c.filter='blur(2.5px)';c.fillStyle='rgba(18,10,4,.38)';c.beginPath();[e,d,[d[0]+o[0],d[1]+o[1]],[b2[0]+o[0],b2[1]+o[1]],b2,a].forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1]));c.closePath();c.fill();
  c.filter='blur(4px)';c.fillStyle='rgba(10,6,2,.28)';c.beginPath();[a,b2,d,e].forEach((q,i)=>i?c.lineTo(q[0],q[1]+3):c.moveTo(q[0],q[1]+3));c.closePath();c.fill();c.restore();return}const z=BT[b.type].z*.6,a=P(b.x,b.y),b2=P(b.x+b.w,b.y),d=P(b.x+b.w,b.y+b.h),e=P(b.x,b.y+b.h),o=[z*.9,z*.45];poly(c,[a,b2,d,e],'rgba(0,0,0,.2)');poly(c,[[e[0],e[1]],[d[0],d[1]],[d[0]+o[0],d[1]+o[1]],[e[0]+o[0],e[1]+o[1]]],'rgba(0,0,0,.17)');poly(c,[[b2[0],b2[1]],[d[0],d[1]],[d[0]+o[0],d[1]+o[1]],[b2[0]+o[0],b2[1]+o[1]]],'rgba(0,0,0,.17)')}
-/* luz del día: degradados de color (arriba/abajo) en vez de un color plano; atardecer naranja→morado con resplandor de sol; noche azul de luna con las luces del pueblo */
+/* luz del día: degradados de color (arriba/abajo); atardecer naranja→morado con resplandor de sol; noche azul de luna con las luces del pueblo.
+   El tinte de color, la viñeta y el suelo mojado de la lluvia van juntos en UNA capa 'multiply' pintada en un lienzo pequeño (128 px) que se estira a
+   pantalla completa y solo se rehace cuando cambia la hora (cada 1/300 del día) o el tiempo: antes eran 2-3 capas a pantalla completa (la GPU del móvil pinta cada una entera). */
+let LUT=null,LUTK='';function lightLUT(top,bot,a,vc,va,wet,W,H){const h=Math.max(8,Math.round(128*H/W)),k=[top,bot,a.toFixed(3),vc,va,wet,h].join('|');if(LUT&&LUTK===k)return LUT;LUTK=k;
+ const cv=LUT||document.createElement('canvas');cv.width=128;cv.height=h;const x=cv.getContext('2d');x.globalCompositeOperation='source-over';x.globalAlpha=1;x.fillStyle='#fff';x.fillRect(0,0,128,h);
+ if(a>0){x.globalAlpha=a;const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,top);g.addColorStop(1,bot);x.fillStyle=g;x.fillRect(0,0,128,h);x.globalAlpha=1}
+ if(wet){x.globalCompositeOperation='multiply';x.fillStyle=wet;x.fillRect(0,0,128,h);x.globalCompositeOperation='source-over'}
+ const g=x.createRadialGradient(64,h/2,Math.min(128,h)*.4,64,h/2,Math.max(128,h)*.85);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba('+vc+','+va+')');x.fillStyle=g;x.fillRect(0,0,128,h);return LUT=cv}
 function lightFX(c,cv){const t=S.dayT/600,W=cv.width,H=cv.height,NB=!!window.PERF_NOBLEND;c.setTransform(1,0,0,1,0,0);
-const mul=(top,bot,a)=>{if(NB||a<=0)return;c.globalCompositeOperation='multiply';c.globalAlpha=a;const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,top);g.addColorStop(1,bot);c.fillStyle=g;c.fillRect(0,0,W,H);c.globalAlpha=1;c.globalCompositeOperation='source-over'};
 const add=(x,y,r,col,a)=>{if(a<=0)return;c.globalCompositeOperation='lighter';const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba('+col+','+a+')');g.addColorStop(1,'rgba('+col+',0)');c.fillStyle=g;c.fillRect(0,0,W,H);c.globalCompositeOperation='source-over'};
-let nf=0;
-if(t<.08){const k=1-t/.08;mul('rgb(255,170,150)','rgb(200,170,210)',.5*k);add(0,0,W*.8,'255,170,110',.18*k)}
-else if(t<.62){mul('rgb(255,246,225)','rgb(235,240,255)',.35)}
-else if(t<.8){const k=(t-.62)/.18;mul('rgb(255,135,80)','rgb(150,90,160)',.5+.35*k);add(0,-H*.1,W*.95,'255,150,70',.3*(1-k*.4))}
-else{const k=Math.min(1,(t-.8)/.1);nf=k;mul('rgb(70,90,160)','rgb(45,50,110)',.65+.15*k);add(W*.9,-H*.1,W*.7,'110,140,220',.10*k)}
+const q=Math.round(t*300)/300;let top='#fff',bot='#fff',a=0,nf=0;
+if(q<.08){const k=1-q/.08;top='rgb(255,170,150)';bot='rgb(200,170,210)';a=.5*k}
+else if(q<.62){top='rgb(255,246,225)';bot='rgb(235,240,255)';a=.35}
+else if(q<.8){const k=(q-.62)/.18;top='rgb(255,135,80)';bot='rgb(150,90,160)';a=.5+.35*k}
+else{const k=Math.min(1,(q-.8)/.1);nf=k;top='rgb(62,86,178)';bot='rgb(40,48,128)';a=.65+.15*k}
+const w=(S.adv&&S.adv.weather)||0,wet=w===3?'rgb(150,160,180)':w===1?'rgb(185,195,210)':'',night=q>=.8;
+if(NB){const g=c.createRadialGradient(W/2,H/2,Math.min(W,H)*.4,W/2,H/2,Math.max(W,H)*.85);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,night?'rgba(5,5,25,.35)':'rgba(22,10,0,.26)');c.fillStyle=g;c.fillRect(0,0,W,H)}
+else{c.globalCompositeOperation='multiply';c.drawImage(lightLUT(top,bot,a,night?'5,5,25':'22,10,0',night?.35:.26,wet,W,H),0,0,W,H);c.globalCompositeOperation='source-over'}
+if(q>=.62&&q<.8)add(0,-H*.1,W*.95,'255,150,70',.3*(1-(q-.62)/.18*.4));
 if(nf>0||t>=.7){const f=Math.min(1,Math.max(nf,(t-.7)/.1));c.setTransform(cam.z*dpr,0,0,cam.z*dpr,-cam.x*cam.z*dpr,-cam.y*cam.z*dpr);c.globalCompositeOperation='lighter';const LWc=glowLayer();if(LWc&&LWc.cv){c.globalAlpha=f;c.drawImage(LWc.cv,LWc.x0,LWc.y0,LWc.cv.width/LWc.s,LWc.cv.height/LWc.s)}c.globalAlpha=1;c.globalCompositeOperation='source-over'}
-c.setTransform(1,0,0,1,0,0);const g=c.createRadialGradient(W/2,H/2,Math.min(W,H)*.4,W/2,H/2,Math.max(W,H)*.85);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,t>=.8?'rgba(5,5,25,.35)':'rgba(22,10,0,.26)');c.fillStyle=g;c.fillRect(0,0,W,H)}
+c.setTransform(1,0,0,1,0,0)}
 function buildingPolish(c,b){
  const d=BT[b.type],k=b.type,x=b.x,y=b.y,w=b.w,h=b.h,z=d.z,pt=(u,v,zz=0)=>{const q=P(x+u,y+v);return[q[0],q[1]-zz]};
  if(k==='road'||k==='bridge')return;
@@ -1590,7 +1600,7 @@ function advDaily(){advInit();if(Math.random()<.72)advEvent();const a=S.adv;a.la
 /* mal tiempo: lluvia en 3 capas (lejos/medio/cerca) con salpicaduras y suelo mojado; niebla con nubes que se desplazan (textura pintada una vez); tormenta con relámpagos */
 let FOGT=null;function fogTex(){if(FOGT)return FOGT;FOGT=document.createElement('canvas');FOGT.width=512;FOGT.height=256;const x=FOGT.getContext('2d');for(let i=0;i<70;i++){const px=hh(i,1)*512,py=hh(i,2)*256,r=30+hh(i,3)*70;for(const ox of[-512,0,512])for(const oy of[-256,0,256]){if(px+ox+r<0||px+ox-r>512||py+oy+r<0||py+oy-r>256)continue;const g=x.createRadialGradient(px+ox,py+oy,0,px+ox,py+oy,r);g.addColorStop(0,'rgba(215,222,228,.22)');g.addColorStop(1,'rgba(215,222,228,0)');x.fillStyle=g;x.fillRect(px+ox-r,py+oy-r,r*2,r*2)}}return FOGT}
 function advWeatherFX(c,cv){advInit();const w=S.adv.weather||0;if(w===0)return;const W=cv.width,H=cv.height,d=dpr||1;c.save();c.setTransform(1,0,0,1,0,0);
- if(w===1||w===3){if(!window.PERF_NOBLEND){c.globalCompositeOperation='multiply';c.fillStyle=w===3?'rgb(150,160,180)':'rgb(185,195,210)';c.fillRect(0,0,W,H);c.globalCompositeOperation='source-over'}
+ if(w===1||w===3){/* el suelo mojado (más oscuro) va dentro de la capa de luz de lightFX */
   const sp=w===3?1.6:1;for(const [z,a,len,n] of [[.35,.12,7,140],[.6,.2,11,100],[1,.34,18,50]]){c.strokeStyle='rgba(200,215,230,'+a+')';c.lineWidth=d*(.6+z*.8);c.beginPath();const cnt=Math.floor(n*W/(1000*d)*1.6);for(let i=0;i<cnt;i++){const x=(i*97.3+T*420*z*sp)%(W+80)-40,y=(i*151.7+T*900*z*sp)%(H+60)-30;c.moveTo(x,y);c.lineTo(x-len*.35*d*z,y+len*d*z*1.6)}c.stroke()}
   c.strokeStyle='rgba(220,232,245,.36)';c.lineWidth=d*.8;c.beginPath();for(let i=0;i<60;i++){const ph=(T*2.2+i*.618)%1,x=(i*271.3)%W,y=(i*167.9+Math.floor(T*2.2+i*.618)*331)%H,r=(2+ph*6)*d;c.moveTo(x+r,y);c.ellipse(x,y,r,r*.4,0,0,7)}c.stroke();
   if(w===3){const fl=Math.max(0,Math.sin(T*.9)*Math.sin(T*7.3));if(fl>.85){c.fillStyle='rgba(230,240,255,'+((fl-.85)*3)+')';c.fillRect(0,0,W,H)}}}
