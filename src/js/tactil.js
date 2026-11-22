@@ -18,7 +18,7 @@ const st=document.createElement('style');st.textContent=`
 #pan .pgf .pc small{font-size:11px!important}
 #pan .bcard .bci small{font-size:11px!important}
 #pan .invr{font-size:11px!important}
-@media (orientation:landscape) and (max-height:520px){#top .ch:nth-child(-n+5),#top .ch:nth-child(-n+5) b{font-size:11px!important;letter-spacing:.2px!important}}
+@media (orientation:landscape) and (max-height:520px){#top .ch:nth-child(-n+3),#top .ch:nth-child(-n+3) b{font-size:11px!important;letter-spacing:.2px!important}}
 #rl{max-height:calc(100vh - 108px)!important}
 /* barra de energía algo más corta para que quepa la letra de 11 px sin que 'Recursos' salte a otra línea */
 @media (orientation:landscape) and (max-height:520px){#top .ch>span:has(>i){width:50px!important;min-width:0!important}}`;document.head.appendChild(st);

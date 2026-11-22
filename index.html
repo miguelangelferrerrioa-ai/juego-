@@ -334,7 +334,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 .ch small{font:600 10px var(--fh);color:var(--ok);letter-spacing:.2px;opacity:.95}
 .ch b{color:var(--amb2)}
 /* chips de estado (Ayuntamiento, modo, día, población, poder) */
-#top .ch:nth-child(-n+5){border-radius:4px;padding:3px 10px;background:linear-gradient(180deg,#3a464b,#252e32);color:var(--amb2);text-transform:uppercase;font-size:11.5px;letter-spacing:.8px;box-shadow:inset 0 0 0 1px #8795996a,0 1px 0 #000}
+#top .ch:nth-child(-n+3){border-radius:4px;padding:3px 10px;background:linear-gradient(180deg,#3a464b,#252e32);color:var(--amb2);text-transform:uppercase;font-size:11.5px;letter-spacing:.8px;box-shadow:inset 0 0 0 1px #8795996a,0 1px 0 #000}
 #top .ch:nth-child(1){background:linear-gradient(180deg,#ffd877,#e0a124);color:#1b1203;text-shadow:0 1px 0 #fff6;border-color:#2b1a02;box-shadow:inset 0 0 0 1px #fff3c8aa,0 1px 0 #000}
 #top .ch:nth-child(1) b{color:#1b1203}
 
@@ -470,7 +470,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 /* ---------- Móvil apaisado ---------- */
 @media (orientation:landscape) and (max-height:500px){
  #top{padding:3px 6px 5px;gap:3px}.ch{min-height:21px;padding:1px 7px 1px 3px;font-size:11px;border-radius:11px 3px 3px 11px}
- .ch img{width:16px;height:16px}#top .ch:nth-child(-n+5){font-size:10px;padding:1px 7px}
+ .ch img{width:16px;height:16px}#top .ch:nth-child(-n+3){font-size:10px;padding:1px 7px}
  #top:before{height:3px;bottom:-5px}
  button{padding:6px 9px;font-size:11px}
  #bot{padding:4px 7px}
@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v307</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v308</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -1742,7 +1742,7 @@ if(z>14)for(let i=0;i<2;i++){const u0=.25+r(i)*(w-.9),zz=z*.2+r(i+4)*z*.3,a=L(u0
 const fr=u=>L(u,h+.3,0),gp=[()=>pTires(c,fr(.3+r(1)*(w-.6))),()=>pBrl(c,fr(.3+r(2)*(w-.6)),['#8a3a2a','#3a6a8a','#6a6f74','#b8962a'][Math.floor(r(3)*4)]),()=>pCrate(c,fr(.3+r(5)*(w-.6))),()=>pSack(c,fr(.3+r(6)*(w-.6))),()=>pRub(c,fr(.4+r(7)*(w-.8)))];
 for(let i=0;i<3;i++)gp[Math.floor(r(10+i)*gp.length)]();
 if(['barr','store','fact','gar','gen','hall'].includes(k))pWire(c,L,w,h);
-pSign(c,L(.45,h+.12,16+z*.25),SIGNT[k],1);
+/* sin el letrero con el nombre (pedido del dueño: demasiadas cosas en pantalla; el nombre sale al tocar el edificio) */
 if(['house','store','gar','work','fact'].includes(k)&&r(14)>.45)pTarp(c,L,w,h,z,r(15));
 if(z>12)pCable(c,L(.3,.3,z+14),L(w-.3,h-.3,z+10),7)}
 const FSC={};function fs(c0){if(FSC[c0])return FSC[c0];const q=parseCol(c0),gr=(q[0]+q[1]+q[2])/3,sat=1.2,f=v=>Math.round(Math.max(0,Math.min(255,(gr+(v-gr)*sat)*1.08)));return FSC[c0]='rgb('+f(q[0])+','+f(q[1])+','+f(q[2])+')'}
@@ -1819,7 +1819,7 @@ else if(k=='expo'){fb(-.15,-.15,w+.3,h+.3,2,'#8a8f94');fb(0,0,w,h,z,mc,2);fb(w/2
  {const m=L(w*.8,h,z*.6);c.fillStyle='#e8dcb4';c.fillRect(m[0]-8,m[1]-6,16,12);c.strokeStyle='#222';c.strokeRect(m[0]-8,m[1]-6,16,12);c.fillStyle='#c33';c.fillRect(m[0]-4,m[1]-2,2,2);c.fillStyle='#35a';c.fillRect(m[0]+2,m[1],2,2);const t=L(w+.5,h-.3,0);poly(c,[[t[0]-11,t[1]],[t[0],t[1]-15],[t[0]+11,t[1]]],'#b9a276');poly(c,[[t[0]-3,t[1]],[t[0],t[1]-8],[t[0]+3,t[1]]],'#2a2418')}win(3,14);wR(3,14)}
 else{fb(0,0,w,h,z,mc);win(2,12)}
 
-if(window.NB&&NB[k]){if(SIGNT[k])pSign(c,L(.45,h+.12,16+z*.25),SIGNT[k],1)}else propsD(c,b);
+if(!(window.NB&&NB[k]))propsD(c,b);
 if(!(window.NB&&NB[k])&&['house','hall','hosp','barr','store','work','expo','gar','lab'].includes(k)){const dp=L(w*.5,h,z*.12),sw=(Math.sin(T*1.15+(b.id||0)*.7)>.94)?1:0;doorD(c,dp,k,sw,b.id||1)}
 if(!(window.NB&&NB[k]))bFX(c,b);if(b.off){const a=P(x,y),bb=P(x+w,y),dd=P(x+w,y+h),e=P(x,y+h);poly(c,[[a[0],a[1]-z],[bb[0],bb[1]-z],[dd[0],dd[1]-z],[e[0],e[1]-z]],'rgba(0,0,0,.4)');}
 c.restore();if(al===undefined&&b.hp<mxhp(b)&&b.type!='road'){const p=L(w/2,h/2,z+8);g.fillStyle='#400';g.fillRect(p[0]-14,p[1]-4,28,4);g.fillStyle='#e44';g.fillRect(p[0]-14,p[1]-4,28*b.hp/mxhp(b),4)}}
@@ -2491,7 +2491,7 @@ FX.forEach(f=>f.t-=dt);FX=FX.filter(f=>f.t>0);
 if(Z.length)combat(dt);$('alert').style.display=horde?'block':'none';if(horde)$('alert').textContent=horde.name+' · enemigos: '+Z.filter(z=>z.act).length;if(!fading){for(const r in IV){S.tm[r]=(S.tm[r]||0)+dt;if(S.tm[r]>=IV[r]){S.tm[r]-=IV[r];resTick(r,IV[r])}}if(!horde){S.dayT+=dt;if(S.dayT>=600){S.dayT=0;nextDay()}}}}
 var QS=1,fa=16,qt=0,qg=0;let last=performance.now(),hu=0;function frame(n){/* hasta que no se han cargado todos los scripts no se dibuja ni se simula (antes daba errores de tipos de edificio aún sin definir durante el primer segundo) */if(!window.__ATS_READY){last=n;requestAnimationFrame(frame);return}const raw=n-last,dt=Math.min(.05,raw/1000);last=n;if(raw<250){fa+=(raw-fa)*.05;qt+=raw;if(qt>1500){qt=0;if(fa>30&&QS>.75){/* mínimo 75 % de resolución: antes bajaba hasta el 50 % y se veía borroso */QS=Math.max(.75,QS-.15);qg=0}else if(fa<19&&QS<1){if(++qg>=4){QS=Math.min(1,QS+.1);qg=0}}else qg=0}}T+=dt;try{upd(dt)}catch(er){frErr(er,'upd')}try{render()}catch(er){frErr(er,'render')}hu-=dt;if(hu<=0){hu=.4;try{hud()}catch(er){frErr(er,'hud')}}requestAnimationFrame(frame)}
 var FE=0;function frErr(er,w){FE++;if(FE<4)console.error('frame '+w,er)}
-var HS='';function hud(){RK.forEach(q=>{if(S.res[q[0]]==null)S.res[q[0]]=0;if(S.mode==='creativo'&&S.res[q[0]]<999999)S.res[q[0]]=999999});if(S.mode==='creativo')TECH.forEach(t=>{if(!S.tech[t[0]])S.tech[t[0]]=1});if(!S.matG&&window.MATK){S.matG=1;S.res.tarp+=40;S.res.stone+=30}const d=rate();const hs=`<div class="ch"><b>Ayunt. ${realHall()}</b></div><div class="ch">${({facil:"Fácil",normal:"Normal",dificil:"Difícil",apocaliptico:"Apocalíptico",creativo:"Creativo"})[S.mode||"normal"]}</div><div class="ch">Día ${S.day} · ${clockTxt()}</div><div class="ch">Pob. ${S.ppl.length}/${pcap()}</div><div class="ch">Poder ${armyPow()}</div>`+(window.powChip?powChip():'')+(window.rqList&&(!window.rpOn||rpOn())?`<div class="ch" onclick="techMenu()" style="cursor:pointer;pointer-events:auto">🔬 ${Math.floor(S.res.rp||0)}${rqList().length?' · '+rqList().length+'▸':''}</div>`:'');if(hs!==HS){HS=hs;$('top').innerHTML=hs}const hb=$('top').offsetHeight+4;$('rail').style.top=hb+'px';$('log').style.top=(hb+2)+'px';$('alert').style.top=hb+'px'}
+var HS='';function hud(){RK.forEach(q=>{if(S.res[q[0]]==null)S.res[q[0]]=0;if(S.mode==='creativo'&&S.res[q[0]]<999999)S.res[q[0]]=999999});if(S.mode==='creativo')TECH.forEach(t=>{if(!S.tech[t[0]])S.tech[t[0]]=1});if(!S.matG&&window.MATK){S.matG=1;S.res.tarp+=40;S.res.stone+=30}const d=rate();const hs=`<div class="ch"><b>Ayunt. ${realHall()}</b></div><div class="ch">Día ${S.day} · ${clockTxt()}</div><div class="ch">Pob. ${S.ppl.length}/${pcap()}</div>`+(window.powChip?powChip():'')+(window.rqList&&(!window.rpOn||rpOn())?`<div class="ch" onclick="techMenu()" style="cursor:pointer;pointer-events:auto">🔬 ${Math.floor(S.res.rp||0)}${rqList().length?' · '+rqList().length+'▸':''}</div>`:'');if(hs!==HS){HS=hs;$('top').innerHTML=hs}const hb=$('top').offsetHeight+4;$('rail').style.top=hb+'px';$('log').style.top=(hb+2)+'px';$('alert').style.top=hb+'px'}
 if(!load())newGame();syncCleanerUnits();advInit();
 cam.z=Math.max(.5,Math.min(1,vw()/900));{const hh=S.bld.find(b=>b.type=='hall')||{x:26,y:26};centerOn(hh.x+2,hh.y+2)}setInterval(saveIdle,20000);addEventListener('beforeunload',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
 $('titleScreen').style.display='flex';if(!localStorage.getItem(KEY))$('continueBtn').disabled=true;setTimeout(()=>toast('Bienvenido a After the Silence. Elige una partida para comenzar.'),500);requestAnimationFrame(frame);
@@ -3963,7 +3963,7 @@ const head='<div style="text-align:center;margin:4px 0 10px"><div style="font-si
 os(win?(chap?'Misión superada':'Expedición completada'):'Expedición terminada',head+h)};oEnd()};
 /* chip de expedición en curso */
 const ch=document.createElement('div');ch.id='expchip';ch.style.cssText='position:fixed;top:46px;right:8px;z-index:30;background:#2a2312;border:1px solid #c9a24a;color:#e8c25a;padding:4px 10px;border-radius:14px;font:12px sans-serif;display:none;cursor:pointer';ch.onclick=()=>S.exp?exEvent():expMenu();document.body.appendChild(ch);
-setInterval(()=>{if(typeof S!=='undefined'&&S&&S.exp){const e=S.exp,tot=e.z.evs?e.z.evs.length:3;ch.style.display='block';ch.textContent=(e.travel&&!e.travel.done)?('🧭 '+e.z.n.replace(/^Cap\. \d+ · /,'')+' · '+(e.travel.t>0?'llega en '+Math.floor(e.travel.t/60)+':'+String(Math.ceil(e.travel.t)%60).padStart(2,'0'):'¡ha llegado!')):('🧭 '+e.z.n.replace(/^Cap\. \d+ · /,'')+' · '+(e.step+1)+'/'+tot+' · '+e.team.length+' fuera')}else ch.style.display='none'},800);
+setInterval(()=>{if(typeof S!=='undefined'&&S&&S.exp){const e=S.exp,tot=e.z.evs?e.z.evs.length:3;ch.style.display='block';const nm=e.z.n.replace(/^Cap\. \d+ · /,'').split(/[,:·(]/)[0].trim()/* nombre corto: 'Alcor, la estación…' → 'Alcor' */;ch.title=e.z.n;ch.textContent=(e.travel&&!e.travel.done)?('🧭 '+nm+' · '+(e.travel.t>0?Math.floor(e.travel.t/60)+':'+String(Math.ceil(e.travel.t)%60).padStart(2,'0'):'¡ha llegado!')):('🧭 '+nm+' · '+(e.step+1)+'/'+tot+' · '+e.team.length+' fuera')}else ch.style.display='none'},800);
 })();
 </script>
 <script>/* Equipo estilo Fallout Shelter: armas y atuendos con bonos por profesión */
@@ -11534,7 +11534,7 @@ const st=document.createElement('style');st.textContent=`
 #pan .pgf .pc small{font-size:11px!important}
 #pan .bcard .bci small{font-size:11px!important}
 #pan .invr{font-size:11px!important}
-@media (orientation:landscape) and (max-height:520px){#top .ch:nth-child(-n+5),#top .ch:nth-child(-n+5) b{font-size:11px!important;letter-spacing:.2px!important}}
+@media (orientation:landscape) and (max-height:520px){#top .ch:nth-child(-n+3),#top .ch:nth-child(-n+3) b{font-size:11px!important;letter-spacing:.2px!important}}
 #rl{max-height:calc(100vh - 108px)!important}
 /* barra de energía algo más corta para que quepa la letra de 11 px sin que 'Recursos' salte a otra línea */
 @media (orientation:landscape) and (max-height:520px){#top .ch>span:has(>i){width:50px!important;min-width:0!important}}`;document.head.appendChild(st);
@@ -11721,7 +11721,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'307';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'308';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
@@ -11848,7 +11848,7 @@ try{upd=window.upd}catch(e){}
 const oD=window.die;
 if(typeof oD==='function'){window.die=function(p,w){if(p&&inTw(p)&&/zombi|explosi|combate|banda|atac|aplast/i.test(w||'')){p.hp=Math.max(1,p.hp);return}return oD.apply(this,arguments)};try{die=window.die}catch(e){}}
 /* placa sobre la torre */
-function badge(c,b){const n=S.ppl.filter(p=>p.job===b.id&&!p.away).length,cap=slots(b)||2,k=Math.min(cap,4),q=P(b.x+b.w/2,b.y+b.h/2),y=q[1]-BT[b.type].z-26,w=k*15+34,x=q[0]-w/2;
+function badge(c,b){const n=S.ppl.filter(p=>p.job===b.id&&!p.away).length,cap=slots(b)||2;/* solo en las torres a las que les falta gente (pedido del dueño: demasiadas placas en pantalla) */if(n>=cap)return;const k=Math.min(cap,4),q=P(b.x+b.w/2,b.y+b.h/2),y=q[1]-BT[b.type].z-26,w=k*15+34,x=q[0]-w/2;
  c.fillStyle='rgba(18,24,14,.88)';c.strokeStyle=n?'#e0b44a':'#7a7a6a';c.lineWidth=1.6;c.beginPath();if(c.roundRect)c.roundRect(x,y-11,w,22,11);else c.rect(x,y-11,w,22);c.fill();c.stroke();
  for(let i=0;i<k;i++){const cx=x+12+i*15;c.fillStyle=i<n?'#ffd877':'rgba(255,255,255,.18)';c.beginPath();c.arc(cx,y-4,3.4,0,7);c.fill();c.beginPath();c.moveTo(cx-5.5,y+7);c.quadraticCurveTo(cx,y-3,cx+5.5,y+7);c.fill()}
  c.fillStyle=n?'#ffe9a8':'#bbb';c.font='800 11px system-ui';c.textAlign='left';c.textBaseline='middle';c.fillText(n+'/'+cap,x+12+k*15-4,y+1);
@@ -12342,11 +12342,16 @@ function tick(force){try{if(!S||!S.bld||!S.bld.length||S.mode==='creativo'){if(e
  const now=performance.now();if(!force&&now-last<4000&&cur){e.style.display='flex';return}last=now;
  const R=rules().filter(r=>!hid[r[1]]);cur=R[0]||null;if(!cur){e.style.display='none';return}
  const op=document.querySelector('#rail>button');const r=op?op.getBoundingClientRect():{left:8,bottom:60};e.style.left=Math.max(6,r.left)+'px';e.style.top=(r.bottom+6)+'px';
- e.innerHTML=`<span class="qh-i">${cur[0]}</span><div class="qh-t"><small>¿Qué hago ahora?</small>${cur[1]}</div><b class="qh-a">${cur[2]} ›</b><span class="qh-x" data-x="1">✕</span>`;e.style.display='flex'}catch(er){}}
+ /* píldora corta (pedido del dueño: demasiadas cosas en pantalla); el texto entero queda en el título y tocarla hace lo mismo */
+ const n=(cur[1].match(/\d+/)||[''])[0],sh=({'🌾':'Poca comida','💧':'Poca agua','⚡':'Falta energía','🧟':'Defensa floja','🔧':n+' dañados','🏠':'Sin sitio','👷':n+' sin trabajo','🏆':'Reto listo','🏅':'Logros nuevos','📖':'Nueva historia','🏛':'Mejorar ayunt.','🔬':'Investigar'})[cur[0]]||cur[2];
+ e.title=cur[1];e.innerHTML=`<span class="qh-i">${cur[0]}</span><b class="qh-s">${sh} ›</b><span class="qh-x" data-x="1">✕</span>`;e.style.display='flex'}catch(er){}}
 setInterval(()=>tick(0),700);
-const st=document.createElement('style');st.textContent=`#qhn{position:fixed;z-index:40;display:none;align-items:center;gap:7px;max-width:min(300px,34vw);padding:5px 7px 5px 8px;border-radius:11px;background:rgba(14,19,11,.9);border:1.5px solid #c9a23a;color:#e8e2cc;font:600 11.5px/1.25 system-ui;box-shadow:0 3px 12px #0008;cursor:pointer;animation:qhin .4s ease-out}
+const st=document.createElement('style');st.textContent=`#qhn{position:fixed;z-index:40;display:none;align-items:center;gap:6px;max-width:min(300px,34vw);padding:3px 6px 3px 9px;border-radius:16px;background:rgba(14,19,11,.9);border:1.5px solid #c9a23a;color:#e8e2cc;font:600 11.5px/1.25 system-ui;box-shadow:0 3px 12px #0008;cursor:pointer;animation:qhin .4s ease-out}
 @keyframes qhin{from{opacity:0;transform:translateY(-6px)}to{opacity:1}}#qhn .qh-i{font-size:19px}#qhn .qh-t{flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:11px}#qhn small{display:block;color:#f2d27a;font-weight:900;font-size:9.5px;letter-spacing:.04em;text-transform:uppercase}
-#qhn .qh-a{flex:0 0 auto;color:#241a04;background:linear-gradient(180deg,#e8b84a,#b8861e);border-radius:7px;padding:4px 7px;font-size:10.5px}#qhn .qh-x{flex:0 0 auto;color:#9a9c8e;font-size:12px;padding:2px 3px}`;document.head.appendChild(st);
+#qhn .qh-a{flex:0 0 auto;color:#241a04;background:linear-gradient(180deg,#e8b84a,#b8861e);border-radius:7px;padding:4px 7px;font-size:10.5px}#qhn .qh-x{flex:0 0 auto;color:#9a9c8e;font-size:12px;padding:2px 3px}#qhn .qh-i{font-size:15px}#qhn .qh-s{color:#ffe9a8;font:800 12px system-ui;white-space:nowrap}`;document.head.appendChild(st);
+/* la dificultad y el poder salieron de la barra de arriba: se ven al principio de OPCIONES */
+setInterval(()=>{try{const rl=document.getElementById('rl');if(!rl||!S||!S.bld)return;let d=document.getElementById('rlInfo');if(!d){d=document.createElement('div');d.id='rlInfo';d.style.cssText='font:800 11px system-ui;color:#e8d9a4;padding:4px 8px 6px;letter-spacing:.03em;text-transform:uppercase;opacity:.9';rl.insertBefore(d,rl.firstChild)}else if(rl.firstChild!==d)rl.insertBefore(d,rl.firstChild);
+ const t=({facil:'Fácil',normal:'Normal',dificil:'Difícil',apocaliptico:'Apocalíptico',creativo:'Creativo'})[S.mode||'normal']+' · Poder '+armyPow();if(d.textContent!==t)d.textContent=t}catch(e){}},1000);
 })();
 </script>
 <script>/* Diario del pueblo (Opciones → 📜 Diario): lo importante de la partida, día a día, y gráficas.
