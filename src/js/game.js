@@ -1137,7 +1137,7 @@ function migrateParc(){if(Array.isArray(S.parc)&&S.parc.length===PG*PG)return;co
  START_PARC.forEach(id=>S.parc[id]=1);(S.bld||[]).forEach(b=>{for(let i=0;i<b.w;i++)for(let j=0;j<b.h;j++)S.parc[parcelId(b.x+i,b.y+j)]=1});delete S.own}
 function ownP(x,y){if(!S.parc)migrateParc();return x>=0&&y>=0&&x<N&&y<N&&!!S.parc[parcelId(Math.floor(x),Math.floor(y))]}
 const inOwn=(x,y,m)=>{if(!m)return ownP(x,y);for(const dx of[-m,0,m])for(const dy of[-m,0,m])if(ownP(x+dx,y+dy))return true;return false};
-const WK=t=>t=='road'||t=='trap'||t=='bridge';
+const WK=t=>t=='road'||t=='trap'||t=='bridge'||t=='moat';
 function terrMul(x,y){const ix=Math.floor(x),iy=Math.floor(y);if(ix<0||iy<0||ix>=N||iy>=N)return 1;const b=biomeAt(ix,iy);if(b!=='water'&&b!=='mountain')return 1;if(isRoad(ix,iy)||isPath(ix,iy))return 1;const ob=bm[occ[iy*N+ix]];if(ob&&ob.type==='bridge')return 1;return b==='water'?(waterD(ix,iy)>1?.35:.5):.7}
 function siteRule(t,x,y,w,h){const d=BT[t];if(!d)return true;let wat=0,mt=0,sand=0;
  for(let i=0;i<w;i++)for(let j=0;j<h;j++){const b=biomeAt(x+i,y+j);if(b==='water')wat++;else if(b==='mountain')mt++;else if(b==='beach')sand++}
