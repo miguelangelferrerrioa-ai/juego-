@@ -84,8 +84,10 @@ function render(c,spec,t,lab){const s={col:SIL[spec.sky]||'#05080d',wc:spec.wc||
  if(lab){c.save();const a=cl((t-.4)/1.2,0,1);c.globalAlpha=a;c.fillStyle='#fff';c.font='600 10px system-ui,sans-serif';c.textAlign='left';c.shadowColor='#000';c.shadowBlur=6;c.fillText(lab.toUpperCase(),16,H-16);c.restore()}}
 /* ----- montaje y bucle ----- */
 const mounted=new Set();let raf=0,last=0;
-function mount(cv){if(cv._scn)return;const spec=SCN.spec(cv.dataset.scn);if(!spec)return;cv.width=W;cv.height=H;cv._scn={spec,t0:performance.now(),lab:cv.dataset.lab||''};mounted.add(cv);if(!raf)raf=requestAnimationFrame(loop)}
-function loop(n){raf=0;if(!mounted.size)return;if(n-last>=33){last=n;mounted.forEach(cv=>{if(!document.body.contains(cv)){mounted.delete(cv);return}const r=cv.getBoundingClientRect();if(r.width<2||r.bottom<0||r.top>innerHeight)return;try{render(cv.getContext('2d'),cv._scn.spec,(n-cv._scn.t0)/1000,cv._scn.lab)}catch(e){}})}
+/* visibilidad con IntersectionObserver: antes cada 33 ms se pedía getBoundingClientRect a cada escena (aunque estuviera oculta), lo que obligaba al navegador a recalcular la página durante toda la partida */
+const IO=('IntersectionObserver' in window)?new IntersectionObserver(es=>es.forEach(e=>{e.target._vis=e.isIntersecting&&e.boundingClientRect.width>=2})):null;
+function mount(cv){if(cv._scn)return;const spec=SCN.spec(cv.dataset.scn);if(!spec)return;cv.width=W;cv.height=H;cv._scn={spec,t0:performance.now(),lab:cv.dataset.lab||''};mounted.add(cv);if(IO){cv._vis=false;IO.observe(cv)}if(!raf)raf=requestAnimationFrame(loop)}
+function loop(n){raf=0;if(!mounted.size)return;if(n-last>=33){last=n;mounted.forEach(cv=>{if(!cv.isConnected){mounted.delete(cv);if(IO)IO.unobserve(cv);return}if(IO){if(!cv._vis)return}else{const r=cv.getBoundingClientRect();if(r.width<2||r.bottom<0||r.top>innerHeight)return}try{render(cv.getContext('2d'),cv._scn.spec,(n-cv._scn.t0)/1000,cv._scn.lab)}catch(e){}})}
  raf=mounted.size?requestAnimationFrame(loop):0}
 function scan(root){(root||document).querySelectorAll('canvas[data-scn]').forEach(mount)}
 const SPECS={};

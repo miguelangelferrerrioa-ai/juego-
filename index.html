@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v258</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v260</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -10261,8 +10261,10 @@ function render(c,spec,t,lab){const s={col:SIL[spec.sky]||'#05080d',wc:spec.wc||
  if(lab){c.save();const a=cl((t-.4)/1.2,0,1);c.globalAlpha=a;c.fillStyle='#fff';c.font='600 10px system-ui,sans-serif';c.textAlign='left';c.shadowColor='#000';c.shadowBlur=6;c.fillText(lab.toUpperCase(),16,H-16);c.restore()}}
 /* ----- montaje y bucle ----- */
 const mounted=new Set();let raf=0,last=0;
-function mount(cv){if(cv._scn)return;const spec=SCN.spec(cv.dataset.scn);if(!spec)return;cv.width=W;cv.height=H;cv._scn={spec,t0:performance.now(),lab:cv.dataset.lab||''};mounted.add(cv);if(!raf)raf=requestAnimationFrame(loop)}
-function loop(n){raf=0;if(!mounted.size)return;if(n-last>=33){last=n;mounted.forEach(cv=>{if(!document.body.contains(cv)){mounted.delete(cv);return}const r=cv.getBoundingClientRect();if(r.width<2||r.bottom<0||r.top>innerHeight)return;try{render(cv.getContext('2d'),cv._scn.spec,(n-cv._scn.t0)/1000,cv._scn.lab)}catch(e){}})}
+/* visibilidad con IntersectionObserver: antes cada 33 ms se pedía getBoundingClientRect a cada escena (aunque estuviera oculta), lo que obligaba al navegador a recalcular la página durante toda la partida */
+const IO=('IntersectionObserver' in window)?new IntersectionObserver(es=>es.forEach(e=>{e.target._vis=e.isIntersecting&&e.boundingClientRect.width>=2})):null;
+function mount(cv){if(cv._scn)return;const spec=SCN.spec(cv.dataset.scn);if(!spec)return;cv.width=W;cv.height=H;cv._scn={spec,t0:performance.now(),lab:cv.dataset.lab||''};mounted.add(cv);if(IO){cv._vis=false;IO.observe(cv)}if(!raf)raf=requestAnimationFrame(loop)}
+function loop(n){raf=0;if(!mounted.size)return;if(n-last>=33){last=n;mounted.forEach(cv=>{if(!cv.isConnected){mounted.delete(cv);if(IO)IO.unobserve(cv);return}if(IO){if(!cv._vis)return}else{const r=cv.getBoundingClientRect();if(r.width<2||r.bottom<0||r.top>innerHeight)return}try{render(cv.getContext('2d'),cv._scn.spec,(n-cv._scn.t0)/1000,cv._scn.lab)}catch(e){}})}
  raf=mounted.size?requestAnimationFrame(loop):0}
 function scan(root){(root||document).querySelectorAll('canvas[data-scn]').forEach(mount)}
 const SPECS={};
@@ -11462,7 +11464,8 @@ function colado(z,g){const ix=Math.floor(z.x),iy=Math.floor(z.y);if(!inMap(ix,iy
  if(!g.out[iy*N+ix]&&!pathBlocked(ix,iy))return true;const p=[z.x,z.y],R=g.bMax[g.bin(p)];return R>0&&g.rad(p)<R-2}
 let AT=-1,AS=new Map();
 /* zombi que está atacando a alguien del pueblo (a ≤2,5 de una persona que no es soldado) */
-function acosa(z){const inU=new Set(U.map(u=>u.p));return S.ppl.some(p=>!p.away&&!p.inside&&!inU.has(p)&&Math.hypot(p.x-z.x,p.y-z.y)<2.5)}
+/* lista de gente fuera (sin unidad de combate) una vez por fotograma: antes se rehacía para cada zombi (190 zombis × 141 personas) */
+let acT=-1,acL=[];function acosa(z){if(T!==acT||!acL){acT=T;const inU=new Set(U.map(u=>u.p));acL=S.ppl.filter(p=>!p.away&&!p.inside&&!inU.has(p))}for(const p of acL)if(Math.abs(p.x-z.x)<2.5&&Math.abs(p.y-z.y)<2.5&&Math.hypot(p.x-z.x,p.y-z.y)<2.5)return true;return false}
 /* zombi pegado a un edificio del pueblo (lo está atacando); los muros no cuentan: tras el muro no se le puede disparar */
 function atkB(z){const ix=Math.floor(z.x),iy=Math.floor(z.y);for(let a=-1;a<=1;a++)for(let c=-1;c<=1;c++){if(!inMap(ix+a,iy+c))continue;const b=tb(ix+a,iy+c);if(isB(b)&&Math.hypot(ix+a+.5-z.x,iy+c+.5-z.y)<1.3)return true}return false}
 function assign(g){if(AT===T)return AS;AT=T;AS=new Map();const best=new Map();
@@ -11596,7 +11599,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'258';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'260';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
