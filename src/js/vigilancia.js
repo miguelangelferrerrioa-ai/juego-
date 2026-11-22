@@ -55,11 +55,11 @@ function arcs(g){if(arcG===g&&arcN===U.length&&!U.some(u=>u.si===undefined))retu
  const us=U.slice().sort((a,b)=>Math.atan2(a.y-g.cy,a.x-g.cx)-Math.atan2(b.y-g.cy,b.x-g.cx)),k=Math.max(1,Math.ceil(L/Math.max(1,us.length)));
  us.forEach((u,i)=>{u.si=Math.min(L-1,i*k);u.ei=Math.min(L-1,u.si+k-1);if(u.pi===undefined||u.pi<u.si||u.pi>u.ei)u.pi=u.si+Math.floor(Math.random()*(u.ei-u.si+1));u.pd=Math.random()<.5?1:-1;u.pw=0;u.ptg=null})}
 function walk(u,x,y,sp,dt){u.mv=1;if(!(window.pstep&&pstep(u,x,y,sp*dt)))step(u,x,y,sp*dt)}
-function danger(u,g){const act=Z.filter(z=>z.act&&z.hp>0);if(!act.length)return -1;if(u.dgT&&T-u.dgT<1)return u.dgI;u.dgT=T;
+function danger(u,g){const act=Z.filter(z=>z.act&&z.hp>0);if(!act.length)return -1;/* el índice guardado (1 s) solo vale si la ronda sigue teniendo ese punto: si se destruye un edificio del perímetro la ronda se acorta y antes la lógica fallaba cada fotograma durante ese segundo */if(u.dgT&&T-u.dgT<1&&(u.dgI<0||g.ring[u.dgI]))return u.dgI;u.dgT=T;
  let best=-1,bd=1e9;for(let i=u.si;i<=u.ei;i+=2){const q=g.ring[i];if(!q)continue;let m=1e9;act.forEach(z=>{const d=Math.hypot(z.x-q[0],z.y-q[1]);if(d<m)m=d});if(m<bd){bd=m;best=i}}u.dgI=best;return best}
 function patrol(u,dt,g){arcs(g);const L=g.ring.length;
  /* con enemigos en marcha: colocarse en la parte de su tramo más cercana a ellos */
- if(L&&u.si!==undefined){const di=danger(u,g);if(di>=0){const q=g.ring[di];u.pi=di;u.ptg=null;u.pw=0;if(Math.hypot(q[0]-u.x,q[1]-u.y)>.4)walk(u,q[0],q[1],2.2,dt);return}}
+ if(L&&u.si!==undefined){const di=danger(u,g);if(di>=0&&g.ring[di]){const q=g.ring[di];u.pi=di;u.ptg=null;u.pw=0;if(Math.hypot(q[0]-u.x,q[1]-u.y)>.4)walk(u,q[0],q[1],2.2,dt);return}}
  if(!L){const h=S.bld.find(b=>b.type==='hall');if(h&&Math.hypot(h.x+2-u.x,h.y+h.h+1.5-u.y)>.4)walk(u,h.x+2,h.y+h.h+1.5,2,dt);return}
  if(u.pw>0){u.pw-=dt;return}
  if(u.si===undefined||u.pi===undefined||u.pi>=L){arcG=null;arcs(g)}
