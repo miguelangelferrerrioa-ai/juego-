@@ -118,5 +118,6 @@ NB.well={up:70,paint(c,b){const lv=b.lvl;vol(c,{x:-.05,y:-.05,w:2.1,h:2.1,z:2,co
  /* manivela */
  line(c,[cx-16,cy-26],[cx+16,cy-26],'#6a4a2a',3);c.fillStyle='#8a8f94';c.beginPath();c.arc(cx+16,cy-26,3.2,0,7);c.fill();c.strokeStyle=OLC;c.lineWidth=1.2;c.stroke();
  sacks(c,.2,2.05,2);crate(c,1.8,1.95,0,.34)},
-live(c,b,H){const p=H.L(1,1,26),o=Math.sin(T*2+(b.id||0))*4;c.strokeStyle='#d8c6a0';c.lineWidth=1.2;c.beginPath();c.moveTo(p[0],p[1]);c.lineTo(p[0],p[1]+14+o);c.stroke();c.fillStyle='#7a5a38';c.fillRect(p[0]-3.4,p[1]+14+o,6.8,6);c.strokeStyle=OLC;c.lineWidth=1.2;c.strokeRect(p[0]-3.4,p[1]+14+o,6.8,6)}};
+live(c,b,H){/* agua: ondas que se abren y un brillo que se mueve */{const w=H.L(1,1,14),id=b.id||0;c.save();c.beginPath();c.ellipse(w[0],w[1],14,6.2,0,0,7);c.clip();c.lineWidth=1;for(let k=0;k<3;k++){const ph=(T*.6+k/3+id*.13)%1,r=2+ph*12;c.strokeStyle='rgba(220,245,255,'+(.5*(1-ph))+')';c.beginPath();c.ellipse(w[0]+Math.sin(id)*3,w[1],r,r*.44,0,0,7);c.stroke()}c.fillStyle='rgba(255,255,255,.55)';c.beginPath();c.ellipse(w[0]-6+Math.sin(T*1.3+id)*5,w[1]-1.5,3.5,1,0,0,7);c.fill();c.restore()}
+ const p=H.L(1,1,26),o=Math.sin(T*2+(b.id||0))*4;c.strokeStyle='#d8c6a0';c.lineWidth=1.2;c.beginPath();c.moveTo(p[0],p[1]);c.lineTo(p[0],p[1]+14+o);c.stroke();c.fillStyle='#7a5a38';c.fillRect(p[0]-3.4,p[1]+14+o,6.8,6);c.strokeStyle=OLC;c.lineWidth=1.2;c.strokeRect(p[0]-3.4,p[1]+14+o,6.8,6)}};
 })();
