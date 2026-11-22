@@ -460,7 +460,7 @@ function drawProp(c,ch,px,py,ts,x,y){
 function draw(){
   const W=cv.clientWidth,H=cv.clientHeight,dpr=Math.min(1.5,window.devicePixelRatio||1);/* tope de resolución como en el pueblo: a 2,6× el móvil pintaba 2,7 veces más píxeles */if(cv.width!==W*dpr||cv.height!==H*dpr){cv.width=W*dpr;cv.height=H*dpr}
   cx.setTransform(dpr,0,0,dpr,0,0);ts=Math.floor(Math.min(W/COLS,H/ROWS));ox=Math.floor((W-ts*COLS)/2);oy=Math.floor((H-ts*ROWS)/2);if(!(ts>0))return;
-  cx.fillStyle='#050607';cx.fillRect(0,0,W,H);cx.save();cx.translate(ox,oy);const shk=M.shake>0?(Math.random()-.5)*M.shake*12:0;cx.translate(shk,shk);M.shake=Math.max(0,(M.shake||0)-.03);
+  cx.fillStyle='#050607';cx.fillRect(0,0,W,H);cx.save();cx.translate(ox,oy);const shk=M.shake>0?(Math.random()-.5)*M.shake*12*(window.SHK_STR??1):0;cx.translate(shk,shk);M.shake=Math.max(0,(M.shake||0)-.03);
   const g=M.g,T=M.t,al=M.units.filter(isAl);
   const seen=(x,y)=>M.vis[Math.floor(y)*COLS+Math.floor(x)];
   const pal=M.pal;
