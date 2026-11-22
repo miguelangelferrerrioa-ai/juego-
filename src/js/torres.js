@@ -28,7 +28,7 @@ try{upd=window.upd}catch(e){}
 const oD=window.die;
 if(typeof oD==='function'){window.die=function(p,w){if(p&&inTw(p)&&/zombi|explosi|combate|banda|atac|aplast/i.test(w||'')){p.hp=Math.max(1,p.hp);return}return oD.apply(this,arguments)};try{die=window.die}catch(e){}}
 /* placa sobre la torre */
-function badge(c,b){const n=S.ppl.filter(p=>p.job===b.id&&!p.away).length,cap=slots(b)||2,k=Math.min(cap,4),q=P(b.x+b.w/2,b.y+b.h/2),y=q[1]-BT[b.type].z-26,w=k*15+34,x=q[0]-w/2;
+function badge(c,b){const n=S.ppl.filter(p=>p.job===b.id&&!p.away).length,cap=slots(b)||2;/* solo en las torres a las que les falta gente (pedido del dueño: demasiadas placas en pantalla) */if(n>=cap)return;const k=Math.min(cap,4),q=P(b.x+b.w/2,b.y+b.h/2),y=q[1]-BT[b.type].z-26,w=k*15+34,x=q[0]-w/2;
  c.fillStyle='rgba(18,24,14,.88)';c.strokeStyle=n?'#e0b44a':'#7a7a6a';c.lineWidth=1.6;c.beginPath();if(c.roundRect)c.roundRect(x,y-11,w,22,11);else c.rect(x,y-11,w,22);c.fill();c.stroke();
  for(let i=0;i<k;i++){const cx=x+12+i*15;c.fillStyle=i<n?'#ffd877':'rgba(255,255,255,.18)';c.beginPath();c.arc(cx,y-4,3.4,0,7);c.fill();c.beginPath();c.moveTo(cx-5.5,y+7);c.quadraticCurveTo(cx,y-3,cx+5.5,y+7);c.fill()}
  c.fillStyle=n?'#ffe9a8':'#bbb';c.font='800 11px system-ui';c.textAlign='left';c.textBaseline='middle';c.fillText(n+'/'+cap,x+12+k*15-4,y+1);
