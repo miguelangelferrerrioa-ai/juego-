@@ -11,6 +11,7 @@ const orig=window.fig;
 const C=new Map();          /* clave -> {pg,x,y,t} (orden = uso reciente) */
 const Q=new Map();          /* clave -> trabajo de pintado pendiente */
 let HIT=0,MISS=0,PG=[],SQ=0,ZS=0,ZT=-9,CW=0,CH=0,COLS=0,ROWS=0,FREE=[],RP=0;
+function freePages(){PG.forEach(cv=>{cv.width=1;cv.height=1});PG=[];C.clear();Q.clear();FREE=[];SQ=0}
 function reset(sq){SQ=sq;CW=Math.ceil(BW*sq)+2;CH=Math.ceil(BH*sq)+2;COLS=Math.floor(AS/CW);ROWS=Math.floor(AS/CH);C.clear();Q.clear();FREE=[];
  PG.forEach(cv=>cv.getContext('2d').clearRect(0,0,AS,AS));for(let p=0;p<PG.length;p++)for(let i=0;i<COLS*ROWS;i++)FREE.push([p,i])}
 function cell(){if(FREE.length)return FREE.pop();
@@ -47,7 +48,10 @@ window.fig=function(x,y,col,sc,wkg,hd,gun,dx,role,act,id){
   if(wkg){n=8;ph=((T*sp+x*3+id0)%TAU+TAU)%TAU;ix=Math.floor(ph/TAU*n)}else{n=4;ph=((T*6+id0)%TAU+TAU)%TAU;ix=Math.floor(ph/TAU*n)}
   /* escala: ×0,5/1/1,5/2 hacia arriba (nunca borroso); al cambiar el zoom se sigue usando la anterior y se cambia con la cámara quieta 0,3 s */
   const tf=c.getTransform(),s0=Math.hypot(tf.a,tf.b);if(Math.abs(s0-ZS)>1e-4){ZS=s0;ZT=T}
-  const want=[.5,1,1.5,2].find(v=>v>=s0-1e-6)||2;if(!SQ||(want!==SQ&&T-ZT>=.3))reset(want);
+  /* con el zoom muy alejado (personas de ~8 px) la caché no compensa: medido en el móvil (zoom 0,35, noche con lluvia) la GPU bajaba de 99 a 28 ms sin ella y el dibujo solo subía 2 ms.
+     Se dibujan como antes y, con el zoom quieto 2 s, se sueltan las páginas (32 MB de memoria de la GPU que se peleaban con las de los edificios) */
+  if(s0<.7){if(PG.length&&T-ZT>2)freePages();return orig.apply(this,arguments)}
+  const want=[1,1.5,2].find(v=>v>=s0-1e-6)||2;if(!SQ||(want!==SQ&&T-ZT>=.3))reset(want);
   const a=arguments,k=[role,col,sc,wkg?1:0,hd,gun?String(gun).slice(0,24):0,dx<0?1:0,act,id0,a[11],a[12]?1:0,a[13]?1:0,ix,EXP,SXF,OLDF,KIDF,WPN,(typeof ZV!=='undefined'?ZV:0),window.BCOL||'',look(id)].join('~');
   const q=P(x,y);let e=C.get(k);
   /* se refresca cada ~60 s por si algo del aspecto no está en la clave */
