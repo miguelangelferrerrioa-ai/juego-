@@ -18,7 +18,7 @@ function start(id,how,mode){const b=bm[id];if(!b)return;try{hide()}catch(e){}
 window.wSelStart=start;
 function list(){return [...W.ids].map(i=>bm[i]).filter(Boolean)}
 function add(c,v,k){for(const x in v)c[x]=(c[x]||0)+v[x]*(k||1)}
-function upInfo(){const L=list().filter(b=>b.lvl<5&&b.lvl<hallLv()+1&&!(window.ugate&&ugate(b))),c={};L.forEach(b=>add(c,window.ucost?ucost(b):costOf(BT[b.type].cost,b.lvl+1)));return {L,c}}
+function upInfo(){const L=list().filter(b=>b.lvl<10&&b.lvl<hallLv()+1&&!(window.ugate&&ugate(b))),c={};L.forEach(b=>add(c,window.ucost?ucost(b):costOf(BT[b.type].cost,b.lvl+1)));return {L,c}}
 function rpInfo(){const L=list().filter(b=>b.hp<mxhp(b)-.5),c={};L.forEach(b=>add(c,window.repairCost?repairCost(b):{}));return {L,c}}
 function bar(){let f=document.getElementById('wsb');if(!W){if(f)f.remove();return}
  if(!f){f=document.createElement('div');f.id='wsb';document.body.appendChild(f)}
