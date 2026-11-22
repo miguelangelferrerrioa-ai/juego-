@@ -40,7 +40,8 @@ function colado(z,g){const ix=Math.floor(z.x),iy=Math.floor(z.y);if(!inMap(ix,iy
  if(!g.out[iy*N+ix]&&!pathBlocked(ix,iy))return true;const p=[z.x,z.y],R=g.bMax[g.bin(p)];return R>0&&g.rad(p)<R-2}
 let AT=-1,AS=new Map();
 /* zombi que está atacando a alguien del pueblo (a ≤2,5 de una persona que no es soldado) */
-function acosa(z){const inU=new Set(U.map(u=>u.p));return S.ppl.some(p=>!p.away&&!p.inside&&!inU.has(p)&&Math.hypot(p.x-z.x,p.y-z.y)<2.5)}
+/* lista de gente fuera (sin unidad de combate) una vez por fotograma: antes se rehacía para cada zombi (190 zombis × 141 personas) */
+let acT=-1,acL=[];function acosa(z){if(T!==acT||!acL){acT=T;const inU=new Set(U.map(u=>u.p));acL=S.ppl.filter(p=>!p.away&&!p.inside&&!inU.has(p))}for(const p of acL)if(Math.abs(p.x-z.x)<2.5&&Math.abs(p.y-z.y)<2.5&&Math.hypot(p.x-z.x,p.y-z.y)<2.5)return true;return false}
 /* zombi pegado a un edificio del pueblo (lo está atacando); los muros no cuentan: tras el muro no se le puede disparar */
 function atkB(z){const ix=Math.floor(z.x),iy=Math.floor(z.y);for(let a=-1;a<=1;a++)for(let c=-1;c<=1;c++){if(!inMap(ix+a,iy+c))continue;const b=tb(ix+a,iy+c);if(isB(b)&&Math.hypot(ix+a+.5-z.x,iy+c+.5-z.y)<1.3)return true}return false}
 function assign(g){if(AT===T)return AS;AT=T;AS=new Map();const best=new Map();
