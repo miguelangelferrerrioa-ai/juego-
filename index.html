@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v357</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v358</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -1217,7 +1217,7 @@ if(docs){const patients=S.ppl.filter(p=>p.hp<mhp(p)-1||p.injury>0).sort((a,b)=>(
 rebuild();S.res.ammo+=4;S.ppl.filter(p=>false).forEach(p=>{if(S.ppl.length>2&&Math.random()<.3){try{if(p.wp){S.inv.push(p.wp);p.wp=null}if(p.outfit){S.inv.push({kind:'outfit',n:p.outfit});p.outfit=null}}catch(e){}S.ppl=S.ppl.filter(q=>q!==p);ev.push(p.n+' ha abandonado la ciudad: la moral estaba por los suelos.')}});if(S.fac.mil>=50)S.res.ammo+=5;if(S.fac.com>=40){S.res.food+=8;S.res.wood+=5}
 if(Math.random()<.4)ev.push(dayEvent());
 if(S.fac.ban<-15&&Math.random()<.25&&window.bandSoon&&bandSoon())ev.push('Los vigías ven bandidos hostiles rondando: atacarán en 2 días.');
-if(!horde&&S.day>=S.nextH){startHorde();S.nextH=S.day+3+(S.hordeN%3==2?2:0)}else if(!horde&&S.day==S.nextH-1){let t='';try{const e=hordeEst();t=' Unos '+e.n+' enemigos ('+e.kind+'). Tu defensa: '+e.v+'.'}catch(er){}ev.push('Los vigías avisan: una horda se acerca mañana.'+t+(t.includes('Insuficiente')?' Refuerza las defensas: más torres, tiradores y soldados.':''))}
+if(!horde&&S.day>=S.nextH){startHorde();S.nextH=S.day+3+(S.hordeN%3==2?2:0)}else if(!horde&&S.day==S.nextH-1&&(!window.hwKnown||hwKnown())){let t='';try{const e=hordeEst();t=' Unos '+e.n+' enemigos ('+e.kind+'). Tu defensa: '+e.v+'.'}catch(er){}ev.push('Los vigías avisan: una horda se acerca mañana.'+t+(t.includes('Insuficiente')?' Refuerza las defensas: más torres, tiradores y soldados.':''))}
 for(const k in S.res)S.res[k]=cl(S.res[k],0,cap());save();const d={};RK.forEach(r=>d[r[0]]=Math.round(S.res[r[0]]-before[r[0]]));S.snap={...S.res};
 return['Día '+S.day,'<p>'+RK.map(r=>`<img src="${ICO[r[0]]}" width=14> ${r[1]}: ${d[r[0]]>=0?'+':''}${d[r[0]]}`).join('<br>')+'</p>'+ev.filter(Boolean).map(e=>'<p>• '+e+'</p>').join('')]}
 function dayEvent(){const p=S.ppl.length?pk(S.ppl):null,k=ri(0,5);
@@ -1389,7 +1389,7 @@ function bPanel(id){const b=bm[id];if(!b)return;sel=id;const d=BT[b.type],sl=slo
 if(window.pwUse&&pwBase(b.type)){const u=pwUse(b);h+=`<p>⚡ Energía: <b>${u>0?'consume '+u:'no consume (campamento)'}</b>${b.off?' · <b style="color:#ff8a7a">APAGADO por falta de energía</b>':''}</p>`}if(PAL[b.type])h+=btn('🎨 Personalizar aspecto',`aspMenu(${id})`);if(b.type=='house')h+=btn('Formar una familia (3+3 días)','pairSurvivors()');if(d.cons||b.type=='gen'||(window.pwBase&&pwBase(b.type)))h+=`<p>Estado: <b>${b.pause?'⏸ Parado':'▶ En marcha'}</b>${b.pause?' (no consume ni produce)':''}</p>`+btn(b.pause?'▶ Encender':'⏸ Parar',`togB(${id})`);if(d.p)h+=`<p>Producción diaria: ${cs(out(b,!b.off))}${b.off?' (sin energía)':''}</p>`;
 if(sl&&d.gun)h+=`<p>Tiradores ${wks.length}/${sl}. Solo disparan con arma equipada; el alcance y el daño dependen del arma.</p>`+(wks.length?'':'<p>⚠ Sin tiradores: la torre no dispara.</p>')+wks.map(p=>btn('Quitar '+p.n+(p.wp?' ('+p.wp.n+')':' (sin arma)'),`unjob(${p.id},${id})`)).join('')+btn('Asignar tirador',`asgList(${id})`,wks.length>=sl);else if(sl)h+=`<p>Trabajadores ${wks.length}/${sl}. Ideal: ${d.job.join(', ')}</p>`+wks.map(p=>btn('Quitar '+p.n+' ('+p.prof+')',`unjob(${p.id},${id})`)).join('')+btn('Asignar',`asgList(${id})`,wks.length>=sl);
 if(b.type=='hosp')h+=`<p>Heridos: ${S.ppl.filter(p=>p.hp<mhp(p)-1).length}</p>`+btn(healAllLabel(),'healAll()');
-if((b.type=='barr'||b.type=='hall')&&S.mode!=='creativo'){try{const e=hordeEst(),col={Suficiente:'#6c6',Justa:'#dc4',Insuficiente:'#e55'}[e.v];h+='<div class="sub" style="margin:6px 0">🧟 Próxima horda '+(e.days?'en '+e.days+' día'+(e.days>1?'s':''):'hoy')+': ~'+e.n+' enemigos ('+e.kind+'). Tu defensa: <b style="color:'+col+'">'+e.v+'</b></div>'}catch(er){}}
+if((b.type=='barr'||b.type=='hall')&&S.mode!=='creativo'){try{const e=hordeEst(),col={Suficiente:'#6c6',Justa:'#dc4',Insuficiente:'#e55'}[e.v];h+='<div class="sub" style="margin:6px 0">'+(window.hwKnown&&!hwKnown()?'🧟 Sin señales de horda por ahora. Tu defensa ante la próxima: <b style="color:'+col+'">'+e.v+'</b>':'🧟 Próxima horda '+(window.hwLeftTxt?'en '+hwLeftTxt():(e.days?'en '+e.days+' día'+(e.days>1?'s':''):'hoy'))+': ~'+e.n+' enemigos ('+e.kind+'). Tu defensa: <b style="color:'+col+'">'+e.v+'</b>')+'</div>'}catch(er){}}
 if(b.type=='barr')h+=btn('Entrenar al ejército (1 vez al día por unidad · 10 metal +5 por nivel y 10 munición c/u)','trainArmy()')+btn('Entrenamiento automático cada día: '+(S.autoTrain?'SÍ':'NO'),'toggleAutoTrain()')+btn('Gestionar ejército','armyMenu()');
 if(b.type=='work')h+='<p>Fabricar:</p>'+WP.map((w,i)=>(window.hasPlan&&!hasPlan(w.n))?'':btn(w.n+' (+'+w.v+(window.wbTxt?wbTxt(w):'')+' · '+cs(w.c)+')',`craft(${i})`,w.t&&!th(w.t))).join('')+(window.outCraftBtns?outCraftBtns():'');
 if(b.type=='lab')h+=btn('Investigar','techMenu()');
@@ -6814,10 +6814,11 @@ function upd(){const t=document.getElementById('top');if(!t)return;let c=documen
  c.style.display='';
  if(horde){const n=Z.filter(z=>z.act).length;c.className='ch hz now';c.innerHTML=`🧟 ${n}`;c.title='Horda en curso: '+n+' enemigos';return}
  let e=null;try{e=hordeEst()}catch(x){}if(!e){c.style.display='none';return}
- c.className='ch hz '+(COL[e.v]||'mid');c.innerHTML=`🧟 ${whenS(e.days)}`;c.title='Próxima horda: '+when(e.days)+' · defensa '+e.v}
-function detail(){if(horde)return;let e=null;try{e=hordeEst()}catch(x){}if(!e)return;
+ if(window.hwKnown&&!hwKnown()){c.className='ch hz calm';c.innerHTML='🧟 —';c.title='Sin señales de horda';return}
+ c.className='ch hz '+(COL[e.v]||'mid');c.innerHTML=`🧟 ${window.hwLeftTxt?hwLeftTxt():whenS(e.days)}`;c.title='Próxima horda: '+(window.hwLeftTxt?hwLeftTxt():when(e.days))+' · defensa '+e.v}
+function detail(){if(horde)return;let e=null;try{e=hordeEst()}catch(x){}if(!e)return;const unk=window.hwKnown&&!hwKnown();
  const k=COL[e.v]||'mid',pct=Math.round(Math.min(1,(e.r||0)/2)*100),tip={ok:'Tu defensa debería bastar. Aun así, repara muros y mantén munición.',mid:'Va a estar justo: sube torres o torretas, entrena al ejército o arma a más gente.',bad:'Tu defensa no basta: refuerza ya (torretas, muros, soldados armados) o perderás edificios y gente.'}[k];
- show('Próxima horda',`<div class="hz-card ${k}"><div class="hz-big">🧟</div><div><b>${when(e.days)} · ${e.kind}</b><small>Unos ${e.n} enemigos</small></div><span class="hz-v">${e.v}</span></div>
+ show('Próxima horda',(unk?`<div class="hz-card calm"><div class="hz-big">🧟</div><div><b>Sin señales de horda</b><small>Cuando se acerque una lo notarás: gruñidos, pájaros que huyen, rezagados o polvo en el horizonte.${(S.bld||[]).some(b=>b.type==='tower'||b.type==='mtower'||b.type==='radiolr')?' Tus vigías la verán venir con más tiempo.':' Una torre de vigilancia te avisaría antes.'}</small></div></div>`:`<div class="hz-card ${k}"><div class="hz-big">🧟</div><div><b>${window.hwLeftTxt?'Llega en '+hwLeftTxt():when(e.days)} · ${e.kind}</b><small>Unos ${e.n} enemigos</small></div><span class="hz-v">${e.v}</span></div>`+(window.hwInfo?hwInfo():''))+`
   <div class="mu-h">Tu defensa frente a la horda</div><div class="hz-bar"><i class="${k}" style="width:${pct}%"></i><span style="left:41.5%"></span><span style="left:62.5%"></span></div><div class="hz-leg"><small style="left:20%">Insuficiente</small><small style="left:52%">Justa</small><small style="left:81%">Suficiente</small><b class="hz-you" style="left:${Math.max(3,Math.min(97,pct))}%">▲ Tú</b></div>
   <p class="hz-tip">${tip}</p><small class="mu-mut">Cuentan los soldados del ejército, quienes tienen arma en torres y las torretas. Los civiles sin arma se refugian en el ayuntamiento.</small>`)}
 window.hordeChip=detail;
@@ -6825,6 +6826,7 @@ setInterval(()=>{try{upd()}catch(e){}},1000);
 const st=document.createElement('style');st.textContent=`
 @media (max-width:1000px){#top .ch{letter-spacing:.3px!important;padding-left:5px!important;padding-right:6px!important}}
 #hzChip.hz{cursor:pointer;border:1px solid;font-weight:800;padding-left:6px;padding-right:7px;white-space:nowrap;letter-spacing:.2px;font-size:11px}
+#hzChip.calm{border-color:#5a6a5a;color:#b8c4b0;background:linear-gradient(180deg,#232a23,#171c17)}.hz-card.calm{border-color:#5a6a5a;background:#171c17}
 #hzChip.ok{border-color:#4f9a4f;color:#a6f0a6;background:linear-gradient(180deg,#1f3a1f,#142614)}
 #hzChip.mid{border-color:#b8962a;color:#ffe08a;background:linear-gradient(180deg,#3e3414,#2a230c)}
 #hzChip.bad{border-color:#c0442e;color:#ffb39e;background:linear-gradient(180deg,#4a1c14,#2e110c);animation:hzP 1.6s ease-in-out infinite}
@@ -12159,7 +12161,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'357';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'358';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
@@ -12762,7 +12764,7 @@ function rules(){const R=[];const pop=S.ppl.filter(p=>!p.away).length,eat=(typeo
  if(S.res.food<pop*eat*1.5)R.push(['🌾','Queda poca comida: construye '+(av('greenh')?'un invernadero o ':'')+'una granja y asigna agricultores.','Construir',tab('rec')]);
  if(S.res.water<pop*eat*1.5)R.push(['💧','Queda poca agua: construye un pozo'+(av('pump')?' o una estación de bombeo':'')+'.','Construir',tab('rec')]);
  try{const pw=powCalc();if(pw&&(pw.over||pw.sup<pw.dem))R.push(['⚡','Falta energía y hay edificios parados: construye '+(av('solar')?'una granja solar o ':'')+'un generador.','Construir',tab('prod')])}catch(e){}
- try{const e=hordeEst();if(e&&e.days<=1&&e.v==='Insuficiente')R.push(['🧟','La próxima horda llega '+(e.days<=0?'hoy':'mañana')+' y tu defensa no basta: construye torres o alista soldados.','Defensa',tab('def')])}catch(e){}
+ try{const e=hordeEst();if(e&&e.days<=1&&e.v==='Insuficiente'&&(!window.hwKnown||hwKnown()))R.push(['🧟','La próxima horda llega '+(e.days<=0?'hoy':'mañana')+' y tu defensa no basta: construye torres o alista soldados.','Defensa',tab('def')])}catch(e){}
  const dmg=S.bld.filter(b=>b.hp<mxhp(b)*.7&&b.type!=='road').length;if(dmg>=3)R.push(['🔧','Tienes '+dmg+' edificios dañados: repáralos desde el ayuntamiento.','Reparar',()=>{try{repMenu()}catch(e){const h=hall();h&&bPanel(h.id)}}]);
  try{if(pop>=pcap())R.push(['🏠','No caben más supervivientes: construye casas o mejóralas.','Construir',tab('ciudad')])}catch(e){}
  const idle=S.ppl.filter(p=>!p.away&&!p.job&&!p.arm&&p.age>=18&&!p.preg&&!p.inside).length;if(idle>=2)R.push(['👷',idle+' supervivientes no tienen trabajo: asígnales un puesto.','Ver gente',()=>{try{pplMenu()}catch(e){}}]);
@@ -13496,6 +13498,90 @@ const oR=window.render;if(typeof oR==='function'){window.render=function(){const
 /* ---- guía ---- */
 try{const i=GD.findIndex(g=>g[0]==='Bandas humanas');if(i>=0){const o=GD[i][1];GD[i][1]=()=>{let h='';try{h=o()}catch(e){}return h+'<p><b>🏴 Avisos:</b> dos días antes de un asalto se ve venir: a veces <b>humo y banderas</b> en el borde por donde entrarán, a veces <b>exploradores</b> que vienen a espiar el día antes (si los abates, el asalto llega más flojo), o las dos cosas. Arriba sale una ficha 🏴 con la cuenta atrás y, en los últimos minutos, se oyen tambores y un cuerno. Entre un asalto y una horda siempre hay al menos 2 días.</p>'}}}catch(e){}
 window.__bw={announce,left,W,sep,spawnScouts,target};
+})();
+</script>
+<script>/* ===== Aviso de las hordas: ya no se sabe siempre cuándo llegan =====
+   La ficha 🧟 de arriba no dice nada hasta que aparece la primera señal. Señales (al azar en cada horda):
+   - Gruñidos: se oyen gruñidos lejanos de vez en cuando.
+   - Pájaros: bandadas de cuervos huyen del borde por donde vendrá la horda.
+     (Una de estas dos sale siempre: entre 6 y 10 minutos antes; con torre de vigilancia o antena, 15 minutos antes).
+   - Rezagados: unos minutos antes llegan 3-4 zombis sueltos. Si caen todos antes de la horda, la horda tarda 2,5 minutos más.
+   - Polvo: unos minutos antes, una nube de polvo en el borde por donde entrará la horda.
+   Con pájaros o polvo, el grueso de la horda entra por ese lado.
+   Estado: S.hw={day,win,sig:{grunt,birds,strag,dust},side,al,known,sk,delay}, S.hwP (segundos de retraso pendientes). */
+(function(){
+'use strict';
+const DAY=600;
+const live=()=>{try{return S&&S.bld&&S.bld.length&&!S.over}catch(e){return false}};
+const crea=()=>{try{return S.mode==='creativo'}catch(e){return false}};
+const msg=(t,x,ic)=>{ic=ic||'🧟';try{toast(ic+' '+t+(x?': '+x:''))}catch(e){}try{notify(ic,t,x||'','alerta')}catch(e){}try{window.diarioAdd&&diarioAdd(ic,t+(x?'. '+x:''),'pueblo')}catch(e){}};
+const look=()=>{try{return S.bld.some(b=>(b.type==='tower'||b.type==='mtower'||b.type==='radiolr')&&!b.cons)}catch(e){return false}};
+const leftH=()=>{if(typeof S.nextH!=='number')return 1e9;return (S.nextH-S.day-1)*DAY+(DAY-(S.dayT||0))};
+const edgePt=(w,out)=>{const i=out?-1.5:1.2,o=out?N+1.5:N-1.2;return w.side===0?[w.al,i]:w.side===1?[o,w.al]:w.side===2?[w.al,o]:[i,w.al]};
+const dirName=w=>{try{const c=P(N/2,N/2),e=edgePt(w,1),q=P(e[0],e[1]),a=Math.atan2(q[1]-c[1],q[0]-c[0])*180/Math.PI;return a>-135&&a<=-45?'el norte':a>-45&&a<=45?'el este':a>45&&a<=135?'el sur':'el oeste'}catch(e){return'el horizonte'}};
+const rnd=(a,b)=>a+Math.random()*(b-a);
+/* plan de señales para la próxima horda */
+function plan(){if(typeof S.nextH!=='number')return null;if(S.hw&&S.hw.day===S.nextH)return S.hw;
+ const w=S.hw={day:S.nextH,win:look()?900:rnd(360,600),sig:{},known:0,sk:0,delay:0,side:Math.floor(Math.random()*4),al:8+Math.random()*(N-16)};
+ const e=Math.random()<.5?'grunt':'birds';w.sig[e]=w.win;if(Math.random()<.5)w.sig.strag=rnd(150,240);if(Math.random()<.5)w.sig.dust=rnd(100,220);
+ try{if(window.spawnSafe){const p0=edgePt(w,0),p=spawnSafe(p0[0],p0[1]);if(p){if(p.y<2){w.side=0;w.al=p.x}else if(p.x>N-2){w.side=1;w.al=p.y}else if(p.y>N-2){w.side=2;w.al=p.x}else{w.side=3;w.al=p.y}}}}catch(e){}
+ w.on={};return w}
+const known=()=>{if(crea())return true;try{if(S.hwP>0)return true;const w=S.hw;return !!(w&&w.day===S.nextH&&w.known)}catch(e){return false}};
+window.hwKnown=known;
+window.hwLeft=()=>S.hwP>0?S.hwP:leftH();
+const fmt=t=>{t=Math.max(0,Math.ceil(t));const d=Math.floor(t/DAY),r=t%DAY;return(d?d+'d ':'')+Math.floor(r/60)+':'+String(r%60).padStart(2,'0')};
+window.hwLeftTxt=()=>fmt(window.hwLeft());
+function fire(w,k){w.on[k]=1;const first=!w.known;w.known=1;const vg=look()&&first?' Los vigías lo han visto venir con tiempo.':'';
+ if(k==='grunt')msg('Gruñidos a lo lejos','Se oyen gruñidos fuera del pueblo: se acerca una horda.'+vg);
+ else if(k==='birds')msg('Los pájaros huyen','Bandadas de cuervos levantan el vuelo hacia '+dirName(w)+': una horda viene por ese lado.'+vg);
+ else if(k==='dust')msg('Polvo en el horizonte','Una nube de polvo avanza desde '+dirName(w)+': la horda está muy cerca.');
+ else if(k==='strag'){spawnStrag(w);msg('Rezagados','Unos zombis se adelantan a la horda. Si caen todos antes de que llegue, la horda tardará más.')}}
+/* rezagados */
+function spawnStrag(w){const e=edgePt(w,1),n=3+(Math.random()<.5?1:0);w.sk=n;for(let i=0;i<n;i++){const z=mkZ('z',e[0]+(w.side%2?0:(i-1.5)*1.1),e[1]+(w.side%2?(i-1.5)*1.1:0),1);z._sp=1;z._out=1;z.act=1;z.strag=1;Z.push(z)}}
+/* la horda llega con retraso si cayeron todos los rezagados; el grueso entra por el lado de las señales */
+const oSH=window.startHorde;
+window.startHorde=function(name,over){
+ if(!name&&!over&&!(S.hwP>0)){const w=S.hw;if(w&&w.delay>0&&!crea()){S.hwP=w.delay;w.delay=0;try{msg('La horda se retrasa','Abatisteis a los rezagados: la horda llegará en '+fmt(S.hwP)+'.')}catch(e){}return}}
+ const n0=Z.length,r=oSH.apply(this,arguments);
+ try{const w=S.hw;if(!name&&!over&&w&&(w.on.birds||w.on.dust)){const nz=Z.slice(n0).filter(z=>z.act&&!z.band);nz.forEach((z,i)=>{if(i%10>=7)return;const a=Math.max(.8,Math.min(N-.8,w.al+((i*7)%21-10)*.9)),d=.6+(i%3)*.6;
+   if(w.side===0){z.x=a;z.y=d}else if(w.side===1){z.x=N-d;z.y=a}else if(w.side===2){z.x=a;z.y=N-d}else{z.x=d;z.y=a}})}}catch(e){}return r};
+try{startHorde=window.startHorde}catch(e){}
+/* tiempo */
+let acc=0,gT=8;
+const oU=window.upd;window.upd=function(dt){const r=oU.apply(this,arguments);try{if(!live())return r;
+  if(S.hwP>0&&!horde){S.hwP-=dt;if(S.hwP<=0){S.hwP=0;startHorde()}}
+  acc+=dt;if(acc<.5)return r;const k=acc;acc=0;if(horde||crea())return r;
+  const w=plan();if(!w)return r;const L=leftH();
+  for(const s in w.sig)if(!w.on[s]&&L<=w.sig[s]&&L>0)fire(w,s);
+  /* rezagados abatidos */
+  if(w.on.strag&&w.sk>0&&!w.skDone){const al=Z.filter(z=>z.strag&&z.hp>0&&z.act).length;if(!al){w.skDone=1;w.delay=150;msg('Rezagados abatidos','La horda tardará 2 minutos y medio más en llegar.')}}
+  /* gruñidos */
+  if(w.on.grunt&&L>0){gT-=k;if(gT<=0){gT=rnd(14,30)*(L<200?.5:1);growl(.35+.65*(1-Math.min(1,L/w.win)))}}
+ }catch(e){}return r};
+try{upd=window.upd}catch(e){}
+/* gruñido sintetizado */
+function growl(v){try{if(typeof SND!=='undefined'&&!SND)return;const a=audioContext(),t=a.currentTime,vol=(typeof sfxVol==='number'?sfxVol:.6)*v;
+ const o=a.createOscillator(),l=a.createOscillator(),lg=a.createGain(),f=a.createBiquadFilter(),g=a.createGain();o.type='sawtooth';const f0=rnd(62,90);o.frequency.setValueAtTime(f0,t);o.frequency.linearRampToValueAtTime(f0*.8,t+1.4);
+ l.frequency.value=rnd(7,13);lg.gain.value=f0*.18;l.connect(lg);lg.connect(o.frequency);f.type='lowpass';f.frequency.value=380;f.Q.value=4;
+ g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,.16*vol),t+.3);g.gain.exponentialRampToValueAtTime(.0001,t+1.5);o.connect(f);f.connect(g);g.connect(a.destination);o.start(t);l.start(t);o.stop(t+1.6);l.stop(t+1.6);
+ if(Math.random()<.6)setTimeout(()=>{try{growl(v*.6)}catch(e){}},rnd(500,1400))}catch(e){}}
+window.__hwGrowl=growl;
+/* dibujo: pájaros y polvo */
+const oR=window.render;if(typeof oR==='function'){window.render=function(){const r=oR.apply(this,arguments);try{if(!live()||horde)return r;const w=S.hw;if(!w||w.day!==S.nextH||!(w.on&&(w.on.birds||w.on.dust)))return r;
+  const cv=document.getElementById('c'),c=cv.getContext('2d');c.save();c.setTransform(cam.z*dpr,0,0,cam.z*dpr,-cam.x*cam.z*dpr,-cam.y*cam.z*dpr);const e=edgePt(w,1),b=P(e[0],e[1]),t=T;
+  if(w.on.dust){for(let i=0;i<30;i++){const u=((t*.05+i/30)%1),s=(i%10-4.5)*1.3,q=P(e[0]+(w.side%2?0:s),e[1]+(w.side%2?s:0)),rr=14+u*40,a=Math.sin(u*Math.PI)*.32;
+    c.fillStyle=`rgba(168,140,100,${a})`;c.beginPath();c.ellipse(q[0]+Math.sin(i*2.3+t*.4)*10,q[1]-8-u*55,rr*1.4,rr*.7,0,0,7);c.fill()}}
+  if(w.on.birds){const out=w.side===0?[0,-1]:w.side===1?[1,0]:w.side===2?[0,1]:[-1,0];
+   for(let i=0;i<16;i++){const u=((t*.12+i*.061)%1),q=P(e[0]+out[0]*u*10+(w.side%2?0:(i%5-2)*1.2),e[1]+out[1]*u*10+(w.side%2?(i%5-2)*1.2:0)),x=q[0]+Math.sin(i*1.7)*14,y=q[1]-10-u*170-(i%4)*9,fl=Math.sin(t*16+i*1.9)*3.5,s=3.5+(i%3);
+    c.strokeStyle=`rgba(20,18,22,${.9*(1-u*.6)})`;c.lineWidth=1.8;c.lineCap='round';c.beginPath();c.moveTo(x-s,y-fl);c.quadraticCurveTo(x-s*.4,y-1,x,y+1);c.quadraticCurveTo(x+s*.4,y-1,x+s,y-fl);c.stroke()}}
+  c.restore()}catch(e){}return r};try{render=window.render}catch(e){}}
+window.hwLook=function(){const w=S.hw;if(!w)return;try{closeP&&closeP()}catch(e){}try{const e=edgePt(w,1),q=P(e[0],e[1]);cam.x=q[0]-innerWidth/2/cam.z;cam.y=q[1]-innerHeight/2/cam.z-50}catch(e){}};
+window.hwInfo=()=>{const w=S.hw;if(!w||w.day!==S.nextH||!w.known)return'';const L=[];if(w.on.grunt)L.push('🔊 Se oyen gruñidos a lo lejos.');if(w.on.birds)L.push('🐦 Los pájaros huyen desde '+dirName(w)+': el grueso de la horda entrará por ahí.');
+ if(w.on.dust)L.push('🌫 Hay polvo en el horizonte hacia '+dirName(w)+'.');if(w.on.strag)L.push(w.skDone?'✔ Abatisteis a los rezagados: la horda llegará más tarde.':'🧟 Han llegado rezagados: si caen todos antes de la horda, se retrasará.');
+ return L.map(x=>'<p>'+x+'</p>').join('')+((w.on.birds||w.on.dust)?'<button class="btn" onclick="hwLook()">📍 Ver por dónde vienen</button>':'')};
+/* guía */
+try{const i=GD.findIndex(g=>g[0]==='Zombis y defensa');if(i>=0){const o=GD[i][1];GD[i][1]=()=>{let h='';try{h=o()}catch(e){}return h+'<p><b>🧟 Cuándo llega una horda:</b> no se sabe de antemano. Unos minutos antes aparecen señales: gruñidos lejanos o pájaros que huyen del borde por donde vendrá; a veces también <b>rezagados</b> (si los abates a todos, la horda tarda más) o polvo en el horizonte. Con una torre de vigilancia o una antena de largo alcance te enteras antes. Desde la primera señal, la ficha 🧟 de arriba muestra la cuenta atrás.</p>'}}}catch(e){}
+window.__hw={plan,leftH,fire,known};
 })();
 </script>
 <script>/* Decoraciones: piezas baratas sin efecto para dejar el pueblo a tu gusto (pestaña 🌳 Decoración del menú Construir).

@@ -12,10 +12,11 @@ function upd(){const t=document.getElementById('top');if(!t)return;let c=documen
  c.style.display='';
  if(horde){const n=Z.filter(z=>z.act).length;c.className='ch hz now';c.innerHTML=`🧟 ${n}`;c.title='Horda en curso: '+n+' enemigos';return}
  let e=null;try{e=hordeEst()}catch(x){}if(!e){c.style.display='none';return}
- c.className='ch hz '+(COL[e.v]||'mid');c.innerHTML=`🧟 ${whenS(e.days)}`;c.title='Próxima horda: '+when(e.days)+' · defensa '+e.v}
-function detail(){if(horde)return;let e=null;try{e=hordeEst()}catch(x){}if(!e)return;
+ if(window.hwKnown&&!hwKnown()){c.className='ch hz calm';c.innerHTML='🧟 —';c.title='Sin señales de horda';return}
+ c.className='ch hz '+(COL[e.v]||'mid');c.innerHTML=`🧟 ${window.hwLeftTxt?hwLeftTxt():whenS(e.days)}`;c.title='Próxima horda: '+(window.hwLeftTxt?hwLeftTxt():when(e.days))+' · defensa '+e.v}
+function detail(){if(horde)return;let e=null;try{e=hordeEst()}catch(x){}if(!e)return;const unk=window.hwKnown&&!hwKnown();
  const k=COL[e.v]||'mid',pct=Math.round(Math.min(1,(e.r||0)/2)*100),tip={ok:'Tu defensa debería bastar. Aun así, repara muros y mantén munición.',mid:'Va a estar justo: sube torres o torretas, entrena al ejército o arma a más gente.',bad:'Tu defensa no basta: refuerza ya (torretas, muros, soldados armados) o perderás edificios y gente.'}[k];
- show('Próxima horda',`<div class="hz-card ${k}"><div class="hz-big">🧟</div><div><b>${when(e.days)} · ${e.kind}</b><small>Unos ${e.n} enemigos</small></div><span class="hz-v">${e.v}</span></div>
+ show('Próxima horda',(unk?`<div class="hz-card calm"><div class="hz-big">🧟</div><div><b>Sin señales de horda</b><small>Cuando se acerque una lo notarás: gruñidos, pájaros que huyen, rezagados o polvo en el horizonte.${(S.bld||[]).some(b=>b.type==='tower'||b.type==='mtower'||b.type==='radiolr')?' Tus vigías la verán venir con más tiempo.':' Una torre de vigilancia te avisaría antes.'}</small></div></div>`:`<div class="hz-card ${k}"><div class="hz-big">🧟</div><div><b>${window.hwLeftTxt?'Llega en '+hwLeftTxt():when(e.days)} · ${e.kind}</b><small>Unos ${e.n} enemigos</small></div><span class="hz-v">${e.v}</span></div>`+(window.hwInfo?hwInfo():''))+`
   <div class="mu-h">Tu defensa frente a la horda</div><div class="hz-bar"><i class="${k}" style="width:${pct}%"></i><span style="left:41.5%"></span><span style="left:62.5%"></span></div><div class="hz-leg"><small style="left:20%">Insuficiente</small><small style="left:52%">Justa</small><small style="left:81%">Suficiente</small><b class="hz-you" style="left:${Math.max(3,Math.min(97,pct))}%">▲ Tú</b></div>
   <p class="hz-tip">${tip}</p><small class="mu-mut">Cuentan los soldados del ejército, quienes tienen arma en torres y las torretas. Los civiles sin arma se refugian en el ayuntamiento.</small>`)}
 window.hordeChip=detail;
@@ -23,6 +24,7 @@ setInterval(()=>{try{upd()}catch(e){}},1000);
 const st=document.createElement('style');st.textContent=`
 @media (max-width:1000px){#top .ch{letter-spacing:.3px!important;padding-left:5px!important;padding-right:6px!important}}
 #hzChip.hz{cursor:pointer;border:1px solid;font-weight:800;padding-left:6px;padding-right:7px;white-space:nowrap;letter-spacing:.2px;font-size:11px}
+#hzChip.calm{border-color:#5a6a5a;color:#b8c4b0;background:linear-gradient(180deg,#232a23,#171c17)}.hz-card.calm{border-color:#5a6a5a;background:#171c17}
 #hzChip.ok{border-color:#4f9a4f;color:#a6f0a6;background:linear-gradient(180deg,#1f3a1f,#142614)}
 #hzChip.mid{border-color:#b8962a;color:#ffe08a;background:linear-gradient(180deg,#3e3414,#2a230c)}
 #hzChip.bad{border-color:#c0442e;color:#ffb39e;background:linear-gradient(180deg,#4a1c14,#2e110c);animation:hzP 1.6s ease-in-out infinite}

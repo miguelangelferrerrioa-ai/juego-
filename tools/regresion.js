@@ -229,6 +229,12 @@ scenarios.push(['Aviso de bandidos','partida_larga_dia248.json',async pg=>pg.eva
  const side=S.bw.side,ep=side===0?[S.bw.al,0]:side===1?[N,S.bw.al]:side===2?[S.bw.al,N]:[0,S.bw.al];await nd();r.raid=!!horde&&!!horde.band;r.weak=!!horde&&(s.weak[horde.band]||0)>=S.day;r.band=horde&&horde.band;r.bw=S.bw;
  const bz=Z.filter(z=>z.act&&z.band&&!z.scout);await __run(.3);r.side=bz.length&&bz.filter(z=>Math.hypot(Math.max(0,Math.min(N,z.x))-ep[0],Math.max(0,Math.min(N,z.y))-ep[1])<14).length>=bz.length*.8;
  let g=0;while(horde&&g++<300){Z.forEach(z=>{if(z.act)z.hp=0});await __run(1)}r.gap=Math.abs(s.next-S.nextH);r.err=window.__esErr||'';return r})]);
+scenarios.push(['Aviso de hordas','partida_larga_dia248.json',async pg=>pg.evaluate(async()=>{const o={};Z.length=0;S.bn.next=S.day+20;S.nextH=S.day+3;S.hw=null;S.dayT=100;await __run(1);o.k0=hwKnown();
+ S.nextH=S.day+1;S.hw=null;S.dayT=0;__hw.plan();const w=S.hw;w.sig={birds:w.win,strag:250,dust:150};await __run(1);o.k1=hwKnown()&&!!w.on.birds;
+ S.dayT=600-251;await __run(1.5);const st=Z.filter(z=>z.strag);o.st=st.length;st.forEach(z=>z.hp=0);await __run(1.5);o.delay=w.delay;
+ S.dayT=599.9;await __run(.5);o.def=!horde&&S.hwP>100;await __run(155);o.h=!!horde;
+ const side=w.side,ep=side===0?[w.al,0]:side===1?[N,w.al]:side===2?[w.al,N]:[0,w.al];const zz=Z.filter(z=>z.act&&!z.band);o.near=zz.length?zz.filter(z=>Math.hypot(Math.max(0,Math.min(N,z.x))-ep[0],Math.max(0,Math.min(N,z.y))-ep[1])<15).length/zz.length:0;
+ let g=0;while(horde&&g++<300){Z.forEach(z=>{if(z.act)z.hp=0});await __run(1)}o.end=!horde;return o})]);
 scenarios.push(['Plazas del ejército','dia3.json',async pg=>pg.evaluate(async()=>{window.pSheet=()=>{};S.res.ammo=999;const B=S.bld.filter(b=>b.type==='barr');S.bld=S.bld.filter(b=>b.type!=='barr');rebuild();
  const c=()=>S.ppl.filter(p=>p.arm).length,free=()=>S.ppl.find(p=>!p.arm&&!p.preg&&p.age>=18&&!p.away);const n0=c();enlist(free().id,'soldado');const sin=c()-n0;
  S.bld.push({type:'barr',x:2,y:2,w:B[0]?B[0].w:3,h:B[0]?B[0].h:2,lvl:1,hp:200,id:9999});rebuild();S.ppl.forEach(p=>{if(p.arm)p.arm=null});let k=0;for(let i=0;i<8;i++){const f=free();if(!f)break;enlist(f.id,'soldado')}k=c();
@@ -255,6 +261,7 @@ scenarios.push(['Plazas del ejército','dia3.json',async pg=>pg.evaluate(async()
   if(name==='Soldado con lanza'){ok(tag+': no se le puede poner de tirador',r.refused,JSON.stringify(r));ok(tag+': si estaba en una torre, deja el puesto',r.kicked,JSON.stringify(r));ok(tag+': en la horda no dispara (pelea de cerca)',r.inU&&r.shots===0,JSON.stringify(r))}
   if(name==='Torre en plena horda'){ok(tag+': en la torre no está en el grupo',!r.before,JSON.stringify(r));ok(tag+': al quitarlo de la torre entra a combatir',r.joined&&r.acted,JSON.stringify(r));ok(tag+': al meterlo en una torre sale del grupo',r.out!==false,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
   if(name==='Aviso de bandidos'){const J=JSON.stringify(r);ok(tag+': bandidos y horda separados al menos 2 días',r.sep1>=2&&r.sep2>=2&&r.gap>=2,J);ok(tag+': se anuncia 2 días antes y llegan exploradores',r.ann&&r.d1===1&&r.sc===2,J);ok(tag+': abatir a los exploradores debilita el asalto',r.k===2&&r.weak,J);ok(tag+': el asalto entra por el lado anunciado',r.raid&&r.side&&r.bw===null,J)}
+  if(name==='Aviso de hordas'){const J=JSON.stringify(r);ok(tag+': sin señales no se sabe cuándo llega',r.k0===false,J);ok(tag+': la primera señal descubre la horda',r.k1,J);ok(tag+': abatir a los rezagados retrasa la horda',r.st>=3&&r.delay===150&&r.def&&r.h,J);ok(tag+': el grueso entra por el lado de las señales y termina',r.near>=.6&&r.end,J)}
   if(name==='Alistar por tipo')ok(tag+': cada tipo cuesta lo suyo y sin recursos no se alista',r.s[0]==='soldado'&&r.s[1]===20&&r.e[0]==='esp'&&r.e[1]===70&&r.e[2]===60&&r.no===null,JSON.stringify(r));
   if(name==='Asaltos desde el borde')ok(tag+': ningún asalto aparece dentro del territorio',r.n===0,JSON.stringify(r));
   if(name==='Horda con territorio en el borde'){ok(tag+': ningún zombi aparece dentro del territorio ni junto a edificios',r.nbad===0&&r.n>0,JSON.stringify(r));ok(tag+': la horda termina',r.ended,JSON.stringify(r))}
