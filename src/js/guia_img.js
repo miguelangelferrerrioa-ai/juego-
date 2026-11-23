@@ -101,7 +101,7 @@ function tick(){const gs=document.getElementById('guideScreen');if(!gs||getCompu
  raf=requestAnimationFrame(tick)}
 function start(){if(!raf)raf=requestAnimationFrame(tick)}
 /* Bestiario: una ficha por enemigo; los que aún no has encontrado salen como silueta */
-const GROUPS=[['Infectados',['z','r','f','s']],['Infectados especiales',['u','j','t','q','h','g','a','v','x','w','i','l']],['Humanos hostiles',['b','k','p','m','e']],['Jefes',['U','J','T','G','A','H']]];
+const GROUPS=[['Infectados',['z','r','f','s']],['Infectados especiales',['u','j','t','q','h','g','a','v','x','w','i','l']],['Humanos hostiles',['b','k','p','m','e','bmo','bfr','bdy','bdo','bzc']],['Vehículos de bandidos',['bco','bfu','bbl','bfb']],['Jefes',['U','J','T','G','A','H']]];
 function bestiary(){const I=window.enemyInfo||{};const bar=(v,mx)=>'<em><u style="width:'+Math.max(8,Math.min(100,Math.round(v/mx*100)))+'%"></u></em>';
  const all=GROUPS.reduce((a,g)=>a.concat(g[1]),[]).filter(t=>ZT[t]),n=all.filter(known).length;
  let h='<p>Aquí se guarda una ficha de cada enemigo. Los que todavía no has encontrado aparecen como una <b>silueta</b>: se desbloquean la primera vez que los ves, en una horda o en una misión. Descubiertos: <b>'+n+' de '+all.length+'</b>.</p>';
