@@ -10,7 +10,7 @@ function rules(){const R=[];const pop=S.ppl.filter(p=>!p.away).length,eat=(typeo
  if(S.res.food<pop*eat*1.5)R.push(['🌾','Queda poca comida: construye '+(av('greenh')?'un invernadero o ':'')+'una granja y asigna agricultores.','Construir',tab('rec')]);
  if(S.res.water<pop*eat*1.5)R.push(['💧','Queda poca agua: construye un pozo'+(av('pump')?' o una estación de bombeo':'')+'.','Construir',tab('rec')]);
  try{const pw=powCalc();if(pw&&(pw.over||pw.sup<pw.dem))R.push(['⚡','Falta energía y hay edificios parados: construye '+(av('solar')?'una granja solar o ':'')+'un generador.','Construir',tab('prod')])}catch(e){}
- try{const e=hordeEst();if(e&&e.days<=1&&e.v==='Insuficiente')R.push(['🧟','La próxima horda llega '+(e.days<=0?'hoy':'mañana')+' y tu defensa no basta: construye torres o alista soldados.','Defensa',tab('def')])}catch(e){}
+ try{const e=hordeEst();if(e&&e.days<=1&&e.v==='Insuficiente'&&(!window.hwKnown||hwKnown()))R.push(['🧟','La próxima horda llega '+(e.days<=0?'hoy':'mañana')+' y tu defensa no basta: construye torres o alista soldados.','Defensa',tab('def')])}catch(e){}
  const dmg=S.bld.filter(b=>b.hp<mxhp(b)*.7&&b.type!=='road').length;if(dmg>=3)R.push(['🔧','Tienes '+dmg+' edificios dañados: repáralos desde el ayuntamiento.','Reparar',()=>{try{repMenu()}catch(e){const h=hall();h&&bPanel(h.id)}}]);
  try{if(pop>=pcap())R.push(['🏠','No caben más supervivientes: construye casas o mejóralas.','Construir',tab('ciudad')])}catch(e){}
  const idle=S.ppl.filter(p=>!p.away&&!p.job&&!p.arm&&p.age>=18&&!p.preg&&!p.inside).length;if(idle>=2)R.push(['👷',idle+' supervivientes no tienen trabajo: asígnales un puesto.','Ver gente',()=>{try{pplMenu()}catch(e){}}]);
