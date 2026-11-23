@@ -7,8 +7,8 @@
 const near=(x,y)=>{let m=1e9;for(const b of S.bld){if(b.type==='road'||b.type==='bridge')continue;const dx=Math.max(b.x-x,0,x-(b.x+b.w)),dy=Math.max(b.y-y,0,y-(b.y+b.h));const d=Math.hypot(dx,dy);if(d<m)m=d}return m};
 const bad=(x,y)=>(typeof ownP==='function'&&ownP(x,y))||near(x,y)<8;
 let PTS=null,PK='';
-/* franja del borde en la que se considera que un enemigo acaba de llegar de fuera (los asaltos salen hasta 4,5 casillas dentro) */
-const EB=5;
+/* franja del borde en la que un enemigo nuevo se considera llegado de fuera (raids.js los pone dentro de ella) */
+const EB=2.6;
 function cands(){let k=S.bld.length+'|'+(S.parc?S.parc.join(''):'');for(const b of S.bld)k+=b.x+b.y;if(PK===k&&PTS)return PTS;PK=k;const L=[];
  for(let i=1.5;i<N-1.5;i+=1.5){for(const [x,y] of [[i,1.2],[i,N-1.2],[1.2,i],[N-1.2,i]]){const own=typeof ownP==='function'&&ownP(x,y);L.push({x,y,d:near(x,y),own})}}
  PTS=L;return L}
