@@ -26,7 +26,7 @@ function spawnRaid(){
   if(S.day>=cfg.d+14&&n>=4&&Math.random()<.4){comp.s=1;comp.z=Math.max(0,comp.z-1)}
   const along=Math.random()*(N-16)+8;let sx,sy;
   if(side[1]===0){sx=along;sy=1.5}else if(side[1]===1){sx=N-2.5;sy=along}else if(side[1]===2){sx=along;sy=N-2.5}else{sx=1.5;sy=along}
-  let k=0;for(const t in comp)for(let i=0;i<comp[t];i++){const z=mkZ(t,cl(sx+rn(-2,2),.5,N-.5),cl(sy+rn(-2,2),.5,N-.5),1);z.raid=1;Z.push(z);k++}
+  let k=0;for(const t in comp)for(let i=0;i<comp[t];i++){let zx=cl(sx+rn(-2,2),.5,N-.5),zy=cl(sy+rn(-2,2),.5,N-.5);/* pegados al borde (a menos de 2,4 casillas) para que entren andando desde fuera */if(side[1]===0)zy=cl(zy,.5,2.4);else if(side[1]===1)zx=cl(zx,N-2.4,N-.5);else if(side[1]===2)zy=cl(zy,N-2.4,N-.5);else zx=cl(zx,.5,2.4);const z=mkZ(t,zx,zy,1);z.raid=1;Z.push(z);k++}
   // defensores: los soldados enrolados salen a recibirlos
   if(!U.length){const h=S.bld.find(b=>b.type=='hall')||{x:26,y:26};S.ppl.filter(p=>p.arm&&!p.away&&p.hp>25&&!p.preg&&p.age>=18).forEach((p,i)=>U.push({p,x:h.x+1+i%4,y:h.y+5+(i>>2),hp:p.hp,cd:0}))}
   window.raidOn={n:k,t:0,side:side[0]};
