@@ -53,13 +53,20 @@ function tabSt0(p){const tr=window.trInfo&&trInfo(p),sel=window.pRole&&PF.includ
   return `<div class="stg">`+PF.map(k=>{const v=Math.min(10,p.ps[k]||0),e=window.eqB?eqB(p,k):0,c=SI[k][1],seg=[];
    for(let i=1;i<=10;i++)seg.push(`<i style="${i<=v?'background:'+c:i<=v+e?'background:#ffd877':''}"></i>`);
    return `<div class="sti${tr&&tr.pf===k?' on':''}${k===sel?' sel':''}" style="cursor:pointer${k===sel?';outline:1px solid #e0b020':''}" onclick="pRole='${k}';pSheet(${p.id})"><b style="background:${c}">${SI[k][0]}</b><span>${k}</span><div class="sts">${seg.join('')}</div><em>${v}${e?'<small>+'+e+'</small>':''}</em></div>`}).join('')+`</div><div class="invb" style="background:#141c20;border:1px solid #263238;border-radius:4px;padding:6px 8px;margin:4px 0;line-height:1.35"><b style="color:${SI[sel][1]}">${sel}</b> · ${roleTxt(sel)}</div><p class="invb">Toca un rol para ver qué hace. Cada rol sube de 0 a 10 en los edificios de formación. <span style="color:#ffd877">Amarillo</span> = bono del equipo.</p>`}
+const armyCards=id=>{const st=(l,v,m,c)=>`<div style="display:flex;align-items:center;gap:5px;font-size:11px"><span style="width:52px;opacity:.8">${l}</span><div style="flex:1;height:6px;background:#263238;border-radius:3px"><i style="display:block;height:100%;width:${Math.min(100,v/m*100)}%;background:${c};border-radius:3px"></i></div><b style="width:18px;text-align:right">${v}</b></div>`;
+  const chip=c=>Object.keys(c).map(k=>{const ok=S.mode==='creativo'||(S.res[k]||0)>=c[k];return `<span class="bp2k ${ok?'':'no'}"><img src="${(typeof ICO!=='undefined'&&ICO[k])||''}" width=12>${c[k]}<small>${Math.floor(S.res[k]||0)}</small></span>`}).join('');
+  return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;margin:6px 0">'+Object.keys(CL).map(k=>{const c=CL[k],lock=c.t&&!th(c.t),T_=lock&&TECH.find(q=>q[0]===c.t),hid=lock&&window.techHid&&techHid(T_);
+   if(hid)return '<div style="border:1px solid #33403f;border-radius:8px;padding:8px;background:rgba(0,0,0,.25);opacity:.7"><b>???</b><div class="invb">Se desbloquea investigando.</div></div>';
+   const cc=c.c||{ammo:20},ok=S.mode==='creativo'||can(cc);
+   return `<div style="border:1px solid ${lock?'#33403f':'#5a6a3a'};border-radius:8px;padding:8px;background:rgba(20,28,24,.6);display:flex;flex-direction:column;gap:4px${lock?';opacity:.75':''}"><b style="color:#ffd877">${c.n}</b>${st('Daño',c.dmg,30,'#e06a4a')}${st('Defensa',c.def,6,'#5aa0e0')}${st('Alcance',c.rng,8,'#8fd06a')}<div class="invb" style="line-height:1.3">${c.d||''}</div><div>${chip(cc)}</div>`+
+    (lock?`<div class="invb" style="color:#ef8a7a">🔒 Requiere investigar ${window.techName?techName(T_):T_[2]}</div>`:`<button class="btn" ${ok?'':'disabled'} onclick="pOpen=null;enlist(${id},'${k}')">Enrolar</button>`)+'</div>'}).join('')+'</div>'};
 function tabTr(p){const id=p.id,b=bm[p.job],opts=S.bld.filter(q=>BT[q.type].slots&&wk(q).length<slots(q)&&(!p.arm||BT[q.type].gun));
   const cl_=S.inv.filter(w=>w.kind==='clothing'),op=window.pOpen;
   const tg=k=>`pOpen=${op===k?'null':`'${k}'`};pSheet(${id})`;
   let h=`<div class="prow"><span>Trabajo: <b class="pv">${b?BT[b.type].n:'sin asignar'}</b></span>${btn(op==='job'?'▲ Cerrar':'Cambiar',tg('job'))}${p.job?btn('Quitar',`byId(${id}).job=0;pSheet(${id})`):''}</div>`;
   if(op==='job')h+=`<div class="pchips">${opts.length?opts.map(q=>btn((BT[q.type].tr?'🎓 ':'')+BT[q.type].n,`pOpen=null;asg(${id},${q.id})`)).join(''):'<small>No hay puestos libres.</small>'}</div>`;
   h+=`<div class="prow"><span>Ejército: <b class="pv">${p.arm?CL[p.arm].n:'civil'}</b></span>`+(p.arm?btn('Licenciar',`byId(${id}).arm=null;pSheet(${id})`):btn(op==='army'?'▲ Cerrar':'Enrolar',tg('army')))+`</div>`;
-  if(op==='army'&&!p.arm)h+=`<div class="pchips">${Object.keys(CL).map(k=>btn(CL[k].n,`pOpen=null;enlist(${id},'${k}')`,CL[k].t&&!th(CL[k].t))).join('')}</div>`;
+  if(op==='army'&&!p.arm)h+=armyCards(id);
   if(cl_.length)h+=`<p class="invb">Prendas recuperadas: ${cl_.map(w=>btn(w.n+' (+'+(w.def||0)+')',`lootEquip(${id},${S.inv.indexOf(w)})`)).join('')}</p>`;
   return h}
 window.pSheet=function(id){const p=byId(id);if(!p)return;const b=bm[p.job];
