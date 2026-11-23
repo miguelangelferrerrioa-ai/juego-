@@ -466,6 +466,7 @@ const TBY=id=>TECH.find(q=>q[0]===id);
 function techWhy(t){
   if(!cnt('lab'))return'Necesitas un Laboratorio.';
   if(hallLv()<t[3])return'Requiere ayuntamiento nivel '+t[3]+'.';
+  try{if(S.mode!=='creativo'&&window.rpCap&&t[4]&&t[4].rp>rpCap())return'Cuesta '+t[4].rp+' PI y el laboratorio solo guarda '+rpCap()+': mejora el laboratorio.'}catch(e){}
   const m=(PRE[t[0]]||[]).filter(p=>!S.tech[p]);if(m.length)return'Requiere: '+m.map(p=>window.techName?techName(TBY(p)):TBY(p)[2]).join(', ')+'.';
   return'';
 }

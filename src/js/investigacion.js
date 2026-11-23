@@ -6,8 +6,8 @@ if(!RK.some(r=>r[0]==='rp')){RK.push(['rp','Puntos de investigación','#7fe0ff']
  x.beginPath();x.moveTo(8,3);x.lineTo(12,3);x.lineTo(12,8);x.lineTo(17,16);x.quadraticCurveTo(18,18,15,18);x.lineTo(5,18);x.quadraticCurveTo(2,18,3,16);x.lineTo(8,8);x.closePath();x.fill();x.stroke();
  x.fillStyle='rgba(255,255,255,.7)';x.beginPath();x.arc(9,14,1.5,0,7);x.fill();ICO.rp=c.toDataURL()}
 const T=id=>TECH.find(q=>q[0]===id);
-window.rpCost=t=>Math.round((10+14*t[3])/5)*5;
-window.rpDays=t=>Math.round((.4+.12*t[3])*10)/10;
+window.rpCost=t=>Math.round((25+30*t[3])/5)*5;
+window.rpDays=t=>Math.round((.5+.15*t[3])*10)/10;
 const fix=()=>{TECH.forEach(t=>{if(!t.pi){t[4]={rp:rpCost(t)};t.pi=1}})};fix();window.rpFix=fix;
 const labs=()=>S.bld.filter(b=>b.type==='lab');
 window.rpCap=()=>S.mode==='creativo'?999999:120+40*labs().reduce((a,b)=>a+b.lvl,0);
@@ -41,7 +41,7 @@ setInterval(()=>{try{const on=rpOn();ZN.forEach(z=>{if(!z._rp||!z.l)return;if(on
 /* guía */
 try{const G=window.GD||GD,rep=(t,f)=>{const g=G.find(q=>q[0]===t);if(!g)return;const o=g[1];g[1]=()=>f(o())};
 const i=G.findIndex(q=>q[0]==='Tecnologías');
-if(i>=0)G[i][1]=()=>{fix();return'<p>Las tecnologías <b>no gastan materiales</b>: se pagan con <b>puntos de investigación (PI)</b> y tardan un tiempo en completarse.</p><p><b>Conseguir PI:</b> el <b>Laboratorio</b> los produce cada día (más cuanto más nivel tenga y mejor sea el científico que trabaja en él; formar científicos sube la producción). Si el laboratorio se queda sin energía, deja de producir y la investigación se detiene. También dan PI las expediciones (sobre todo a laboratorios y hospitales), los archivos y documentos que encuentras, y algunas misiones principales. Empiezas con 30 PI.</p><p><b>Límite:</b> los PI no se acumulan sin fin: el tope es 120 + 40 por nivel de laboratorio.</p><p><b>Cola:</b> un estudio a la vez. Con un laboratorio de nivel 4 hay una segunda plaza y con nivel 8 una tercera. El coste se paga al empezar y puedes cancelar un estudio para recuperar los PI.</p><p><b>Árbol:</b> cada rama (Agricultura, Medicina, Construcción, Energía, Armamento, Defensa, Exploración) es una fila; un estudio pide haber investigado el anterior y tener el nivel de ayuntamiento indicado.</p>'+TECH.map(t=>`<p><b>${t[2]}</b> (${t[1]}, ayunt. ${t[3]}): ${t[5]}. Coste: ${t[4].rp} PI · ${rpDays(t)} días.</p>`).join('')};
+if(i>=0)G[i][1]=()=>{fix();return'<p>Las tecnologías <b>no gastan materiales</b>: se pagan con <b>puntos de investigación (PI)</b> y tardan un tiempo en completarse.</p><p><b>Conseguir PI:</b> el <b>Laboratorio</b> los produce cada día (más cuanto más nivel tenga y mejor sea el científico que trabaja en él; formar científicos sube la producción). Si el laboratorio se queda sin energía, deja de producir y la investigación se detiene. También dan PI las expediciones (sobre todo a laboratorios y hospitales), los archivos y documentos que encuentras, y algunas misiones principales. Empiezas con 30 PI.</p><p><b>Límite:</b> los PI no se acumulan sin fin: el tope es 120 + 40 por nivel de laboratorio. Los estudios avanzados cuestan más de lo que cabe en un laboratorio pequeño: para investigarlos hay que mejorarlo.</p><p><b>Cola:</b> un estudio a la vez. Con un laboratorio de nivel 4 hay una segunda plaza y con nivel 8 una tercera. El coste se paga al empezar y puedes cancelar un estudio para recuperar los PI.</p><p><b>Árbol:</b> cada rama (Agricultura, Medicina, Construcción, Energía, Armamento, Defensa, Exploración) es una fila; un estudio pide haber investigado el anterior y tener el nivel de ayuntamiento indicado.</p>'+TECH.map(t=>`<p><b>${t[2]}</b> (${t[1]}, ayunt. ${t[3]}): ${t[5]}. Coste: ${t[4].rp} PI · ${rpDays(t)} días.</p>`).join('')};
 rep('Recursos',h=>h);
 }catch(e){console.error('guia inv',e)}
 })();

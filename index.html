@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v344</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v345</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -4868,6 +4868,7 @@ const TBY=id=>TECH.find(q=>q[0]===id);
 function techWhy(t){
   if(!cnt('lab'))return'Necesitas un Laboratorio.';
   if(hallLv()<t[3])return'Requiere ayuntamiento nivel '+t[3]+'.';
+  try{if(S.mode!=='creativo'&&window.rpCap&&t[4]&&t[4].rp>rpCap())return'Cuesta '+t[4].rp+' PI y el laboratorio solo guarda '+rpCap()+': mejora el laboratorio.'}catch(e){}
   const m=(PRE[t[0]]||[]).filter(p=>!S.tech[p]);if(m.length)return'Requiere: '+m.map(p=>window.techName?techName(TBY(p)):TBY(p)[2]).join(', ')+'.';
   return'';
 }
@@ -7261,8 +7262,8 @@ if(!RK.some(r=>r[0]==='rp')){RK.push(['rp','Puntos de investigación','#7fe0ff']
  x.beginPath();x.moveTo(8,3);x.lineTo(12,3);x.lineTo(12,8);x.lineTo(17,16);x.quadraticCurveTo(18,18,15,18);x.lineTo(5,18);x.quadraticCurveTo(2,18,3,16);x.lineTo(8,8);x.closePath();x.fill();x.stroke();
  x.fillStyle='rgba(255,255,255,.7)';x.beginPath();x.arc(9,14,1.5,0,7);x.fill();ICO.rp=c.toDataURL()}
 const T=id=>TECH.find(q=>q[0]===id);
-window.rpCost=t=>Math.round((10+14*t[3])/5)*5;
-window.rpDays=t=>Math.round((.4+.12*t[3])*10)/10;
+window.rpCost=t=>Math.round((25+30*t[3])/5)*5;
+window.rpDays=t=>Math.round((.5+.15*t[3])*10)/10;
 const fix=()=>{TECH.forEach(t=>{if(!t.pi){t[4]={rp:rpCost(t)};t.pi=1}})};fix();window.rpFix=fix;
 const labs=()=>S.bld.filter(b=>b.type==='lab');
 window.rpCap=()=>S.mode==='creativo'?999999:120+40*labs().reduce((a,b)=>a+b.lvl,0);
@@ -7296,7 +7297,7 @@ setInterval(()=>{try{const on=rpOn();ZN.forEach(z=>{if(!z._rp||!z.l)return;if(on
 /* guía */
 try{const G=window.GD||GD,rep=(t,f)=>{const g=G.find(q=>q[0]===t);if(!g)return;const o=g[1];g[1]=()=>f(o())};
 const i=G.findIndex(q=>q[0]==='Tecnologías');
-if(i>=0)G[i][1]=()=>{fix();return'<p>Las tecnologías <b>no gastan materiales</b>: se pagan con <b>puntos de investigación (PI)</b> y tardan un tiempo en completarse.</p><p><b>Conseguir PI:</b> el <b>Laboratorio</b> los produce cada día (más cuanto más nivel tenga y mejor sea el científico que trabaja en él; formar científicos sube la producción). Si el laboratorio se queda sin energía, deja de producir y la investigación se detiene. También dan PI las expediciones (sobre todo a laboratorios y hospitales), los archivos y documentos que encuentras, y algunas misiones principales. Empiezas con 30 PI.</p><p><b>Límite:</b> los PI no se acumulan sin fin: el tope es 120 + 40 por nivel de laboratorio.</p><p><b>Cola:</b> un estudio a la vez. Con un laboratorio de nivel 4 hay una segunda plaza y con nivel 8 una tercera. El coste se paga al empezar y puedes cancelar un estudio para recuperar los PI.</p><p><b>Árbol:</b> cada rama (Agricultura, Medicina, Construcción, Energía, Armamento, Defensa, Exploración) es una fila; un estudio pide haber investigado el anterior y tener el nivel de ayuntamiento indicado.</p>'+TECH.map(t=>`<p><b>${t[2]}</b> (${t[1]}, ayunt. ${t[3]}): ${t[5]}. Coste: ${t[4].rp} PI · ${rpDays(t)} días.</p>`).join('')};
+if(i>=0)G[i][1]=()=>{fix();return'<p>Las tecnologías <b>no gastan materiales</b>: se pagan con <b>puntos de investigación (PI)</b> y tardan un tiempo en completarse.</p><p><b>Conseguir PI:</b> el <b>Laboratorio</b> los produce cada día (más cuanto más nivel tenga y mejor sea el científico que trabaja en él; formar científicos sube la producción). Si el laboratorio se queda sin energía, deja de producir y la investigación se detiene. También dan PI las expediciones (sobre todo a laboratorios y hospitales), los archivos y documentos que encuentras, y algunas misiones principales. Empiezas con 30 PI.</p><p><b>Límite:</b> los PI no se acumulan sin fin: el tope es 120 + 40 por nivel de laboratorio. Los estudios avanzados cuestan más de lo que cabe en un laboratorio pequeño: para investigarlos hay que mejorarlo.</p><p><b>Cola:</b> un estudio a la vez. Con un laboratorio de nivel 4 hay una segunda plaza y con nivel 8 una tercera. El coste se paga al empezar y puedes cancelar un estudio para recuperar los PI.</p><p><b>Árbol:</b> cada rama (Agricultura, Medicina, Construcción, Energía, Armamento, Defensa, Exploración) es una fila; un estudio pide haber investigado el anterior y tener el nivel de ayuntamiento indicado.</p>'+TECH.map(t=>`<p><b>${t[2]}</b> (${t[1]}, ayunt. ${t[3]}): ${t[5]}. Coste: ${t[4].rp} PI · ${rpDays(t)} días.</p>`).join('')};
 rep('Recursos',h=>h);
 }catch(e){console.error('guia inv',e)}
 })();
@@ -12141,7 +12142,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'344';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'345';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
