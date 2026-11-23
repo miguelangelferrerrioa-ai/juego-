@@ -33,19 +33,27 @@ function boomAt(x,y,bd,pd,r){FX.push({boom:1,x,y,t:.55});burst(x,y,16,'#ff9a30',
  U.forEach(u=>{if(hyp(u.x-x,u.y-y)<r)u.hp-=pd});S.ppl.forEach(p=>{if(!p.away&&!p.inside&&!p.tw&&hyp(p.x-x,p.y-y)<r){p.hp-=pd;p.injury=Math.min(100,(p.injury||0)+pd*.4);if(p.hp<=0)die(p,'por una explosión')}})}
 /* ---------- creación ---------- */
 function mk(t,x,y,band,k){const z=mkZ(t,cl(x,.5,N-.5),cl(y,.5,N-.5),1);z.band=band;z.tmd=1;const tm=TM[band]||1,f=CAR[t]?Math.sqrt(tm):tm;z.dm=f;z.hp=z.mhp=Math.round(z.mhp*f*(k||1));z.lhp=z.hp;z.ang=Math.atan2(N/2-y,N/2-x);z.dx=Math.cos(z.ang)-Math.sin(z.ang);Z.push(z);return z}
-function unload(z){if(z.un)return;z.un=1;z.park=T;const a=z.ang||0,sx=-Math.sin(a),sy=Math.cos(a),hurtK=z.hp<=0?.5:1;let n=0;
- (z.pas||[]).forEach((t,i)=>{if(z.hp<=0&&R()<.4)return;const side=i%2?1:-1,back=(Math.floor(i/2)-1)*.5,x=z.x+sx*side*.95-Math.cos(a)*back,y=z.y+sy*side*.95-Math.sin(a)*back;
-  const p=mk(t,free(x,y)?x:z.x,free(x,y)?y:z.y,z.band,hurtK);p.fromV=1;n++});
+function unload(z){if(z.un)return;z.un=1;const a=z.ang||0,sx=-Math.sin(a),sy=Math.cos(a);let n=0;
+ (z.pas||[]).forEach((t,i)=>{const side=i%2?1:-1,back=(Math.floor(i/2)-1)*.5,x=z.x+sx*side*.95-Math.cos(a)*back,y=z.y+sy*side*.95-Math.sin(a)*back;
+  const p=mk(t,free(x,y)?x:z.x,free(x,y)?y:z.y,z.band,.75);p.fromV=1;n++});
  z.pas=[];if(n){burst(z.x,z.y,6,'#8a7a66',1.6,6);try{sfxAt('bshout',z.x,z.y,{v:.9})}catch(e){}}}
 /* ---------- comportamiento ---------- */
 function armor(z){if(z.lhp===undefined)z.lhp=z.hp;const d=z.lhp-z.hp;if(d>0&&!(T-(z._pf||-9)<.5)){z.hp=Math.min(z.mhp,z.hp+d*.5);if(R()<.3)burst(z.x,z.y,2,'#d8dde2',1.4,10)}z.lhp=z.hp}
 function target(z){let b=bm[z.tg];if(b&&!['road','bridge','wall','gate','barricade'].includes(b.type))return b;let bd=1e9;b=null;S.bld.forEach(q=>{if(['road','bridge','wall','gate','barricade'].includes(q.type))return;const d=hyp(q.x+q.w/2-z.x,q.y+q.h/2-z.y);if(d<bd){bd=d;b=q}});z.tg=b?b.id:0;return b}
-function ram(z,b){const c=CAR[z.t];if(b){b.hp-=c.ram*(z.dm||1);if(b.hp<=0)killB(b)}SHK=Math.max(SHK||0,.25);burst(z.x+Math.cos(z.ang)*c.L*.5,z.y+Math.sin(z.ang)*c.L*.5,12,'#9a8a76',2.4,6);try{sfxAt('crumble',z.x,z.y,{rate:1.5,v:.9})}catch(e){}unload(z)}
+/* embestida: una vez por edificio; después el vehículo se queda parado junto a él */
+function ram(z,b){const c=CAR[z.t];z.stop=1;z.blk=b?b.id:0;z.rm=z.rm||{};if(!b||z.rm[b.id])return;z.rm[b.id]=1;b.hp-=c.ram*(z.dm||1);if(b.hp<=0)killB(b);SHK=Math.max(SHK||0,.25);burst(z.x+Math.cos(z.ang)*c.L*.5,z.y+Math.sin(z.ang)*c.L*.5,12,'#9a8a76',2.4,6);try{sfxAt('crumble',z.x,z.y,{rate:1.5,v:.9})}catch(e){}}
+/* disparos desde dentro: cada ocupante (conductor incluido) dispara por la ventanilla; las furgonetas llevan además una torreta en el techo */
+function shoot(z,dt){const c=CAR[z.t],n=(z.pas?z.pas.length:0)+1,dm=z.dm||1;z.at=0;
+ z.wc=(z.wc||0)-dt;const t=nearest(z.x,z.y,4.5,1);
+ if(t){z.at=1;z.ta=Math.atan2(t.o.y-z.y,t.o.x-z.x);if(z.wc<=0){z.wc=1.6/n;z.wf=T;z.ws=R()<.5?1:-1;hurt(t.o,t.u,8*dm,'tiroteado desde un vehículo');FX.push({a:[z.x,z.y],b:[t.o.x+rn(-.2,.2),t.o.y+rn(-.2,.2)],t:.08,col:'#ffd24a'});try{sfxAt('pistol',z.x,z.y,{v:.6})}catch(e){}}}
+ if(c.van){z.tc=(z.tc||0)-dt;const u=nearest(z.x,z.y,6.5,1);if(u){z.at=1;z.ga=Math.atan2(u.o.y-z.y,u.o.x-z.x);if(z.tc<=0){z.tc=.45;z.tf=T;hurt(u.o,u.u,6*dm,'abatido por una torreta');FX.push({a:[z.x,z.y],b:[u.o.x,u.o.y],t:.07,col:'#ffb347'});if(R()<.5)try{sfxAt('rifle',z.x,z.y,{v:.6})}catch(e){}}}}
+ /* sin gente a tiro y parado junto a un edificio: le disparan a él */
+ if(!z.at&&z.stop){const b=bm[z.blk];if(b&&hyp(cl(z.x,b.x,b.x+b.w)-z.x,cl(z.y,b.y,b.y+b.h)-z.y)<c.L*.5+1.2){b.hp-=n*3*dm*dt*(c.van?1.5:1);z.wf=T-(R()<dt*4?0:1);if(b.hp<=0)killB(b)}}}
 function drive(z,dt){const c=CAR[z.t];if(c.arm)armor(z);
  if(z.hp<z.mhp*.5&&R()<dt*4)burst(z.x,z.y,1,'#4a4a4a',.6,c.H*.9);
- if(z.un){/* aparcado: el conductor dispara desde dentro */z.at=0;z.cd=(z.cd||0)-dt;const t=nearest(z.x,z.y,4,1);if(t){z.at=1;z.dx=t.o.x-z.x;if(z.cd<=0){z.cd=1.4;hurt(t.o,t.u,ZT[z.t].d*(z.dm||1)*1.4,'tiroteado por los bandidos');FX.push({a:[z.x,z.y],b:[t.o.x,t.o.y],t:.1,col:'#ffd24a'});try{sfxAt('pistol',z.x,z.y,{v:.7})}catch(e){}}}return}
- if(z.hp<z.mhp*.45){unload(z);return}
- const b=target(z);if(!b){unload(z);return}
+ shoot(z,dt);
+ if(z.stop){/* sigue si el edificio que le paraba ya no está, o tras un rato sin nadie a tiro */z.sw=z.at?0:(z.sw||0)+dt;if(!bm[z.blk]||z.sw>8){z.stop=0;z.sw=0;z.tg=0}else return}
+ const b=target(z);if(!b){z.stop=1;return}
  const px=cl(z.x,b.x,b.x+b.w),py=cl(z.y,b.y,b.y+b.h),d=hyp(px-z.x,py-z.y);if(d<c.L*.5+.35){ram(z,b);return}
  const a=Math.atan2(py-z.y,px-z.x);let da=a-(z.ang||0);while(da>Math.PI)da-=6.283;while(da<-Math.PI)da+=6.283;z.ang=(z.ang||0)+Math.max(-2.5*dt,Math.min(2.5*dt,da));
  const s=ZT[z.t].sp*dt*terrMul(z.x,z.y),nx=z.x+Math.cos(z.ang)*s,ny=z.y+Math.sin(z.ang)*s,hx=nx+Math.cos(z.ang)*c.L*.45,hy=ny+Math.sin(z.ang)*c.L*.45;
@@ -54,7 +62,7 @@ function drive(z,dt){const c=CAR[z.t];if(c.arm)armor(z);
  z.x=nx;z.y=ny;z.dx=Math.cos(z.ang)-Math.sin(z.ang);
  /* atropello */z.hit=z.hit||{};const chk=(o,u,id)=>{if(z.hit[id]||hyp(o.x-z.x,o.y-z.y)>.75)return;z.hit[id]=1;hurt(o,u,22*(z.dm||1),'atropellado por los bandidos');burst(o.x,o.y,6,'#b22',1.6,8)};
  S.ppl.forEach(p=>{if(!p.away&&!p.inside&&!p.tw)chk(p,0,'p'+p.id)});U.forEach(u=>chk(u,1,'u'+u.p.id));
- /* atascado: se bajan */z.mv=(z.mv||0)+s;z.mt=(z.mt||0)+dt;if(z.mt>3){if(z.mv<.6)unload(z);z.mv=0;z.mt=0}}
+ /* atascado: se para y dispara desde ahí */z.mv=(z.mv||0)+s;z.mt=(z.mt||0)+dt;if(z.mt>3){if(z.mv<.6){z.stop=1;z.blk=z.tg}z.mv=0;z.mt=0}}
 function sniper(z,dt,oZ){z.cd=(z.cd||1.5)-dt;const t=nearest(z.x,z.y,9.5,1);if(t){z.at=1;z.aim=1;z.dx=t.o.x-z.x;if(z.cd<=0){z.cd=3.2;hurt(t.o,t.u,20*(z.dm||1),'abatido por un francotirador');FX.push({a:[z.x,z.y],b:[t.o.x,t.o.y],t:.14,col:'#fff3b0'});burst(t.o.x,t.o.y,3,'#b22',1.2,9);try{sfxAt('sniper',z.x,z.y,{v:.9})}catch(e){}}return}
  z.aim=0;const dm=z.dm;z.dm=(dm||1)*.3;try{oZ(z,dt)}finally{z.dm=dm}}
 function dyn(z,dt){z.at=0;let b=bm[z.tg];if(!b||z.tg!==z.tg0){let bd=1e9;b=null;const sc=q=>q.type==='wall'||q.type==='gate'?.55:TWR(q.type)?.8:1;S.bld.forEach(q=>{if(q.type==='road'||q.type==='bridge')return;const d=hyp(q.x+q.w/2-z.x,q.y+q.h/2-z.y)*sc(q);if(d<bd){bd=d;b=q}});z.tg=z.tg0=b?b.id:0}
@@ -81,7 +89,7 @@ try{zUpd=window.zUpd}catch(e){}
 const oWH=window.wpHit;if(oWH)window.wpHit=function(p,t,d){const r=oWH.apply(this,arguments);try{if(t&&CAR[t.t]&&CAR[t.t].arm&&p&&p.wp&&p.wp.mod==='perf')t._pf=T}catch(e){}return r};
 /* ---------- muertes: sin cadáver de zombi; los vehículos estallan y sueltan a quien quede ---------- */
 const oC=window.combat;
-window.combat=function(dt){const pre=Z.filter(z=>MY.has(z.t)&&z.hp>0);const r=oC.apply(this,arguments);
+window.combat=function(dt){const pre=Z.filter(z=>MY.has(z.t)&&!z.dd);const r=oC.apply(this,arguments);
  pre.forEach(z=>{if(z.hp>0||z.dd)return;z.dd=1;if(z.t==='bzc')return;
   for(let i=DEAD.length-1;i>=0;i--){const d=DEAD[i];if(d.zom&&d.x===z.x&&d.y===z.y){DEAD.splice(i,1);break}}
   for(let i=PT.length-1;i>=0;i--){const p=PT[i];if(p.col==='#6f8f35'&&p.x===z.x&&p.y===z.y)PT.splice(i,1)}
@@ -149,7 +157,14 @@ function drawCar(c,z){const k=CAR[z.t],a=z.ang||0,fx=Math.cos(a),fy=Math.sin(a),
   c.fillStyle='#c9cdd2';for(let i=-2;i<=2;i++)for(const s2 of[.51,-.51]){const p=pt(i*.18,s2);if(p[1]>q0[1]-2)c.fillRect(p[0]-.6,p[1]-7.5,1.2,1.2)}}
  /* antena con la bandera */const an=pt(-.42,.35),ay=an[1]-H,t=T*5+z.x;c.strokeStyle='#222';c.lineWidth=1;c.beginPath();c.moveTo(an[0],ay);c.lineTo(an[0],ay-16);c.stroke();
  c.fillStyle=B.flag||B.col;c.beginPath();c.moveTo(an[0],ay-16);for(let i=0;i<=4;i++)c.lineTo(an[0]+i*2.2,ay-16+Math.sin(t+i)*1.1);for(let i=4;i>=0;i--)c.lineTo(an[0]+i*2.2,ay-10+Math.sin(t+i)*1.1);c.closePath();c.fill();
- if(z.at){const p=pt(0,.3);c.fillStyle='#ffd24a';c.beginPath();c.arc(p[0],p[1]-H*.75,2,0,7);c.fill()}
+ /* armas por las ventanillas, del lado del objetivo */if(z.at&&z.ta!=null){const tx=Math.cos(z.ta),ty=Math.sin(z.ta),sd=(tx*sx+ty*sy)>=0?1:-1,cab=k.P[k.P.length-1],gz=(cab[3]+cab[4])/2,np=Math.min(2,(z.pas?z.pas.length:0)+1);
+  for(let i=0;i<np;i++){const f=cab[0]+(i?-.12:.1),b0=pt(f,sd*cab[2]*.5),e=P(z.x+fx*L*f+sx*W*cab[2]*.5*sd+tx*.4,z.y+fy*L*f+sy*W*cab[2]*.5*sd+ty*.4);c.strokeStyle='#151515';c.lineWidth=1.8;c.lineCap='round';c.beginPath();c.moveTo(b0[0],b0[1]-gz);c.lineTo(e[0],e[1]-gz-1);c.stroke();
+   if(T-(z.wf||-9)<.1&&(i===0)===(z.ws>0)){c.fillStyle='#ffd24a';c.beginPath();c.arc(e[0],e[1]-gz-1,2.4,0,7);c.fill();c.fillStyle='#fff6c8';c.beginPath();c.arc(e[0],e[1]-gz-1,1.1,0,7);c.fill()}}}
+ /* torreta en el techo de las furgonetas */if(k.van){const bx=k.P[0],tp=pt(bx[0],0),tz=bx[4],ga=z.ga!=null?z.ga:a,gx=Math.cos(ga),gy=Math.sin(ga),bc=P(z.x+fx*L*bx[0],z.y+fy*L*bx[0]),be=P(z.x+fx*L*bx[0]+gx*.6,z.y+fy*L*bx[0]+gy*.6);
+  c.fillStyle='#1c1c1c';c.strokeStyle='#000';c.lineWidth=1;c.beginPath();c.ellipse(tp[0],tp[1]-tz,6,3,0,0,7);c.fill();c.stroke();
+  c.fillStyle=sh(k.arm?'#3a3f38':'#4a4a4a',1);c.beginPath();c.moveTo(tp[0]-5,tp[1]-tz);c.lineTo(tp[0]-4,tp[1]-tz-5);c.lineTo(tp[0]+4,tp[1]-tz-5);c.lineTo(tp[0]+5,tp[1]-tz);c.closePath();c.fill();c.stroke();
+  const back=be[1]<bc[1];const brl=()=>{c.strokeStyle='#111';c.lineWidth=2.4;c.lineCap='round';c.beginPath();c.moveTo(tp[0],tp[1]-tz-3.5);c.lineTo(be[0],be[1]-tz-4);c.stroke();if(T-(z.tf||-9)<.08){c.fillStyle='#ffb347';c.beginPath();c.arc(be[0],be[1]-tz-4,3,0,7);c.fill();c.fillStyle='#fff3c0';c.beginPath();c.arc(be[0],be[1]-tz-4,1.3,0,7);c.fill()}};
+  if(back)brl();c.fillStyle=B.col;c.strokeStyle='#111';c.beginPath();c.arc(tp[0]-(gx-gy)*1.5,tp[1]-tz-7,2.6,0,7);c.fill();c.stroke();if(!back)brl()}
  c.restore()}
 function human(c,z,t){z.sd=z.sd||1+Math.floor(R()*90);EXP='angry';SXF=0;OLDF=0;KIDF=0;window.BCOL=(z.band&&window.BANDS&&BANDS[z.band])?BANDS[z.band].col:null;fig(z.x,z.y,'#5b3d2a',1,1,'#d8a878',1,z.dx,'ban',z.at?4:0,z.sd);window.BCOL=null;
  const rt=z.t;z.t=t;try{window.drawBandit&&drawBandit(c,z)}finally{z.t=rt}}
@@ -186,16 +201,16 @@ if(window.ZX){const oHas=ZX.has,oBh=ZX.bh,oDh=ZX.dh;ZX.has=t=>MY.has(t)||oHas(t)
 /* ---------- fichas (presentación y bestiario) ---------- */
 if(window.enemyInfo)Object.assign(enemyInfo,{
  bmo:['Humano hostil','Un saqueador en moto. Llega antes que nadie y dispara mientras rodea tus casas. Si le tumbas la moto, sigue a pie.','Ten tiradores repartidos: es rápido y cambia de sitio.'],
- bco:['Vehículo','Un coche con tres bandidos dentro. Embiste el primer edificio o muro que encuentra y los suelta allí. El conductor sigue disparando desde dentro.','Párale antes de que llegue: si estalla por el camino, los de dentro bajan heridos.'],
- bfu:['Vehículo','Una furgoneta cargada con seis bandidos. Más lenta que el coche, pero embiste más fuerte.','Concentra el fuego en ella en cuanto aparezca: lo peor es lo que lleva dentro.'],
+ bco:['Vehículo','Un coche con tres bandidos que disparan por las ventanillas. Embiste el primer edificio o muro que encuentra y se queda allí tiroteando. Solo salen cuando el coche revienta.','Párale antes de que llegue: cuantos más van dentro, más rápido disparan.'],
+ bfu:['Vehículo','Una furgoneta con seis bandidos y una torreta en el techo que dispara desde lejos. No se bajan hasta que la revientas.','Concentra el fuego en ella en cuanto aparezca: lo peor es lo que lleva dentro.'],
  bbl:['Vehículo blindado','Un coche acorazado con pala delantera: derriba muros y solo recibe la mitad del daño.','La munición perforante atraviesa su blindaje.'],
- bfb:['Vehículo blindado','Una furgoneta acorazada con ocho bandidos dentro. Lenta, pero rompe casi cualquier muro de una embestida.','Munición perforante y torres por delante de la muralla.'],
+ bfb:['Vehículo blindado','Una furgoneta acorazada con ocho bandidos y una torreta en el techo. Lenta, pero rompe casi cualquier muro de una embestida y solo recibe la mitad del daño.','Munición perforante y torres por delante de la muralla.'],
  bfr:['Humano hostil','Se queda lejos y dispara cada pocos segundos un tiro muy fuerte. Los muros le tapan la vista.','Mándale soldados: de lejos te desgasta a la gente.'],
  bdy:['Humano hostil','Corre con un cartucho de dinamita encendido hacia tus muros y torres y se hace estallar. A veces explota al caer.','Abátelo lejos de tus edificios.'],
  bdo:['Humano hostil','Lleva a sus zombis atados con cadenas: le sirven de escudo y muerden a quien se acerca.','Si cae el domador, los zombis se sueltan y atacan a lo loco.'],
  bzc:['Infectado','Un zombi con collar y la boca cosida, atado a su domador. No se aleja de él más que la cadena.','Mata al domador o se quedarán protegiéndole.']});
 /* guía: Bandas humanas */
 try{const i=GD.findIndex(g=>g[0]==='Bandas humanas');if(i>=0){const o=GD[i][1];GD[i][1]=()=>{let h='';try{h=o()}catch(e){}const sn=t=>!!(S.zseen&&S.zseen[t]),nm=t=>sn(t)?ZT[t].n:'???';
- return h+'<p><b>🚗 Variantes:</b> según avanza la historia, las bandas traen '+['bmo','bco','bfu','bbl','bfb','bfr','bdy','bdo'].map(nm).join(', ')+'. Los vehículos embisten lo primero que encuentran y sueltan a sus pasajeros; '+(sn('bbl')||sn('bfb')?'los blindados solo reciben la mitad del daño, salvo con munición perforante.':'???')+'</p>'}}}catch(e){}
+ return h+'<p><b>🚗 Variantes:</b> según avanza la historia, las bandas traen '+['bmo','bco','bfu','bbl','bfb','bfr','bdy','bdo'].map(nm).join(', ')+'. Los vehículos embisten lo primero que encuentran y sus ocupantes disparan desde dentro hasta que el vehículo revienta; '+(sn('bbl')||sn('bfb')?'los blindados solo reciben la mitad del daño, salvo con munición perforante.':'???')+'</p>'}}}catch(e){}
 window.__bv={plan,mk,CAR,VT};
 })();
