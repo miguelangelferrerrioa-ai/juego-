@@ -137,9 +137,12 @@ function tabChem(){const e=E();let h='<p style="margin:2px 0 6px"><b>Complemento
  const L=guns2(),sin=L.filter(o=>!o.w.mod).length;
  h+=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0">`+Object.keys(MOD).map(k=>`<button class="btn" onclick="modAll('${k}')"${sin&&can(MOD[k].c)?'':' disabled'}>${MOD[k].ic} A todas las que no tienen (${sin})</button>`).join('')+'</div>';
  if(!L.length)h+='<p style="opacity:.8"><i>No hay armas de fuego en el pueblo.</i></p>';
- L.slice(0,40).forEach((o,i)=>{const w=o.w,m=w.mod&&MOD[w.mod],img=window.weaponIcon&&weaponIcon(w.n);
+ const F=window.ESF||'all',FL={all:()=>1,arm:o=>o.p&&o.p.arm,sin:o=>!o.w.mod,inc:o=>o.w.mod==='inc',perf:o=>o.w.mod==='perf',alm:o=>!o.p};
+ if(L.length)h+='<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 6px"><span>Mostrar:</span>'+chipSel('esF',F,[['all','Todas ('+L.length+')'],['arm','Soldados'],['sin','Sin complemento'],['inc','🔥 Incendiarias'],['perf','🎯 Perforantes'],['alm','En el almacén']],'ESF=$V','esRe()')+'</div>';
+ const LV=L.map((o,i)=>({o,i})).filter(x=>(FL[F]||FL.all)(x.o));if(L.length&&!LV.length)h+='<p style="opacity:.8"><i>Ninguna arma con este filtro.</i></p>';
+ LV.slice(0,40).forEach(({o,i})=>{const w=o.w,m=w.mod&&MOD[w.mod],img=window.weaponIcon&&weaponIcon(w.n);
   h+=row(img?`<img src="${img}" style="width:44px;height:28px;object-fit:contain">`:ico('🔫'),`<b>${esc(w.n)}</b> <small>· ${o.p?esc(o.p.n)+(o.p.arm?' (soldado)':''):'almacén'}</small>${m?` <small style="color:#ffb070">· ${m.ic} ${m.n}</small>`:''}<div style="margin-top:3px;display:flex;gap:4px;flex-wrap:wrap">`+Object.keys(MOD).filter(k=>k!==w.mod).map(k=>`<button class="btn" style="padding:2px 8px;font-size:11px" onclick="modSet(${i},'${k}')"${can(MOD[k].c)?'':' disabled'}>${MOD[k].ic} ${w.mod?'Cambiar a ':''}${MOD[k].n.toLowerCase()}</button>`).join('')+'</div>')});
- if(L.length>40)h+=`<p><small>…y ${L.length-40} armas más (usa «A todas»).</small></p>`;
+ if(LV.length>40)h+=`<p><small>…y ${LV.length-40} armas más (usa «A todas» o el filtro).</small></p>`;
  h+='<div style="border-top:1px solid #3e6a68;margin-top:8px;padding-top:6px"></div>';
  for(const k in CH){const r=CH[k],c=costOf(r.c,1);h+=row(ico(r.ic,1),`<b>${r.n}</b> · <b>${e.ch[k]}</b> / ${CMAX}<br><small>${r.d}</small><div style="margin-top:4px">${icc(c)} <button class="btn" onclick="chemMake('${k}')"${can(c)&&e.ch[k]<CMAX?'':' disabled'}>⚗️ Fabricar</button></div>`)}
  h+='<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px"><span>Explosivos en las trampas:</span>'+chipSel('esTx',e.tx?'1':'0',[['1','✹ Sí'],['0','No']],'chemSetT($V)','esRe()')+'</div>';

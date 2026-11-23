@@ -35,9 +35,10 @@ const oU=window.upd;if(typeof oU==='function')window.upd=function(dt){const r=oU
 BT.lab.p=Object.assign({},BT.lab.p,{rp:24});
 BT.lab.f='Produce puntos de investigación (más cuanto mejor sea el científico y el nivel). Necesario para investigar. Requiere energía.';
 /* fuentes extra: expediciones, misiones y archivos */
-try{ZN.forEach((z,i)=>{if(!z.l)return;if(/lab|univers|hospital|clínic|cient/i.test(z.n))z.l.rp=[10,25];else if(i%3==1&&!z.l.rp)z.l.rp=[3,9];z._rp=z.l.rp;delete z.l.rp})}catch(e){}
+try{ZN.forEach((z,i)=>{if(!z.l)return;if(/lab|univers|hospital|clínic|cient/i.test(z.n))z.l.rp=[20,50];else if(i%3==1&&!z.l.rp)z.l.rp=[6,18];z._rp=z.l.rp;delete z.l.rp})}catch(e){}
 /* las zonas solo dan puntos de investigación cuando ya hay laboratorio */
-setInterval(()=>{try{const on=rpOn();ZN.forEach(z=>{if(!z._rp||!z.l)return;if(on)z.l.rp=z._rp;else delete z.l.rp})}catch(e){}},1500);
+try{EXT_ZONES.forEach(z=>{if(!z.loot||z.loot.rp)return;const r=/hospital/.test(z.id)?[12,30]:/factory|police|camp/.test(z.id)?[5,14]:null;if(r)z._rp=r})}catch(e){}
+setInterval(()=>{try{const on=rpOn();ZN.forEach(z=>{if(!z._rp||!z.l)return;if(on)z.l.rp=z._rp;else delete z.l.rp});EXT_ZONES.forEach(z=>{if(!z._rp||!z.loot)return;if(on)z.loot.rp=z._rp;else delete z.loot.rp})}catch(e){}},1500);
 /* guía */
 try{const G=window.GD||GD,rep=(t,f)=>{const g=G.find(q=>q[0]===t);if(!g)return;const o=g[1];g[1]=()=>f(o())};
 const i=G.findIndex(q=>q[0]==='Tecnologías');
