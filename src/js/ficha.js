@@ -7,18 +7,19 @@ window.pTab=window.pTab||'eq';window.pPick=null;
 const info=(kind,n)=>{if(kind==='out'){const o=(window.OUTFITS||{})[n];return o?{n,ico:outfitIcon(n),rar:RCOL[o.r]||RCOL.C,stat:'🛡 Defensa +'+o.def,b:bt(o.b)}:null}
   const w=WP.find(q=>q.n===n);return w?{n,ico:weaponIcon(n),rar:RCOL[w.r||'C']||RCOL.C,stat:'⚔ Daño +'+w.v,b:bt(w.b)}:null};
 const mini=(l,v,c)=>`<div class="pm"><span>${l}</span><div class="bar"><i style="width:${cl(v,0,100)}%;background:${c}"></i></div></div>`;
-const slot=(id,kind,name)=>{const it=name&&info(kind,name),t=kind==='out'?'Atuendo':'Arma';
-  return `<div class="pslot" onclick="pPick='${kind}';pSheet(${id})" style="border-color:${it?it.rar[1]:'#3a4a50'}">`+(it?`<img src="${it.ico}" class="invi"><div><div class="pst">${t}</div><b style="color:${it.rar[1]}">${it.n}</b><div class="invs">${it.stat}</div><div class="invb">${it.b||'sin bonos'}</div></div>`:`<div class="invi pempty">+</div><div><div class="pst">${t}</div><b>Vacío</b><div class="invb">Toca para elegir</div></div>`)+`</div>`};
+const modB=m=>m?`<div class="invb" style="color:#ffb070">${m==='inc'?'🔥 Complemento incendiario':'🎯 Complemento perforante'}</div>`:'';
+const slot=(id,kind,name,mod)=>{const it=name&&info(kind,name),t=kind==='out'?'Atuendo':'Arma';
+  return `<div class="pslot" onclick="pPick='${kind}';pSheet(${id})" style="border-color:${it?it.rar[1]:'#3a4a50'}">`+(it?`<img src="${it.ico}" class="invi"><div><div class="pst">${t}</div><b style="color:${it.rar[1]}">${it.n}</b><div class="invs">${it.stat}</div><div class="invb">${it.b||'sin bonos'}</div>${modB(mod)}</div>`:`<div class="invi pempty">+</div><div><div class="pst">${t}</div><b>Vacío</b><div class="invb">Toca para elegir</div></div>`)+`</div>`};
 function picker(p){const kind=window.pPick,id=p.id,list=[];
   S.inv.forEach((it,i)=>{const isO=it.kind==='outfit';if(it.kind==='clothing')return;if((kind==='out')!==isO)return;const d=info(kind,it.n);if(!d)return;
-    list.push(`<div class="invc" style="border-color:${d.rar[1]}" onclick="${isO?`outEquip(${id},${i})`:`equip(${id},${i})`};pPick=null;pSheet(${id})"><img src="${d.ico}" class="invi"><div><b style="color:${d.rar[1]}">${d.n}</b><div class="invs">${d.stat}</div><div class="invb">${d.b||'sin bonos'}</div></div></div>`)});
+    list.push(`<div class="invc" style="border-color:${d.rar[1]}" onclick="${isO?`outEquip(${id},${i})`:`equip(${id},${i})`};pPick=null;pSheet(${id})"><img src="${d.ico}" class="invi"><div><b style="color:${d.rar[1]}">${d.n}</b><div class="invs">${d.stat}</div><div class="invb">${d.b||'sin bonos'}</div>${modB(it.mod)}</div></div>`)});
   const cur=kind==='out'?p.outfit:(p.wp&&p.wp.n);
   return `<div class="prow"><button onclick="pPick=null;pSheet(${id})">← Volver</button>`+(cur?`<button onclick="${kind==='out'?`outOff(${id})`:`unEquip(${id})`};pPick=null;pSheet(${id})">Quitar actual</button>`:'')+`</div>`+
    (list.length?`<div class="invg">${list.join('')}</div>`:`<p><small>No tienes ${kind==='out'?'atuendos':'armas'} en el almacén. Fabrícalos en el taller (chatarra + plano) o encuéntralos en misiones.</small></p>`)}
 window.unEquip=id=>{const p=byId(id);if(p&&p.wp){S.inv.push(p.wp);p.wp=null}};
 function tabEq(p){const id=p.id;if(window.pPick&&String(pPick).startsWith('cl:'))return clothPicker(p,pPick.slice(3));if(window.pPick)return picker(p);
   const tot={};PF.forEach(k=>{const v=window.eqB?eqB(p,k):0;if(v)tot[k]=v});
-  return `<div class="pslots">${slot(id,'wp',p.wp&&p.wp.n)}${slot(id,'out',p.outfit)}</div>${clothHtml(p)}<p class="invb">Bonos del equipo: <b style="color:#ffd877">${Object.keys(tot).length?bt(tot):'ninguno'}</b> · Defensa extra: ${(window.outDef?outDef(p):0)+clothingDef(p)}</p>`}
+  return `<div class="pslots">${slot(id,'wp',p.wp&&p.wp.n,p.wp&&p.wp.mod)}${slot(id,'out',p.outfit)}</div>${clothHtml(p)}<p class="invb">Bonos del equipo: <b style="color:#ffd877">${Object.keys(tot).length?bt(tot):'ninguno'}</b> · Defensa extra: ${(window.outDef?outDef(p):0)+clothingDef(p)}</p>`}
 const CSL=[['vest','Chaleco'],['jacket','Chaqueta'],['pants','Pantalón'],['boots','Botas'],['pack','Mochila']];
 function clothHtml(p){const id=p.id,cl=p.clothes||{},nInv=sl=>S.inv.filter(w=>w.kind==='clothing'&&w.slot===sl).length;
   const ic=(sl,col)=>window.clothIcon?'<img src="'+clothIcon(sl,col)+'" class="invi" style="padding:4px">':'<div class="invi pempty">+</div>';

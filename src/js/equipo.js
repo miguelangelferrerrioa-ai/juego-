@@ -104,7 +104,7 @@ const toScrap=c=>{if(!c)return c;if(c.scrap&&Object.keys(c).length==1)return c;c
 WP.forEach(w=>{if(w.c)w.c=toScrap(w.c)});Object.values(window.OUTFITS||{}).forEach(o=>{if(o.c)o.c=toScrap(o.c)});
 
 /* ---- Almacén estilo Fallout Shelter: recursos + armas y atuendos con dibujo y estadísticas ---- */
-const RCOL={C:['Común','#bdbdbd'],U:['Poco común','#7fc97f'],R:['Raro','#6aa9ff'],E:['Épico','#b36cff'],L:['Legendario','#e8b84a']};
+const RCOL={C:['Común','#bdbdbd'],U:['Poco común','#7fc97f'],R:['Raro','#6aa9ff'],E:['Épico','#b36cff'],L:['Legendario','#e8b84a'],X:['Forjado','#ff8a3a']};
 const btxt=b=>Object.keys(b||{}).map(k=>k+' +'+b[k]).join(' · ');
 const icache={};
 window.weaponIcon=n=>{const k='w'+n;if(icache[k])return icache[k];const w=WP.find(q=>q.n===n)||{},rr=RCOL[w.r||'C'];const cv=document.createElement('canvas');cv.width=96;cv.height=60;const g=cv.getContext('2d');
@@ -123,9 +123,9 @@ window.weaponIcon=n=>{const k='w'+n;if(icache[k])return icache[k];const w=WP.fin
 window.outfitIcon=n=>{const k='o'+n;if(icache[k])return icache[k];const v=V[n],o=(window.OUTFITS||{})[n];const cv=document.createElement('canvas');cv.width=cv.height=64;const g=cv.getContext('2d');if(!v||!o)return icache[k]=cv.toDataURL();
   g.fillStyle=v[0];g.strokeStyle='#14100a';g.lineWidth=2;g.beginPath();g.moveTo(6,58);g.quadraticCurveTo(8,34,24,26);g.lineTo(26,14);g.quadraticCurveTo(32,20,38,14);g.lineTo(40,26);g.quadraticCurveTo(56,34,58,58);g.closePath();g.fill();g.stroke();
   shapes(g,v,o.r,18,28,46,57);return icache[k]=cv.toDataURL()};
-const iCard=(it,cnt,who)=>{const isO=it.kind==='outfit',nm=it.n,o=isO?(window.OUTFITS||{})[nm]:null,w=isO?null:WP.find(q=>q.n===nm);if(!o&&!w)return '';
-  const rar=RCOL[(o?o.r:(w.r||'C'))],stat=o?'🛡 Defensa +'+o.def:'⚔ Daño +'+w.v,b=btxt(o?o.b:w.b);
-  return '<div class="invc" style="border-color:'+rar[1]+'"><img src="'+(o?outfitIcon(nm):weaponIcon(nm))+'" class="invi" style="box-shadow:0 0 8px '+rar[1]+'55"><div><b style="color:'+rar[1]+'">'+nm+(cnt>1?' ×'+cnt:'')+'</b><div class="invs">'+stat+'</div><div class="invb">'+(b||'sin bonos')+'</div><div class="invr">'+rar[0]+(who?' · '+who:'')+'</div></div></div>'};
+const iCard=(it,cnt,who)=>{const mb=it.mod?'<div class="invb" style="color:#ffb070">'+(it.mod==='inc'?'🔥 Complemento incendiario':'🎯 Complemento perforante')+'</div>':'';const isO=it.kind==='outfit',nm=it.n,o=isO?(window.OUTFITS||{})[nm]:null,w=isO?null:WP.find(q=>q.n===nm);if(!o&&!w)return '';
+  const rar=RCOL[(o?o.r:(w.r||'C'))]||RCOL.C,stat=o?'🛡 Defensa +'+o.def:'⚔ Daño +'+w.v,b=btxt(o?o.b:w.b);
+  return '<div class="invc" style="border-color:'+rar[1]+'"><img src="'+(o?outfitIcon(nm):weaponIcon(nm))+'" class="invi" style="box-shadow:0 0 8px '+rar[1]+'55"><div><b style="color:'+rar[1]+'">'+nm+(cnt>1?' ×'+cnt:'')+'</b><div class="invs">'+stat+'</div><div class="invb">'+(b||'sin bonos')+'</div>'+mb+'<div class="invr">'+rar[0]+(who?' · '+who:'')+'</div></div></div>'};
 window.storeTab=window.storeTab||'res';
 window.storeMenu=function(){const d=rate(),tab=window.storeTab;
   const tb=(k,t)=>'<button class="'+(tab===k?'primary':'')+'" onclick="storeTab=\''+k+'\';storeMenu()">'+t+'</button>';
@@ -133,9 +133,9 @@ window.storeMenu=function(){const d=rate(),tab=window.storeTab;
   if(tab==='mat')h+=matHtml()+capBtn();
   else if(tab==='res')h+='<div class="invg">'+RK.filter(r=>r[0]!=='elec'&&r[0]!=='rp'&&!(window.MATK&&MATK.includes(r[0]))).map(r=>'<div class="invc"><img src="'+ICO[r[0]]+'" width=26 height=26><div><b>'+r[1]+'</b><div class="invs">'+Math.floor(S.res[r[0]])+' / '+cap()+'</div><div class="invb">'+(d[r[0]]>=0?'+':'')+(d[r[0]]/10).toFixed(1)+' por minuto</div></div></div>').join('')+'</div>'+capBtn();
   else{const wantO=tab==='out',list={},eq=[];
-    (S.inv||[]).forEach(it=>{const isO=it.kind==='outfit';if(it.kind==='clothing'||(isO!==wantO))return;list[it.n]=(list[it.n]||0)+1});
-    S.ppl.forEach(p=>{const n=wantO?p.outfit:(p.wp&&p.wp.n);if(n)eq.push(iCard(wantO?{kind:'outfit',n}:{n},1,'lo lleva '+p.n.split(' ')[0]))});
-    const own=Object.keys(list).map(n=>iCard(wantO?{kind:'outfit',n}:{n},list[n],''));
+    (S.inv||[]).forEach(it=>{const isO=it.kind==='outfit';if(it.kind==='clothing'||(isO!==wantO))return;const k=it.n+'|'+(it.mod||'');list[k]=(list[k]||0)+1});
+    S.ppl.forEach(p=>{const n=wantO?p.outfit:(p.wp&&p.wp.n);if(n)eq.push(iCard(wantO?{kind:'outfit',n}:{n,mod:p.wp.mod},1,'lo lleva '+p.n.split(' ')[0]))});
+    const own=Object.keys(list).map(k=>{const [n,m]=k.split('|');return iCard(wantO?{kind:'outfit',n}:{n,mod:m||null},list[k],'')});
     h+=(own.length?'<p><b>En el almacén</b></p><div class="invg">'+own.join('')+'</div>':'<p><small>No hay '+(wantO?'atuendos':'armas')+' guardados. Fabrícalos en el taller (con chatarra y planos) o encuéntralos en misiones.</small></p>')+(eq.length?'<p><b>Equipados</b></p><div class="invg">'+eq.join('')+'</div>':'')}
   show('Almacén',h)};
 })();
