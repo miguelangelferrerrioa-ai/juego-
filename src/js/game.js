@@ -375,7 +375,7 @@ if(docs){const patients=S.ppl.filter(p=>p.hp<mhp(p)-1||p.injury>0).sort((a,b)=>(
 
 rebuild();S.res.ammo+=4;S.ppl.filter(p=>false).forEach(p=>{if(S.ppl.length>2&&Math.random()<.3){try{if(p.wp){S.inv.push(p.wp);p.wp=null}if(p.outfit){S.inv.push({kind:'outfit',n:p.outfit});p.outfit=null}}catch(e){}S.ppl=S.ppl.filter(q=>q!==p);ev.push(p.n+' ha abandonado la ciudad: la moral estaba por los suelos.')}});if(S.fac.mil>=50)S.res.ammo+=5;if(S.fac.com>=40){S.res.food+=8;S.res.wood+=5}
 if(Math.random()<.4)ev.push(dayEvent());
-if(S.fac.ban<-15&&Math.random()<.25){ev.push('Bandidos hostiles atacan la ciudad.');startHorde('Ataque de bandidos',{b:3+hEff()})}
+if(S.fac.ban<-15&&Math.random()<.25&&window.bandSoon&&bandSoon())ev.push('Los vigías ven bandidos hostiles rondando: atacarán en 2 días.');
 if(!horde&&S.day>=S.nextH){startHorde();S.nextH=S.day+3+(S.hordeN%3==2?2:0)}else if(!horde&&S.day==S.nextH-1){let t='';try{const e=hordeEst();t=' Unos '+e.n+' enemigos ('+e.kind+'). Tu defensa: '+e.v+'.'}catch(er){}ev.push('Los vigías avisan: una horda se acerca mañana.'+t+(t.includes('Insuficiente')?' Refuerza las defensas: más torres, tiradores y soldados.':''))}
 for(const k in S.res)S.res[k]=cl(S.res[k],0,cap());save();const d={};RK.forEach(r=>d[r[0]]=Math.round(S.res[r[0]]-before[r[0]]));S.snap={...S.res};
 return['Día '+S.day,'<p>'+RK.map(r=>`<img src="${ICO[r[0]]}" width=14> ${r[1]}: ${d[r[0]]>=0?'+':''}${d[r[0]]}`).join('<br>')+'</p>'+ev.filter(Boolean).map(e=>'<p>• '+e+'</p>').join('')]}

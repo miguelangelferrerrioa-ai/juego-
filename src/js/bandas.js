@@ -43,7 +43,7 @@ window.onBanditDeath=function(z){const b=B[z.band];if(!b||Math.random()>(z.t==='
  const slot=['vest','jacket'][ri(0,1)],it={kind:'clothing',slot,n:(slot==='vest'?'Chaleco de ':'Chaqueta de ')+b.n,def:1+(z.t==='k'?1:0),col:b.col};S.inv.push(it);toast('Un bandido ha dejado: '+it.n+'.')};
 /* ---- ataques ---- */
 const MS={facil:.65,normal:1,dificil:1.3,apocaliptico:1.8,creativo:.8};
-window.bandRaid=function(id){id=B[id]?id:'cuervos';const s=bn(),sc=MS[S.mode||'normal']||1,weak=(s.weak[id]||0)>=S.day?.6:1;
+window.bandRaid=function(id){id=B[id]?id:'cuervos';const s=bn(),sc=MS[S.mode||'normal']||1,weak=(s.weak[id]||0)>=S.day?.6:(s.wk1===S.day?.8:1);
  const c=Math.max(4,Math.min(30,Math.round((4+s.n*1.5+S.ppl.length*.25+(typeof realHall==='function'?realHall():1)*.5)*sc*weak*(1+.02*Math.min(Math.max(sg(),({cuervos:3,viboras:6,ceniza:10,segadores:31,humo:36,hierro:41})[id]||0),48))))),k=Math.round(c*({cuervos:.45,viboras:.4,ceniza:.3,segadores:.18,humo:.08,hierro:0})[id]),comp={b:Math.max(2,c-k),k,p:1};
  s.n++;s.last=id;s.next=S.day+Math.max(4,ri(6,9)-Math.floor(Math.min(sg(),28)/5));s.warned=0;s.cur=id;
  startHorde('Asalto de '+nm(id),comp)};
