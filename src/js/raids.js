@@ -17,6 +17,7 @@ function pickSize(cfg){
   if(d>=20&&Math.random()<.5)n=4+Math.floor(Math.random()*4);
   return Math.max(1,Math.round(n*cfg.sz*(window.raidSz?window.raidSz():1)));
 }
+window.__spawnRaid=()=>spawnRaid();
 function spawnRaid(){
   const cfg=CFG[S.mode]||CFG.normal,n=pickSize(cfg),side=SIDES[Math.floor(Math.random()*4)];
   const comp={z:n};
