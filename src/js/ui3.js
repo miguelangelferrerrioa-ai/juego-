@@ -238,10 +238,11 @@ const IC={
  suburb:c=>{[[-13,2,.8],[2,-4,1],[11,5,.75]].forEach(([x,y,s])=>{c.save();c.translate(x,y);c.scale(s,s);p_(c,[[-9,-1],[0,-10],[9,-1]],'#a8452f');r_(c,-7,-1,14,10,'#e2d6b8');r_(c,-2,3,4,6,'#6a5a3a');c.restore()})},
  market:c=>{r_(c,-16,-4,32,18,'#e2d6b8');for(let i=0;i<6;i++)r_(c,-16+i*5.4,-9,5.4,6,i%2?'#f2eee0':'#c23b32');r_(c,-12,3,24,7,'#a9c4d6',0);r_(c,-3,6,6,8,'#6a5a3a')},
  factory:c=>{r_(c,-17,-1,34,15,'#8d949a');p_(c,[[-17,-1],[-9,-8],[-9,-1]],'#7d8489');p_(c,[[-9,-1],[-1,-8],[-1,-1]],'#7d8489');r_(c,6,-18,5,17,'#6e6a5e');r_(c,12,-14,4,13,'#6e6a5e');o_(c,8,-21,3,'rgba(70,60,50,.5)',0);o_(c,13,-18,2.6,'rgba(70,60,50,.4)',0)},
+ bunker:c=>{c.beginPath();c.ellipse(0,8,20,9,0,Math.PI,0);c.closePath();c.fillStyle=F('#7f9a5a');c.fill();c.strokeStyle=INK;c.lineWidth=1.3;c.stroke();p_(c,[[-9,8],[-6,-2],[6,-2],[9,8]],'#8d949a');r_(c,-5,0,10,8,'#5a5f5e');l_(c,[[0,0],[0,8]],1);o_(c,-2,4,1,'#d9a23a',0);r_(c,10,-12,2,14,'#6e6a5e',0);o_(c,11,-13,2,'#c23b32');for(let i=0;i<4;i++)l_(c,[[-16+i*4,5-i],[-14+i*4,2-i]],.9)},
  base:c=>{c.beginPath();c.ellipse(0,6,21,11,0,0,TAU);c.fillStyle=F('#a58a5a');c.fill();c.strokeStyle=INK;c.lineWidth=1.3;c.stroke();for(let i=0;i<12;i++){const a=i/12*TAU;r_(c,Math.cos(a)*21-1.5,Math.sin(a)*11+6-6,3,7,'#7a5f36')}p_(c,[[-9,2],[-1,-6],[7,2]],'#a8452f');r_(c,-7,2,13,8,'#e2d6b8');r_(c,8,-20,2,24,'#5a4a30',0);p_(c,[[10,-20],[22,-16],[10,-12]],'#f2b632')}
 };
 const KIND=['gas','truck','hospital','warehouse','lab','military','tower','observatory','police','wall','camp','metro','archive','house','skyscraper','old','barrier','weather','greenhouse','radio','border','port','highway','dam','office','trainstation','capital','emitter'];
-const ZKIND={suburb:'suburb',market:'market',station:'gas',hospital:'hospital',factory:'factory',police:'police',camp:'camp'};
+const ZKIND={suburb:'suburb',market:'market',station:'gas',hospital:'hospital',factory:'factory',police:'police',camp:'camp',rbunker:'bunker',rlab:'lab',rdepot:'warehouse',rtower:'emitter'};
 let WL=null,WBASE=null;
 function wlayout(){
   if(WL)return WL;

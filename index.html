@@ -766,7 +766,7 @@ button .ib,.ib{font-style:normal;display:inline-block;width:1.45em;margin-right:
 
 </head><body>
 <div id="rotateNotice"><div>↻<br><b>Gira tu dispositivo</b><br><small>After the Silence se disfruta mejor en horizontal.</small></div></div>
-<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v342</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
+<div id="titleScreen"><div class="titlebox"><div class="coverart"></div><h1>AFTER THE SILENCE</h1><div class="subtitle">Edición 2.7 · v344</div><div id="titleContent"><p>La ciudad ha caído. Tu comunidad aún puede sobrevivir.</p><div class="title-actions"><button class="primary" onclick="showModeSelect()"><i class="ib">▶</i>Nueva partida</button><button onclick="continueGame()" id="continueBtn"><i class="ib">⟳</i>Continuar</button><button onclick="titleSettings()"><i class="ib">⚙</i>Configuración</button><button onclick="titleGuide()"><i class="ib">📖</i>Guía del juego</button></div></div><p style="color:#89947c;font-size:10px;margin:16px 0 0">Sobrevive · Construye · Explora · Protege a los tuyos</p></div></div>
 <canvas id="c"></canvas><div id="top"></div><div id="alert"></div>
 <div id="rail"><button onclick="tg()"><i class="ib">☰</i>Opciones</button><div id="rl"><button onclick="tg(0);buildMenu()"><i class="ib">🔨</i>Construir</button><button onclick="tg(0);expandMenu()"><i class="ib">🗺</i>Territorio</button><button onclick="tg(0);techMenu()"><i class="ib">🔬</i>Investigar</button><button onclick="tg(0);armyMenu()"><i class="ib">🛡</i>Ejército</button><button onclick="tg(0);diarioMenu()"><i class="ib">📓</i>Diario<span id="dnew" style="color:#e8c25a"></span></button><button onclick="tg(0);expMenu()"><i class="ib">🧭</i>Expedición</button><button onclick="tg(0);worldMapMenu()"><i class="ib">🌍</i>Mapa exterior</button><button onclick="tg(0);advMenu()"><i class="ib">✚</i>Operaciones+</button><button onclick="guideReturn='game';tg(0);guide(0)"><i class="ib">📖</i>Guía</button></div></div>
 <div id="fade"><span></span></div><div id="fb"></div><div id="log"></div><div id="pan"></div><div id="guideScreen" aria-hidden="true"><div class="guide-shell"><header class="guide-head"><div><small>MANUAL DE SUPERVIVENCIA</small><h2>Guía del juego</h2><p>Todos los sistemas y mecánicas, explicados por secciones.</p></div><button onclick="closeGuide()">✕ Cerrar</button></header><div class="guide-layout"><nav id="guideNav" class="guide-nav"></nav><article id="guideArticle" class="guide-article"></article></div></div></div>
@@ -4072,7 +4072,7 @@ const toScrap=c=>{if(!c)return c;if(c.scrap&&Object.keys(c).length==1)return c;c
 WP.forEach(w=>{if(w.c)w.c=toScrap(w.c)});Object.values(window.OUTFITS||{}).forEach(o=>{if(o.c)o.c=toScrap(o.c)});
 
 /* ---- Almacén estilo Fallout Shelter: recursos + armas y atuendos con dibujo y estadísticas ---- */
-const RCOL={C:['Común','#bdbdbd'],U:['Poco común','#7fc97f'],R:['Raro','#6aa9ff'],E:['Épico','#b36cff'],L:['Legendario','#e8b84a']};
+const RCOL={C:['Común','#bdbdbd'],U:['Poco común','#7fc97f'],R:['Raro','#6aa9ff'],E:['Épico','#b36cff'],L:['Legendario','#e8b84a'],X:['Forjado','#ff8a3a']};
 const btxt=b=>Object.keys(b||{}).map(k=>k+' +'+b[k]).join(' · ');
 const icache={};
 window.weaponIcon=n=>{const k='w'+n;if(icache[k])return icache[k];const w=WP.find(q=>q.n===n)||{},rr=RCOL[w.r||'C'];const cv=document.createElement('canvas');cv.width=96;cv.height=60;const g=cv.getContext('2d');
@@ -4091,9 +4091,9 @@ window.weaponIcon=n=>{const k='w'+n;if(icache[k])return icache[k];const w=WP.fin
 window.outfitIcon=n=>{const k='o'+n;if(icache[k])return icache[k];const v=V[n],o=(window.OUTFITS||{})[n];const cv=document.createElement('canvas');cv.width=cv.height=64;const g=cv.getContext('2d');if(!v||!o)return icache[k]=cv.toDataURL();
   g.fillStyle=v[0];g.strokeStyle='#14100a';g.lineWidth=2;g.beginPath();g.moveTo(6,58);g.quadraticCurveTo(8,34,24,26);g.lineTo(26,14);g.quadraticCurveTo(32,20,38,14);g.lineTo(40,26);g.quadraticCurveTo(56,34,58,58);g.closePath();g.fill();g.stroke();
   shapes(g,v,o.r,18,28,46,57);return icache[k]=cv.toDataURL()};
-const iCard=(it,cnt,who)=>{const isO=it.kind==='outfit',nm=it.n,o=isO?(window.OUTFITS||{})[nm]:null,w=isO?null:WP.find(q=>q.n===nm);if(!o&&!w)return '';
-  const rar=RCOL[(o?o.r:(w.r||'C'))],stat=o?'🛡 Defensa +'+o.def:'⚔ Daño +'+w.v,b=btxt(o?o.b:w.b);
-  return '<div class="invc" style="border-color:'+rar[1]+'"><img src="'+(o?outfitIcon(nm):weaponIcon(nm))+'" class="invi" style="box-shadow:0 0 8px '+rar[1]+'55"><div><b style="color:'+rar[1]+'">'+nm+(cnt>1?' ×'+cnt:'')+'</b><div class="invs">'+stat+'</div><div class="invb">'+(b||'sin bonos')+'</div><div class="invr">'+rar[0]+(who?' · '+who:'')+'</div></div></div>'};
+const iCard=(it,cnt,who)=>{const mb=it.mod?'<div class="invb" style="color:#ffb070">'+(it.mod==='inc'?'🔥 Complemento incendiario':'🎯 Complemento perforante')+'</div>':'';const isO=it.kind==='outfit',nm=it.n,o=isO?(window.OUTFITS||{})[nm]:null,w=isO?null:WP.find(q=>q.n===nm);if(!o&&!w)return '';
+  const rar=RCOL[(o?o.r:(w.r||'C'))]||RCOL.C,stat=o?'🛡 Defensa +'+o.def:'⚔ Daño +'+w.v,b=btxt(o?o.b:w.b);
+  return '<div class="invc" style="border-color:'+rar[1]+'"><img src="'+(o?outfitIcon(nm):weaponIcon(nm))+'" class="invi" style="box-shadow:0 0 8px '+rar[1]+'55"><div><b style="color:'+rar[1]+'">'+nm+(cnt>1?' ×'+cnt:'')+'</b><div class="invs">'+stat+'</div><div class="invb">'+(b||'sin bonos')+'</div>'+mb+'<div class="invr">'+rar[0]+(who?' · '+who:'')+'</div></div></div>'};
 window.storeTab=window.storeTab||'res';
 window.storeMenu=function(){const d=rate(),tab=window.storeTab;
   const tb=(k,t)=>'<button class="'+(tab===k?'primary':'')+'" onclick="storeTab=\''+k+'\';storeMenu()">'+t+'</button>';
@@ -4101,9 +4101,9 @@ window.storeMenu=function(){const d=rate(),tab=window.storeTab;
   if(tab==='mat')h+=matHtml()+capBtn();
   else if(tab==='res')h+='<div class="invg">'+RK.filter(r=>r[0]!=='elec'&&r[0]!=='rp'&&!(window.MATK&&MATK.includes(r[0]))).map(r=>'<div class="invc"><img src="'+ICO[r[0]]+'" width=26 height=26><div><b>'+r[1]+'</b><div class="invs">'+Math.floor(S.res[r[0]])+' / '+cap()+'</div><div class="invb">'+(d[r[0]]>=0?'+':'')+(d[r[0]]/10).toFixed(1)+' por minuto</div></div></div>').join('')+'</div>'+capBtn();
   else{const wantO=tab==='out',list={},eq=[];
-    (S.inv||[]).forEach(it=>{const isO=it.kind==='outfit';if(it.kind==='clothing'||(isO!==wantO))return;list[it.n]=(list[it.n]||0)+1});
-    S.ppl.forEach(p=>{const n=wantO?p.outfit:(p.wp&&p.wp.n);if(n)eq.push(iCard(wantO?{kind:'outfit',n}:{n},1,'lo lleva '+p.n.split(' ')[0]))});
-    const own=Object.keys(list).map(n=>iCard(wantO?{kind:'outfit',n}:{n},list[n],''));
+    (S.inv||[]).forEach(it=>{const isO=it.kind==='outfit';if(it.kind==='clothing'||(isO!==wantO))return;const k=it.n+'|'+(it.mod||'');list[k]=(list[k]||0)+1});
+    S.ppl.forEach(p=>{const n=wantO?p.outfit:(p.wp&&p.wp.n);if(n)eq.push(iCard(wantO?{kind:'outfit',n}:{n,mod:p.wp.mod},1,'lo lleva '+p.n.split(' ')[0]))});
+    const own=Object.keys(list).map(k=>{const [n,m]=k.split('|');return iCard(wantO?{kind:'outfit',n}:{n,mod:m||null},list[k],'')});
     h+=(own.length?'<p><b>En el almacén</b></p><div class="invg">'+own.join('')+'</div>':'<p><small>No hay '+(wantO?'atuendos':'armas')+' guardados. Fabrícalos en el taller (con chatarra y planos) o encuéntralos en misiones.</small></p>')+(eq.length?'<p><b>Equipados</b></p><div class="invg">'+eq.join('')+'</div>':'')}
   show('Almacén',h)};
 })();
@@ -4640,10 +4640,11 @@ const IC={
  suburb:c=>{[[-13,2,.8],[2,-4,1],[11,5,.75]].forEach(([x,y,s])=>{c.save();c.translate(x,y);c.scale(s,s);p_(c,[[-9,-1],[0,-10],[9,-1]],'#a8452f');r_(c,-7,-1,14,10,'#e2d6b8');r_(c,-2,3,4,6,'#6a5a3a');c.restore()})},
  market:c=>{r_(c,-16,-4,32,18,'#e2d6b8');for(let i=0;i<6;i++)r_(c,-16+i*5.4,-9,5.4,6,i%2?'#f2eee0':'#c23b32');r_(c,-12,3,24,7,'#a9c4d6',0);r_(c,-3,6,6,8,'#6a5a3a')},
  factory:c=>{r_(c,-17,-1,34,15,'#8d949a');p_(c,[[-17,-1],[-9,-8],[-9,-1]],'#7d8489');p_(c,[[-9,-1],[-1,-8],[-1,-1]],'#7d8489');r_(c,6,-18,5,17,'#6e6a5e');r_(c,12,-14,4,13,'#6e6a5e');o_(c,8,-21,3,'rgba(70,60,50,.5)',0);o_(c,13,-18,2.6,'rgba(70,60,50,.4)',0)},
+ bunker:c=>{c.beginPath();c.ellipse(0,8,20,9,0,Math.PI,0);c.closePath();c.fillStyle=F('#7f9a5a');c.fill();c.strokeStyle=INK;c.lineWidth=1.3;c.stroke();p_(c,[[-9,8],[-6,-2],[6,-2],[9,8]],'#8d949a');r_(c,-5,0,10,8,'#5a5f5e');l_(c,[[0,0],[0,8]],1);o_(c,-2,4,1,'#d9a23a',0);r_(c,10,-12,2,14,'#6e6a5e',0);o_(c,11,-13,2,'#c23b32');for(let i=0;i<4;i++)l_(c,[[-16+i*4,5-i],[-14+i*4,2-i]],.9)},
  base:c=>{c.beginPath();c.ellipse(0,6,21,11,0,0,TAU);c.fillStyle=F('#a58a5a');c.fill();c.strokeStyle=INK;c.lineWidth=1.3;c.stroke();for(let i=0;i<12;i++){const a=i/12*TAU;r_(c,Math.cos(a)*21-1.5,Math.sin(a)*11+6-6,3,7,'#7a5f36')}p_(c,[[-9,2],[-1,-6],[7,2]],'#a8452f');r_(c,-7,2,13,8,'#e2d6b8');r_(c,8,-20,2,24,'#5a4a30',0);p_(c,[[10,-20],[22,-16],[10,-12]],'#f2b632')}
 };
 const KIND=['gas','truck','hospital','warehouse','lab','military','tower','observatory','police','wall','camp','metro','archive','house','skyscraper','old','barrier','weather','greenhouse','radio','border','port','highway','dam','office','trainstation','capital','emitter'];
-const ZKIND={suburb:'suburb',market:'market',station:'gas',hospital:'hospital',factory:'factory',police:'police',camp:'camp'};
+const ZKIND={suburb:'suburb',market:'market',station:'gas',hospital:'hospital',factory:'factory',police:'police',camp:'camp',rbunker:'bunker',rlab:'lab',rdepot:'warehouse',rtower:'emitter'};
 let WL=null,WBASE=null;
 function wlayout(){
   if(WL)return WL;
@@ -5000,18 +5001,19 @@ window.pTab=window.pTab||'eq';window.pPick=null;
 const info=(kind,n)=>{if(kind==='out'){const o=(window.OUTFITS||{})[n];return o?{n,ico:outfitIcon(n),rar:RCOL[o.r]||RCOL.C,stat:'🛡 Defensa +'+o.def,b:bt(o.b)}:null}
   const w=WP.find(q=>q.n===n);return w?{n,ico:weaponIcon(n),rar:RCOL[w.r||'C']||RCOL.C,stat:'⚔ Daño +'+w.v,b:bt(w.b)}:null};
 const mini=(l,v,c)=>`<div class="pm"><span>${l}</span><div class="bar"><i style="width:${cl(v,0,100)}%;background:${c}"></i></div></div>`;
-const slot=(id,kind,name)=>{const it=name&&info(kind,name),t=kind==='out'?'Atuendo':'Arma';
-  return `<div class="pslot" onclick="pPick='${kind}';pSheet(${id})" style="border-color:${it?it.rar[1]:'#3a4a50'}">`+(it?`<img src="${it.ico}" class="invi"><div><div class="pst">${t}</div><b style="color:${it.rar[1]}">${it.n}</b><div class="invs">${it.stat}</div><div class="invb">${it.b||'sin bonos'}</div></div>`:`<div class="invi pempty">+</div><div><div class="pst">${t}</div><b>Vacío</b><div class="invb">Toca para elegir</div></div>`)+`</div>`};
+const modB=m=>m?`<div class="invb" style="color:#ffb070">${m==='inc'?'🔥 Complemento incendiario':'🎯 Complemento perforante'}</div>`:'';
+const slot=(id,kind,name,mod)=>{const it=name&&info(kind,name),t=kind==='out'?'Atuendo':'Arma';
+  return `<div class="pslot" onclick="pPick='${kind}';pSheet(${id})" style="border-color:${it?it.rar[1]:'#3a4a50'}">`+(it?`<img src="${it.ico}" class="invi"><div><div class="pst">${t}</div><b style="color:${it.rar[1]}">${it.n}</b><div class="invs">${it.stat}</div><div class="invb">${it.b||'sin bonos'}</div>${modB(mod)}</div>`:`<div class="invi pempty">+</div><div><div class="pst">${t}</div><b>Vacío</b><div class="invb">Toca para elegir</div></div>`)+`</div>`};
 function picker(p){const kind=window.pPick,id=p.id,list=[];
   S.inv.forEach((it,i)=>{const isO=it.kind==='outfit';if(it.kind==='clothing')return;if((kind==='out')!==isO)return;const d=info(kind,it.n);if(!d)return;
-    list.push(`<div class="invc" style="border-color:${d.rar[1]}" onclick="${isO?`outEquip(${id},${i})`:`equip(${id},${i})`};pPick=null;pSheet(${id})"><img src="${d.ico}" class="invi"><div><b style="color:${d.rar[1]}">${d.n}</b><div class="invs">${d.stat}</div><div class="invb">${d.b||'sin bonos'}</div></div></div>`)});
+    list.push(`<div class="invc" style="border-color:${d.rar[1]}" onclick="${isO?`outEquip(${id},${i})`:`equip(${id},${i})`};pPick=null;pSheet(${id})"><img src="${d.ico}" class="invi"><div><b style="color:${d.rar[1]}">${d.n}</b><div class="invs">${d.stat}</div><div class="invb">${d.b||'sin bonos'}</div>${modB(it.mod)}</div></div>`)});
   const cur=kind==='out'?p.outfit:(p.wp&&p.wp.n);
   return `<div class="prow"><button onclick="pPick=null;pSheet(${id})">← Volver</button>`+(cur?`<button onclick="${kind==='out'?`outOff(${id})`:`unEquip(${id})`};pPick=null;pSheet(${id})">Quitar actual</button>`:'')+`</div>`+
    (list.length?`<div class="invg">${list.join('')}</div>`:`<p><small>No tienes ${kind==='out'?'atuendos':'armas'} en el almacén. Fabrícalos en el taller (chatarra + plano) o encuéntralos en misiones.</small></p>`)}
 window.unEquip=id=>{const p=byId(id);if(p&&p.wp){S.inv.push(p.wp);p.wp=null}};
 function tabEq(p){const id=p.id;if(window.pPick&&String(pPick).startsWith('cl:'))return clothPicker(p,pPick.slice(3));if(window.pPick)return picker(p);
   const tot={};PF.forEach(k=>{const v=window.eqB?eqB(p,k):0;if(v)tot[k]=v});
-  return `<div class="pslots">${slot(id,'wp',p.wp&&p.wp.n)}${slot(id,'out',p.outfit)}</div>${clothHtml(p)}<p class="invb">Bonos del equipo: <b style="color:#ffd877">${Object.keys(tot).length?bt(tot):'ninguno'}</b> · Defensa extra: ${(window.outDef?outDef(p):0)+clothingDef(p)}</p>`}
+  return `<div class="pslots">${slot(id,'wp',p.wp&&p.wp.n,p.wp&&p.wp.mod)}${slot(id,'out',p.outfit)}</div>${clothHtml(p)}<p class="invb">Bonos del equipo: <b style="color:#ffd877">${Object.keys(tot).length?bt(tot):'ninguno'}</b> · Defensa extra: ${(window.outDef?outDef(p):0)+clothingDef(p)}</p>`}
 const CSL=[['vest','Chaleco'],['jacket','Chaqueta'],['pants','Pantalón'],['boots','Botas'],['pack','Mochila']];
 function clothHtml(p){const id=p.id,cl=p.clothes||{},nInv=sl=>S.inv.filter(w=>w.kind==='clothing'&&w.slot===sl).length;
   const ic=(sl,col)=>window.clothIcon?'<img src="'+clothIcon(sl,col)+'" class="invi" style="padding:4px">':'<div class="invi pempty">+</div>';
@@ -12139,7 +12141,7 @@ setInterval(check,20000);
 window.__ATS_READY=1;
 (function(){
 'use strict';
-const VER=+'342';if(!(VER>0)||location.protocol==='file:')return;
+const VER=+'344';if(!(VER>0)||location.protocol==='file:')return;
 let shown=0;
 async function check(){try{if(shown||!navigator.onLine)return;const r=await fetch('./sw.js?v='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/ats-v(\d+)/);if(m&&+m[1]>VER)show(+m[1])}catch(e){}}
 function show(nv){shown=1;const el=document.createElement('div');el.id='updBar';
@@ -13255,7 +13257,7 @@ const oU=window.upd;window.upd=function(dt){const r=oU.apply(this,arguments);try
    if(z._h!=null&&z.hp<z._h&&z.hp>-999){const d=z._h-z.hp;if(e.aut[z.t])z.hp-=d*.15}
    if(z.burn>0){z.burn-=dt;z.hp-=5*dt;nb++}
    z._h=z.hp;if(SPX.includes(z.t))cur.add(z)}
-  if(has('aut1'))TR.forEach(z=>{if(!cur.has(z)&&z.hp<=0&&Math.random()<.4){e.smp[z.t]=(e.smp[z.t]||0)+1;if(!e.smp1){e.smp1=1;toast('🧪 Muestra recogida: '+ZT[z.t].n+'. Estúdiala en el laboratorio.')}}});
+  if(has('aut1'))TR.forEach(z=>{if(!cur.has(z)&&z.hp<=0&&Math.random()<.4){e.smp[z.t]=(e.smp[z.t]||0)+1;if(e.smp[z.t]===3&&!e.aut[z.t]){const nm=ZT[z.t].n;try{toast('🔬 Ya tenéis 3 muestras de '+nm.toLowerCase()+': se puede estudiar en el laboratorio.');window.notify&&notify('🔬','Autopsia lista',nm+': 3 muestras. Estúdialas en el laboratorio para hacerle +15 % de daño.','pueblo')}catch(er){}}if(!e.smp1){e.smp1=1;toast('🧪 Muestra recogida: '+ZT[z.t].n+'. Estúdiala en el laboratorio.')}}});
   TR=cur;BURN=nb;
   acc+=dt;if(acc>=.25){const k=Math.min(acc,.5);acc=0;
    for(let i=BOOM.length-1;i>=0;i--){BOOM[i].t-=k;if(BOOM[i].t<=0)BOOM.splice(i,1)}

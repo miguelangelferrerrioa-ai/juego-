@@ -87,7 +87,7 @@ const oU=window.upd;window.upd=function(dt){const r=oU.apply(this,arguments);try
    if(z._h!=null&&z.hp<z._h&&z.hp>-999){const d=z._h-z.hp;if(e.aut[z.t])z.hp-=d*.15}
    if(z.burn>0){z.burn-=dt;z.hp-=5*dt;nb++}
    z._h=z.hp;if(SPX.includes(z.t))cur.add(z)}
-  if(has('aut1'))TR.forEach(z=>{if(!cur.has(z)&&z.hp<=0&&Math.random()<.4){e.smp[z.t]=(e.smp[z.t]||0)+1;if(!e.smp1){e.smp1=1;toast('🧪 Muestra recogida: '+ZT[z.t].n+'. Estúdiala en el laboratorio.')}}});
+  if(has('aut1'))TR.forEach(z=>{if(!cur.has(z)&&z.hp<=0&&Math.random()<.4){e.smp[z.t]=(e.smp[z.t]||0)+1;if(e.smp[z.t]===3&&!e.aut[z.t]){const nm=ZT[z.t].n;try{toast('🔬 Ya tenéis 3 muestras de '+nm.toLowerCase()+': se puede estudiar en el laboratorio.');window.notify&&notify('🔬','Autopsia lista',nm+': 3 muestras. Estúdialas en el laboratorio para hacerle +15 % de daño.','pueblo')}catch(er){}}if(!e.smp1){e.smp1=1;toast('🧪 Muestra recogida: '+ZT[z.t].n+'. Estúdiala en el laboratorio.')}}});
   TR=cur;BURN=nb;
   acc+=dt;if(acc>=.25){const k=Math.min(acc,.5);acc=0;
    for(let i=BOOM.length-1;i>=0;i--){BOOM[i].t-=k;if(BOOM[i].t<=0)BOOM.splice(i,1)}
