@@ -2,35 +2,36 @@
    Autopsias (aut1): los infectados especiales dejan muestras al morir (40 %). Con 3 muestras y 25 PI se estudia el tipo:
      el pueblo le hace +15 % de daño y la guía muestra su punto débil.
    Ingeniería inversa (rev1): se desmonta un arma o atuendo del almacén del que no se tiene plano (20 PI) y se aprende a fabricarlo.
-   Química (chem1): munición incendiaria y perforante (1 lote por horda, se elige en el laboratorio) y explosivos para las trampas.
+   Química (chem1): complementos para cada arma de fuego (incendiario o perforante, se pagan con munición y se quedan en el arma: p.wp.mod)
+     y explosivos para las trampas.
    Descifrado de señales (sig1): la Estación de radio descifra transmisiones; cada una revela un lugar nuevo para expediciones
      (con plano garantizado si sale bien).
    Planos perdidos: con laboratorio y ayuntamiento 6+, las expediciones a veces traen un trozo de plano; 3 trozos = mejora única.
-   Estado: S.es={smp,aut,ch:{inc,perf,exp},am,tx,sig:{p,n},frag,lp}. */
+   Estado: S.es={smp,aut,ch:{exp},tx,sig:{p,n},frag,lp}. */
 (function(){
 'use strict';
 if(typeof TECH==='undefined')return;
 [['aut1','Medicina','Autopsias',7,{},'Los infectados especiales dejan muestras. Al estudiarlas, el pueblo les hace +15% de daño'],
  ['rev1','Armamento','Ingeniería inversa',8,{},'Desmonta armas y atuendos encontrados para aprender a fabricarlos'],
  ['sig1','Exploración','Descifrado de señales',8,{},'La estación de radio descifra transmisiones que revelan lugares nuevos'],
- ['chem1','Armamento','Química',9,{},'Munición incendiaria y perforante para las hordas y explosivos para las trampas']].forEach(t=>{if(!TECH.some(q=>q[0]===t[0]))TECH.push(t)});
+ ['chem1','Armamento','Química',9,{},'Complementos incendiarios y perforantes para las armas y explosivos para las trampas']].forEach(t=>{if(!TECH.some(q=>q[0]===t[0]))TECH.push(t)});
 if(window.TECH_PRE)Object.assign(TECH_PRE,{aut1:['med2'],rev1:['arms2'],sig1:['expl2'],chem1:['arms2']});
 if(window.rpFix)rpFix();
 const has=id=>{try{return !!(S.tech&&S.tech[id])}catch(e){return false}};
-const E=()=>{const e=S.es=S.es||{};e.smp=e.smp||{};e.aut=e.aut||{};e.ch=e.ch||{inc:0,perf:0,exp:0};e.sig=e.sig||{p:0,n:0};e.lp=e.lp||{};e.frag=e.frag||0;if(e.tx==null)e.tx=1;e.am=e.am||'';return e};
+const E=()=>{const e=S.es=S.es||{};e.smp=e.smp||{};e.aut=e.aut||{};e.ch=e.ch||{exp:0};e.sig=e.sig||{p:0,n:0};e.lp=e.lp||{};e.frag=e.frag||0;if(e.tx==null)e.tx=1;return e};
 const esc=s=>String(s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'})[c]);
 const icc=c=>{try{return Object.keys(c).map(k=>`<span class="bp2k ${(S.res[k]||0)>=c[k]||S.mode==='creativo'?'':'no'}"><img src="${ICO[k]||''}" width=12>${c[k]}<small>${Math.floor(S.res[k]||0)}</small></span>`).join('')}catch(e){return cs(c)}};
 const hasB=t=>{try{return S.bld.some(b=>b.type===t&&!b.cons)}catch(e){return false}};
 const sv=()=>{try{save()}catch(e){}};
 /* ---------- 1. autopsias ---------- */
 const SPX='f s r u j t q h g a v x w i l'.split(' ');
-const WEAK={f:'Lento y con mucha vida: dispárale desde lejos y que no llegue a los muros.',s:'Su chaleco frena las balas: la munición perforante lo atraviesa.',
+const WEAK={f:'Lento y con mucha vida: dispárale desde lejos y que no llegue a los muros.',s:'Su chaleco frena las balas: el complemento perforante lo atraviesa.',
  r:'Muy poca vida pero muy rápido: pon torres cerca de las puertas.',u:'Revienta muros a golpes: fosos y trampas lo frenan antes de llegar.',
  j:'El caballo corre mucho pero aguanta poco: concentra el fuego en cuanto aparezca.',t:'Salta los muros: hacen falta soldados dentro, no solo torres.',
  q:'Escupe desde lejos y tiene poca vida: los tiradores lo tumban antes de que dispare.',h:'Agarra a la gente que va sola: nadie fuera de los muros durante la horda.',
  g:'Su grito atrae a más zombis y los acelera: mátalo el primero.',a:'Su coraza frena casi todo: perforante y explosivos le hacen mucho más daño.',
  v:'Lento y débil, pero en grupo tapona el paso: no merece la pena gastar explosivos en él.',x:'Excava por debajo de los muros: deja soldados dentro del pueblo.',
- w:'Derriba puertas de un golpe: fosos y alambrada lo desgastan mientras empuja.',i:'Arde y prende lo que toca: la munición incendiaria no le hace nada; mantenlo lejos de las casas.',
+ w:'Derriba puertas de un golpe: fosos y alambrada lo desgastan mientras empuja.',i:'Arde y prende lo que toca: el fuego no le hace nada; mantenlo lejos de las casas.',
  l:'Hace más fuertes a los zombis que tiene cerca: acaba con él y la horda se debilita.'};
 const ARM=new Set(['s','a','u','w']);
 window.autStudy=t=>{const e=E();if(!has('aut1')||e.aut[t])return;if((e.smp[t]||0)<3)return toast('Hacen falta 3 muestras.');if((S.res.rp||0)<25&&S.mode!=='creativo')return toast('Faltan puntos de investigación (25).');
@@ -41,12 +42,20 @@ const revList=()=>(S.inv||[]).map((it,i)=>({it,i})).filter(o=>craftOf(o.it)&&!(w
 window.revDo=i=>{if(!has('rev1'))return;const it=S.inv[i];if(!craftOf(it)||(window.hasPlan&&hasPlan(it.n)))return;if((S.res.rp||0)<20&&S.mode!=='creativo')return toast('Faltan puntos de investigación (20).');
  if(S.mode!=='creativo')S.res.rp-=20;S.inv.splice(i,1);S.bp=S.bp||{};S.bp[it.n]=1;S.res.scrap=(S.res.scrap||0)+10;toast('🔧 Desmontado: ya sabéis fabricar '+it.n+' (+10 chatarra).');sv();esRe()};
 /* ---------- 3. química ---------- */
-const CH={inc:{n:'Munición incendiaria',ic:'🔥',c:{chem:12,gas:8},d:'Durante una horda, cada disparo prende al zombi: arde 4 segundos (5 de daño por segundo). Al incendiario no le hace nada.'},
- perf:{n:'Munición perforante',ic:'🎯',c:{scrap:30,metal:15},d:'Durante una horda: +30 % de daño a soldados, acorazados, musculosos y arietes; +10 % al resto.'},
- exp:{n:'Explosivos',ic:'✹',c:{chem:15,scrap:10},d:'Se cargan en las trampas: cuando un zombi la pisa, explota (90 de daño alrededor). Una carga por explosión.'}};
+const CH={exp:{n:'Explosivos',ic:'✹',c:{chem:15,scrap:10},d:'Se cargan en las trampas: cuando un zombi la pisa, explota (90 de daño alrededor). Una carga por explosión.'}};
+const MOD={inc:{n:'Incendiario',ic:'🔥',c:{ammo:30,chem:6},d:'Cada disparo prende al zombi: arde 4 segundos (5 de daño por segundo). Al incendiario no le hace nada.'},
+ perf:{n:'Perforante',ic:'🎯',c:{ammo:30,metal:12},d:'+30 % de daño a soldados, acorazados, musculosos y arietes; +10 % al resto.'}};
 const CMAX=5;
 window.chemMake=k=>{const e=E(),r=CH[k];if(!has('chem1')||!r)return;if(e.ch[k]>=CMAX)return toast('Almacén lleno ('+CMAX+').');const c=costOf(r.c,1);if(!can(c))return toast('Faltan materiales.');pay(c);e.ch[k]++;toast(r.ic+' Fabricado: '+r.n);sv();esRe()};
-window.chemSetA=v=>{E().am=v;sv()};window.chemSetT=v=>{E().tx=v==='1'?1:0;sv()};
+/* complementos de arma */
+const wDef=w=>WP.find(q=>q.n===w.n)||w;
+const fire=w=>!!(w&&w.n&&!w.kind&&!(window.isMelee&&isMelee(wDef(w))));
+const guns2=()=>{const L=[];S.ppl.forEach(p=>{if(fire(p.wp))L.push({p,w:p.wp})});(S.inv||[]).forEach(w=>{if(fire(w))L.push({p:null,w})});L.sort((a,b)=>(b.p&&b.p.arm?1:0)-(a.p&&a.p.arm?1:0));return L};
+const modPut=(w,k)=>{const c=MOD[k].c;if(!can(c))return false;pay(c);w.mod=k;return true};
+window.modSet=(i,k)=>{if(!has('chem1')||!MOD[k])return;const o=guns2()[i];if(!o||o.w.mod===k)return;if(!modPut(o.w,k))return toast('Faltan recursos: '+cs(MOD[k].c));toast(MOD[k].ic+' '+o.w.n+(o.p?' de '+o.p.n:'')+': complemento '+MOD[k].n.toLowerCase()+'.');sv();esRe()};
+window.modAll=k=>{if(!has('chem1')||!MOD[k])return;let n=0;for(const o of guns2()){if(o.w.mod)continue;if(!modPut(o.w,k))break;n++}toast(n?MOD[k].ic+' Complemento '+MOD[k].n.toLowerCase()+' puesto en '+n+' arma'+(n>1?'s':'')+'.':'Faltan recursos.');sv();esRe()};
+window.wpHit=(p,t,d)=>{try{const m=p&&p.wp&&p.wp.mod;if(!m||!t||t.n||!t.t||!ZT[t.t]||!fire(p.wp))return d;if(m==='perf')return d*(ARM.has(t.t)?1.3:1.1);if(m==='inc'&&t.t!=='i'&&!t.bur)t.burn=4}catch(e){}return d};
+window.chemSetT=v=>{E().tx=v==='1'?1:0;sv()};
 /* ---------- 4. señales de radio ---------- */
 const RZ=[{id:'rbunker',n:'Búnker del gobierno',kind:'Militar',icon:'🛡️',x:12,y:64,h:8,g:4,dist:4,loot:{ammo:[40,80],steel:[8,18],comp:[6,14],meds:[10,25]},intro:'La señal repetía unas coordenadas y una contraseña. Bajo una colina hay una compuerta blindada.'},
  {id:'rlab',n:'Laboratorio escondido',kind:'Ciencia',icon:'🧪',x:79,y:8,h:9,g:4,dist:5,loot:{rp:[30,60],meds:[20,40],chem:[15,30],comp:[5,12]},intro:'Una voz grabada pedía que alguien recogiera «las muestras». El laboratorio está bajo una granja.'},
@@ -71,18 +80,15 @@ const oEx=window.exEnd;if(typeof oEx==='function'){window.exEnd=function(){let f
   if(e.z&&e.z.radio&&(e.ok||0)>=2&&window.givePlan)pl=givePlan(5)}}catch(err){}
  const r=oEx.apply(this,arguments);try{if(pl)toast('📜 En '+'la zona de la señal encontráis un plano: '+pl.n);if(fr)setTimeout(()=>{try{toast('🧩 La expedición trae un trozo de plano roto ('+S.es.frag+' de 3).')}catch(e){}},pl?1800:0)}catch(e){}return r};try{exEnd=window.exEnd}catch(e){}}
 /* ---------- tiempo: daño extra, muestras, quemaduras, explosivos, señales ---------- */
-let TR=new Set(),lastH=null,acc=0;const BOOM=[];
+let TR=new Set(),acc=0,BURN=0;const BOOM=[];
 const oU=window.upd;window.upd=function(dt){const r=oU.apply(this,arguments);try{if(!S||!S.bld)return r;const e=E();
-  /* inicio de horda: carga un lote de munición especial */
-  if(horde&&horde!==lastH){lastH=horde;const k=e.am;if(has('chem1')&&k&&e.ch[k]>0){e.ch[k]--;horde.chem=k;toast(CH[k].ic+' Los defensores cargan '+CH[k].n.toLowerCase()+' ('+e.ch[k]+' en reserva).')}}
-  if(!horde)lastH=null;
-  const hc=horde&&horde.chem,cur=new Set();
+  const cur=new Set();let nb=0;
   for(const z of Z){if(!z.act)continue;
-   if(z._h!=null&&z.hp<z._h&&z.hp>-999){const d=z._h-z.hp;let m=0;if(e.aut[z.t])m+=.15;if(hc==='perf')m+=ARM.has(z.t)?.3:.1;if(m)z.hp-=d*m;if(hc==='inc'&&z.t!=='i'&&!z.bur)z.burn=4}
-   if(z.burn>0){z.burn-=dt;z.hp-=5*dt}
+   if(z._h!=null&&z.hp<z._h&&z.hp>-999){const d=z._h-z.hp;if(e.aut[z.t])z.hp-=d*.15}
+   if(z.burn>0){z.burn-=dt;z.hp-=5*dt;nb++}
    z._h=z.hp;if(SPX.includes(z.t))cur.add(z)}
   if(has('aut1'))TR.forEach(z=>{if(!cur.has(z)&&z.hp<=0&&Math.random()<.4){e.smp[z.t]=(e.smp[z.t]||0)+1;if(!e.smp1){e.smp1=1;toast('🧪 Muestra recogida: '+ZT[z.t].n+'. Estúdiala en el laboratorio.')}}});
-  TR=cur;
+  TR=cur;BURN=nb;
   acc+=dt;if(acc>=.25){const k=Math.min(acc,.5);acc=0;
    for(let i=BOOM.length-1;i>=0;i--){BOOM[i].t-=k;if(BOOM[i].t<=0)BOOM.splice(i,1)}
    if(has('chem1')&&e.tx&&e.ch.exp>0&&Z.length)for(const b of S.bld){if(b.type!=='trap')continue;if(b.xcd>0){b.xcd-=k;continue}
@@ -96,7 +102,7 @@ const oU=window.upd;window.upd=function(dt){const r=oU.apply(this,arguments);try
  }catch(err){window.__esErr=String(err)}return r};
 try{upd=window.upd}catch(e){}
 /* ---------- dibujo: zombis ardiendo ---------- */
-const oR=window.render;if(typeof oR==='function'){window.render=function(){const r=oR.apply(this,arguments);try{if(!horde||horde.chem!=='inc'||!Z.length)return r;
+const oR=window.render;if(typeof oR==='function'){window.render=function(){const r=oR.apply(this,arguments);try{if(!BURN||!Z.length)return r;
   const cv=document.getElementById('c'),c=cv.getContext('2d');c.save();c.setTransform(cam.z*dpr,0,0,cam.z*dpr,-cam.x*cam.z*dpr,-cam.y*cam.z*dpr);c.globalCompositeOperation='lighter';let n=0;
   for(const z of Z){if(!(z.burn>0)||z.hp<=0||!z.act)continue;if(++n>70)break;const p=P(z.x,z.y),h=(ZT[z.t]&&ZT[z.t].big)?30:22,a=Math.min(1,z.burn);
    for(let i=0;i<3;i++){const ph=T*9+i*2.1+z.x*3,fx=p[0]+(i-1)*4+Math.sin(ph)*1.5,fy=p[1]-h*.45-i%2*4,fh=9+Math.sin(ph*1.3)*3;
@@ -126,10 +132,17 @@ function tabRev(){const L=revList();let h='<p style="margin:2px 0 6px">Desmonta 
  Object.values(G).forEach(o=>{const it=o.it,img=it.kind==='outfit'?(window.outfitIcon&&outfitIcon(it.n)):(window.weaponIcon&&weaponIcon(it.n));
   h+=row(img?`<img src="${img}" style="width:48px;height:30px;object-fit:contain">`:ico('🔧'),`<b>${esc(it.n)}</b>${o.c>1?' <small>×'+o.c+'</small>':''}<br><button class="btn" onclick="revDo(${o.i})"${(S.res.rp||0)>=20||S.mode==='creativo'?'':' disabled'}>🔧 Desmontar y aprender</button>`)});
  return h}
-function tabChem(){const e=E();let h='<p style="margin:2px 0 6px">Se guardan hasta '+CMAX+' de cada.</p>';
+function tabChem(){const e=E();let h='<p style="margin:2px 0 6px"><b>Complementos de arma:</b> se ponen en cada arma de fuego y se quedan en ella aunque cambie de manos. Se pagan con munición.</p>';
+ for(const k in MOD){const r=MOD[k];h+=row(ico(r.ic,1),`<b>${r.n}</b><br><small>${r.d}</small><div style="margin-top:4px">${icc(r.c)} <small>por arma</small></div>`)}
+ const L=guns2(),sin=L.filter(o=>!o.w.mod).length;
+ h+=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0">`+Object.keys(MOD).map(k=>`<button class="btn" onclick="modAll('${k}')"${sin&&can(MOD[k].c)?'':' disabled'}>${MOD[k].ic} A todas las que no tienen (${sin})</button>`).join('')+'</div>';
+ if(!L.length)h+='<p style="opacity:.8"><i>No hay armas de fuego en el pueblo.</i></p>';
+ L.slice(0,40).forEach((o,i)=>{const w=o.w,m=w.mod&&MOD[w.mod],img=window.weaponIcon&&weaponIcon(w.n);
+  h+=row(img?`<img src="${img}" style="width:44px;height:28px;object-fit:contain">`:ico('🔫'),`<b>${esc(w.n)}</b> <small>· ${o.p?esc(o.p.n)+(o.p.arm?' (soldado)':''):'almacén'}</small>${m?` <small style="color:#ffb070">· ${m.ic} ${m.n}</small>`:''}<div style="margin-top:3px;display:flex;gap:4px;flex-wrap:wrap">`+Object.keys(MOD).filter(k=>k!==w.mod).map(k=>`<button class="btn" style="padding:2px 8px;font-size:11px" onclick="modSet(${i},'${k}')"${can(MOD[k].c)?'':' disabled'}>${MOD[k].ic} ${w.mod?'Cambiar a ':''}${MOD[k].n.toLowerCase()}</button>`).join('')+'</div>')});
+ if(L.length>40)h+=`<p><small>…y ${L.length-40} armas más (usa «A todas»).</small></p>`;
+ h+='<div style="border-top:1px solid #3e6a68;margin-top:8px;padding-top:6px"></div>';
  for(const k in CH){const r=CH[k],c=costOf(r.c,1);h+=row(ico(r.ic,1),`<b>${r.n}</b> · <b>${e.ch[k]}</b> / ${CMAX}<br><small>${r.d}</small><div style="margin-top:4px">${icc(c)} <button class="btn" onclick="chemMake('${k}')"${can(c)&&e.ch[k]<CMAX?'':' disabled'}>⚗️ Fabricar</button></div>`)}
- h+='<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px"><span>Munición en la próxima horda:</span>'+chipSel('esAm',e.am,[['','Normal'],['inc','🔥 Incendiaria'],['perf','🎯 Perforante']],'chemSetA($V)','esRe()')+'</div>';
- h+='<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px"><span>Explosivos en las trampas:</span>'+chipSel('esTx',e.tx?'1':'0',[['1','💣 Sí'],['0','No']],'chemSetT($V)','esRe()')+'</div>';
+ h+='<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px"><span>Explosivos en las trampas:</span>'+chipSel('esTx',e.tx?'1':'0',[['1','✹ Sí'],['0','No']],'chemSetT($V)','esRe()')+'</div>';
  return h}
 function tabLp(){const e=E();let h=`<p style="margin:2px 0 6px">Las expediciones a veces traen un <b>trozo de plano</b> roto. Con 3 trozos se reconstruye una <b>mejora única</b>.</p><p style="margin:4px 0">🧩 Trozos: <b>${e.frag}</b> / 3 `+(e.frag>=3?'<button class="btn" onclick="lpBuild()">🧩 Reconstruir plano</button>':'')+'</p>';
  LP.forEach(q=>{h+=e.lp[q[0]]?row(ico('📜'),`<b>${q[1]}</b><br><small style="color:#8fe08a">${q[2]}</small>`):row(ico('?'),'<b>???</b><br><small style="opacity:.7">Plano sin encontrar</small>')});return h}
@@ -151,10 +164,10 @@ try{const i=GD.findIndex(g=>g[0]==='Tecnologías');const f=()=>{const e=E(),P=t=
   L.push(P(has('aut1')?'<b>🧪 Autopsias:</b> los infectados especiales dejan muestras al morir. Con 3 muestras y 25 PI estudias ese tipo: el pueblo le hace +15 % de daño.':'<b>🧪 ???</b>'));
   if(has('aut1')){const k=SPX.filter(t=>e.aut[t]);L.push(k.length?'<ul>'+k.map(t=>'<li><b>'+esc(ZT[t].n)+':</b> '+WEAK[t]+'</li>').join('')+'</ul>':P('<small>Los puntos débiles aparecen aquí al estudiar cada tipo.</small>'))}
   L.push(P(has('rev1')?'<b>🔧 Ingeniería inversa:</b> desmonta un arma o atuendo encontrado del que no tengas plano (20 PI) y aprenderás a fabricarlo.':'<b>🔧 ???</b>'));
-  L.push(P(has('chem1')?'<b>⚗️ Química:</b> munición incendiaria (los zombis arden) o perforante (+30 % a los blindados): se elige en el laboratorio y se gasta 1 lote por horda. Los explosivos se cargan en las trampas y explotan al pisarlas.':'<b>⚗️ ???</b>'));
+  L.push(P(has('chem1')?'<b>⚗️ Química:</b> a cada arma de fuego se le puede poner un complemento incendiario (los zombis arden) o perforante (+30 % a los blindados), pagado con munición; se queda en el arma. Los explosivos se cargan en las trampas y explotan al pisarlas.':'<b>⚗️ ???</b>'));
   L.push(P(has('sig1')?'<b>📻 Señales de radio:</b> con operarios en la Estación de radio se descifran transmisiones. Cada una revela un lugar nuevo para expediciones, con un plano asegurado si la expedición sale bien.':'<b>📻 ???</b>'));
   L.push(P((e.frag||Object.keys(e.lp).length)?'<b>🧩 Planos perdidos:</b> las expediciones a veces traen un trozo de plano roto. Con 3 trozos se reconstruye una mejora única en el laboratorio.':'<b>🧩 ???</b>'));
   return L.join('')};
  if(!GD.some(g=>g[0]==='Estudios especiales'))GD.splice(i>=0?i+1:GD.length,0,['Estudios especiales',f])}catch(e){}
-window.__es={E,RZ,LP,CH,TR:()=>TR};
+window.__es={E,RZ,LP,CH,MOD,guns2,TR:()=>TR};
 })();
