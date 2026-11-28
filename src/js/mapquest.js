@@ -222,14 +222,17 @@ function drawMo(){const m=M.mo;if(!m||m.done)return;const pulse=(x,y,col,lab,pro
   else if(m.k==='escort')pulse(m.tg.x,m.tg.y,'#6cff9a','DESTINO',0);
   else if(m.k==='rescue'){pulse(m.tg.x,m.tg.y,'#ffb04a','PRISIONERO',0);const x=m.tg.x*ts,y=m.tg.y*ts;cx.fillStyle='#d8a878';cx.beginPath();cx.arc(x,y-ts*.1,ts*.16,0,7);cx.fill()}
   else if(m.k==='sabotage')m.ch.forEach(c=>{if(c.p<3)pulse(c.x,c.y,'#ff6a4a','CARGA',c.p/3)})}
+const sk0=e=>e.z.n+':'+(e.dist||1)+':'+e.step+':z'+(e.zn||1);
 function gen(e){
   let th=themeOf(e);let T=null;const story=e.z.chap!==undefined;
   /* zonas 2 y 3: otro escenario (antes se repetía el mismo plano y parecía que se volvía atrás por el mismo sitio) */if((e.zn||1)>1){const pool=['highway','market','office','warehouse','metro','port','house','police','casa'].filter(k=>k!==th&&PAL[k]&&!(th==='casa'&&k==='house')&&!(th==='house'&&k==='casa'));if(pool.length){const R0=rngS(e.z.n+':pz'+e.zn);th=pool[Math.floor(R0()*pool.length)]}}
   if(!story&&e.seed===undefined)e.seed=Math.floor(Math.random()*1e9);
   if(th&&PAL[th]){const sk=e.z.n+':'+(e.dist||1)+':'+e.step+(story?'':':'+e.seed)+((e.zn||1)>1?':z'+e.zn:'');
-    if(story){const R=rngS(sk);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)))}
+    if(story){/* la casa necesita su plano (vtpl): sin él salía todo macizo y no había camino (zona 2 de la comisaría) */if(th=='house'||th=='casa'){th='casa';for(let i=0;i<14&&!T;i++){const R=rngS(sk+':'+i);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)),vtpl(th,R,e.z.sub))}}if(!T){const R=rngS(sk);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)))}}
     else{if(th=='house')th='casa';for(let i=0;i<14&&!T;i++){const R=rngS(sk+':'+i);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)),vtpl(th,R,e.z.sub))}if(!T){th=themeOf(e);if(th=='casa')th='house';const R=rngS(sk);T=buildTheme(th,R,(a,b)=>a+Math.floor(R()*(b-a+1)))}}}
-  const M0=genDefault(e,T);unPocket(M0);M0.theme=T?th:null;M0.pal=T?PAL[th]:null;if(T){M0.fv=T.fv;M0.pr=T.pr;M0.dc=T.dc}
+  let M0=genDefault(e,T);unPocket(M0);
+  /* seguridad: tiene que haber camino de la entrada a la salida; si no, se usa otro escenario */if(T&&!bfs(M0,2.5,5.5,COLS-2.5,5.5)){const alt=['warehouse','office','market'].filter(k=>k!==th&&PAL[k]);for(const k of alt){const R=rngS(sk0(e)+':alt'+k),T2=buildTheme(k,R,(a,b)=>a+Math.floor(R()*(b-a+1)));if(!T2)continue;const M2=genDefault(e,T2);unPocket(M2);if(bfs(M2,2.5,5.5,COLS-2.5,5.5)){M0=M2;T=T2;th=k;break}}}
+M0.theme=T?th:null;M0.pal=T?PAL[th]:null;if(T){M0.fv=T.fv;M0.pr=T.pr;M0.dc=T.dc}
   setMode(M0,e);try{dangerInit(M0,e)}catch(er){}try{if((e.zn||1)>1)prepCross(M0,e)}catch(er){}
   /* la zona de la derecha (paso / evacuación) queda despejada: fuera cajas, coches, botiquines y barriles */try{const inR=o=>o.x>COLS-4.6&&o.y>3.4&&o.y<7.6;['crates','cars','meds','barrels'].forEach(k=>{if(M0[k])M0[k]=M0[k].filter(o=>!inR(o))})}catch(er){}
   return M0}
@@ -251,6 +254,9 @@ function nearTiles(M,tx,ty,n){const out=[],seen=new Set(),q=[[Math.floor(tx),Mat
 function moveTo(M,u,x,y){const p=bfs(M,u.x,u.y,x,y);if(p)u.path=p}
 const selected=u=>!M.sel||M.sel.has(u);
 const isAl=u=>u.p.hp>0&&!u.dead;
+/* a la salida: cada uno a una casilla DENTRO del recuadro (antes el 4.º podía quedarse justo fuera y la salida no se daba nunca) */
+function orderExit(right){const al=M.units.filter(u=>isAl(u)&&selected(u)),cx=right?COLS-3:2,T=[];for(let y=4;y<=6;y++)for(let x=cx-1;x<=cx+1;x++)if(!solid(M,x,y))T.push([x+.5,y+.5]);T.sort((a,b)=>Math.hypot(a[0]-cx-.5,a[1]-5.5)-Math.hypot(b[0]-cx-.5,b[1]-5.5));
+ if(T.length<al.length)return order(cx,5);let bad=0;al.forEach((u,i)=>{const t=T[i];const p=bfs(M,u.x,u.y,t[0],t[1]);if(p){u.path=p;u.home=[t[0],t[1]]}else bad++});if(bad)toast('Algún compañero no encuentra camino hasta la salida: muévelo tocando el mapa.')}
 function order(x,y){const al=M.units.filter(u=>isAl(u)&&selected(u));const ts_=nearTiles(M,x,y,al.length);al.forEach((u,i)=>{const t=ts_[i]||ts_[0];if(t){moveTo(M,u,t[0],t[1]);u.home=[t[0],t[1]]}})}
 function dmgOf(p){const c=CL[p.arm||'soldado'];return c.dmg+(p.wp?p.wp.v*.6:0)+p.lvl*.8+(p.sk||0)*.3+(p.at?p.at.f*.5:0)}
 function rngOf(p){return Math.max(1.8,Math.min(6.5,CL[p.arm||'soldado'].rng*.95+(p.wp&&/rifle|ballesta|carabina|francotirador/i.test(p.wp.n)?1.2:0)))}
@@ -356,8 +362,8 @@ window._qmPick=agg=>{const e=S.exp;if(!e||!M)return;const t=tm(e),dn=M.units.fil
   if(S.exp&&S.exp===e&&!e.complete&&e.step===before)e.step=before+1;
 }
 /* ---------- salida ---------- */
-const inExit=u=>(M&&M.exR?u.x>COLS-4:u.x<4)&&u.y>3.6&&u.y<7.4;
-const inPass=u=>u.x>COLS-4&&u.y>3.6&&u.y<7.4;
+const inExit=u=>(M&&M.exR?u.x>COLS-4.6:u.x<4.6)&&u.y>3.4&&u.y<7.6;
+const inPass=u=>u.x>COLS-4.6&&u.y>3.4&&u.y<7.6;
 /* zona 1: al cumplir el objetivo (o todos los eventos si no tiene) se abre el paso de la derecha; las ❗ que queden son opcionales */
 function openPass(){if(!M||M.pass)return;M.pass=1;toast('🚪 Se ha abierto el paso a la zona 2: llevad al equipo a la derecha (→). Las ❗ que queden dan botín extra.');try{sfx('done')}catch(er){}}
 function atExit(){return M.units.filter(isAl).every(inExit)}
@@ -557,7 +563,7 @@ function build(){
   $('qm_pz').onclick=()=>{if(!M)return;M.pause=!M.pause;$('qm_pz').textContent=M.pause?'▶':'II'};
   $('qm_sp').onclick=()=>{if(!M)return;M.spd=M.spd==2?1:2;$('qm_sp').textContent='×'+M.spd};
   $('qm_med').onclick=()=>{const e=S.exp;if(!e||S.res.meds<2)return;S.res.meds-=2;tm(e).forEach(p=>{p.hp=Math.min(mhp(p),Math.max(0,p.hp)+25)});M.units.forEach(u=>{if(!u.dead)addFl(M,u.x,u.y,'+25','#8dbb69')})};
-  $('qm_ret').onclick=()=>{const e=S.exp;if(!e||!M)return;if(M.zk===1&&M.pass&&!e.complete){M.focus=null;order(COLS-3,5);return}if(atExit()){if(hasDown()){toast('Un compañero ha caído: reanímalo antes de salir.');return}if(!e.complete&&!confirm_ok()){return}if(e.complete&&M.evac&&!M.evac.done&&!M.pv){if(!M.evac.on){M.evac.on=1;toast('📻 Pides la evacuación: aguanta '+M.evac.need+' s en la salida hasta que llegue la ayuda.')}return}leave()}else{M.focus=null;order((M.exR||(M.zk===1&&M.pass))?COLS-3:2,5)}};
+  $('qm_ret').onclick=()=>{const e=S.exp;if(!e||!M)return;if(M.zk===1&&M.pass&&!e.complete){M.focus=null;order(COLS-3,5);return}if(atExit()){if(hasDown()){toast('Un compañero ha caído: reanímalo antes de salir.');return}if(!e.complete&&!confirm_ok()){return}if(e.complete&&M.evac&&!M.evac.done&&!M.pv){if(!M.evac.on){M.evac.on=1;toast('📻 Pides la evacuación: aguanta '+M.evac.need+' s en la salida hasta que llegue la ayuda.')}return}leave()}else{M.focus=null;if(M.zk===1&&M.pass)order(COLS-3,5);else orderExit(!!M.exR)}};
   $('qm_u').addEventListener('pointerdown',ev=>{const c=ev.target.closest('[data-i]');if(!c||!M)return;ev.stopPropagation();const i=+c.dataset.i;if(i<0)M.sel=null;else{const u=M.units[i];if(!u||u.dead)return;M.sel=(M.sel&&M.sel.size==1&&M.sel.has(u))?null:new Set([u])}});
   cv.addEventListener('pointerdown',ev=>{if(evOpen||!M)return;const r=cv.getBoundingClientRect(),fx=(ev.clientX-r.left-ox)/ts,fy=(ev.clientY-r.top-oy)/ts;tap(fx,fy)})}
 let uSig='';
